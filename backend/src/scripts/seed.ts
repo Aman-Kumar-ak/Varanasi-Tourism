@@ -7,6 +7,7 @@ import Jyotirlinga from '../models/Jyotirlinga.js';
 import DarshanType from '../models/DarshanType.js';
 import TimeSlot from '../models/TimeSlot.js';
 import City from '../models/City.js';
+import { generateSlug } from '../lib/utils.js';
 
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
@@ -32,6 +33,7 @@ const jyotirlingasData = [
       as: 'সোমনাথ',
       ur: 'سومناتھ',
     },
+    slug: 'somnath',
     city: 'Prabhas Patan',
     state: 'Gujarat',
     stateCode: 'GJ',
@@ -55,6 +57,7 @@ const jyotirlingasData = [
       kn: 'ಮಲ್ಲಿಕಾರ್ಜುನ',
       ml: 'മല്ലികാർജുന',
     },
+    slug: 'mallikarjuna',
     city: 'Srisailam',
     state: 'Andhra Pradesh',
     stateCode: 'AP',
@@ -76,6 +79,7 @@ const jyotirlingasData = [
       mr: 'महाकालेश्वर',
       gu: 'મહાકાળેશ્વર',
     },
+    slug: 'mahakaleshwar',
     city: 'Ujjain',
     state: 'Madhya Pradesh',
     stateCode: 'MP',
@@ -97,6 +101,7 @@ const jyotirlingasData = [
       mr: 'ओंकारेश्वर',
       gu: 'ઓંકારેશ્વર',
     },
+    slug: 'omkareshwar',
     city: 'Omkareshwar',
     state: 'Madhya Pradesh',
     stateCode: 'MP',
@@ -118,6 +123,7 @@ const jyotirlingasData = [
       gu: 'કેદારનાથ',
       pa: 'ਕੇਦਾਰਨਾਥ',
     },
+    slug: 'kedarnath',
     city: 'Kedarnath',
     state: 'Uttarakhand',
     stateCode: 'UK',
@@ -139,6 +145,7 @@ const jyotirlingasData = [
       mr: 'भीमाशंकर',
       gu: 'ભીમાશંકર',
     },
+    slug: 'bhimashankar',
     city: 'Bhimashankar',
     state: 'Maharashtra',
     stateCode: 'MH',
@@ -160,6 +167,7 @@ const jyotirlingasData = [
       bn: 'কাশী বিশ্বনাথ',
       ur: 'کاشی وشوناتھ',
     },
+    slug: 'kashi-vishwanath',
     city: 'Varanasi',
     state: 'Uttar Pradesh',
     stateCode: 'UP',
@@ -181,6 +189,7 @@ const jyotirlingasData = [
       mr: 'त्र्यंबकेश्वर',
       gu: 'ત્ર્યંબકેશ્વર',
     },
+    slug: 'trimbakeshwar',
     city: 'Trimbak',
     state: 'Maharashtra',
     stateCode: 'MH',
@@ -202,6 +211,7 @@ const jyotirlingasData = [
       bn: 'বৈদ্যনাথ',
       or: 'ବୈଦ୍ୟନାଥ',
     },
+    slug: 'vaidyanath',
     city: 'Deoghar',
     state: 'Jharkhand',
     stateCode: 'JH',
@@ -223,6 +233,7 @@ const jyotirlingasData = [
       gu: 'નાગેશ્વર',
       mr: 'नागेश्वर',
     },
+    slug: 'nageshwar',
     city: 'Dwarka',
     state: 'Gujarat',
     stateCode: 'GJ',
@@ -246,6 +257,7 @@ const jyotirlingasData = [
       kn: 'ರಾಮನಾಥಸ್ವಾಮಿ',
       ml: 'രാമനാഥസ്വാമി',
     },
+    slug: 'ramanathaswamy',
     city: 'Rameshwaram',
     state: 'Tamil Nadu',
     stateCode: 'TN',
@@ -267,6 +279,7 @@ const jyotirlingasData = [
       mr: 'गृह्णेश्वर',
       gu: 'ગૃહ્ણેશ્વર',
     },
+    slug: 'grishneshwar',
     city: 'Verul',
     state: 'Maharashtra',
     stateCode: 'MH',

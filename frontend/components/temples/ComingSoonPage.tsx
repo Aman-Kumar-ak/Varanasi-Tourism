@@ -4,6 +4,7 @@ import { getLocalizedContent } from '@/lib/i18n';
 
 interface Temple {
   _id: string;
+  slug: string;
   name: {
     en: string;
     hi: string;

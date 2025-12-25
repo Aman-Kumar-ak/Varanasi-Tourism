@@ -1,14 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import PhoneLogin from '@/components/auth/PhoneLogin';
+import LoginForm from '@/components/auth/LoginForm';
+import RegisterForm from '@/components/auth/RegisterForm';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login, isAuthenticated: authIsAuthenticated } = useAuth();
+  const [mode, setMode] = useState<'login' | 'register'>('login');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  useEffect(() => {
+    if (authIsAuthenticated) {
+      router.push('/');
+    }
+  }, [authIsAuthenticated, router]);
+
   const handleSuccess = (token: string, user: any) => {
+    login(token, user);
     setIsAuthenticated(true);
     // Redirect to home or intended page
     setTimeout(() => {
@@ -26,16 +37,68 @@ export default function LoginPage() {
               <span className="text-white font-bold text-2xl">J</span>
             </div>
             <h1 className="text-3xl font-bold text-primary-dark mb-2">
-              {isAuthenticated ? 'Welcome!' : 'Login / Register'}
+              {isAuthenticated ? 'Welcome!' : mode === 'login' ? 'Login' : 'Register'}
             </h1>
             <p className="text-primary-dark/60">
               {isAuthenticated
                 ? 'Redirecting...'
-                : 'Enter your phone number to continue'}
+                : mode === 'login'
+                ? 'Enter your phone number to login'
+                : 'Create your account to get started'}
             </p>
           </div>
 
-          {!isAuthenticated && <PhoneLogin onSuccess={handleSuccess} />}
+          {/* Mode Toggle */}
+          {!isAuthenticated && (
+            <div className="mb-6">
+              <div className="flex bg-background-parchment rounded-lg p-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    // Reset form state
+                    if (typeof window !== 'undefined') {
+                      window.recaptchaVerifier = null as any;
+                    }
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-md font-medium transition-colors ${
+                    mode === 'login'
+                      ? 'bg-primary-blue text-white shadow-sm'
+                      : 'text-primary-dark/60 hover:text-primary-dark'
+                  }`}
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('register');
+                    // Reset form state
+                    if (typeof window !== 'undefined') {
+                      window.recaptchaVerifier = null as any;
+                    }
+                  }}
+                  className={`flex-1 px-4 py-2 rounded-md font-medium transition-colors ${
+                    mode === 'register'
+                      ? 'bg-primary-blue text-white shadow-sm'
+                      : 'text-primary-dark/60 hover:text-primary-dark'
+                  }`}
+                >
+                  Register
+                </button>
+              </div>
+            </div>
+          )}
+
+          {!isAuthenticated && (
+            <>
+              {mode === 'login' ? (
+                <LoginForm onSuccess={handleSuccess} />
+              ) : (
+                <RegisterForm onSuccess={handleSuccess} />
+              )}
+            </>
+          )}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-primary-dark/60">
@@ -54,4 +117,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

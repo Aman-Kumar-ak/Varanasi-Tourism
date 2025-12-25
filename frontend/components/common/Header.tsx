@@ -3,9 +3,12 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import LanguageSelector from './LanguageSelector';
+import UserMenu from './UserMenu';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-md">
@@ -52,12 +55,16 @@ export default function Header() {
           {/* Right Side - Language & Auth */}
           <div className="flex items-center gap-4">
             <LanguageSelector />
-            <Link
-              href="/login"
-              className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 transition-colors font-medium text-sm md:text-base"
-            >
-              Login
-            </Link>
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <Link
+                href="/login"
+                className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 transition-colors font-medium text-sm md:text-base"
+              >
+                Login
+              </Link>
+            )}
 
             {/* Mobile Menu Button */}
             <button

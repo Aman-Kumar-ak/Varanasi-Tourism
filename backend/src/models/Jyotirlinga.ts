@@ -18,6 +18,7 @@ export interface IMultiLanguageContent {
 
 export interface IJyotirlinga extends Document {
   name: IMultiLanguageContent;
+  slug: string; // URL-friendly identifier (e.g., 'kashi-vishwanath', 'somnath')
   city: string;
   state: string;
   stateCode: string;
@@ -56,6 +57,13 @@ const JyotirlingaSchema: Schema = new Schema<IJyotirlinga>(
       type: MultiLanguageSchema,
       required: true,
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
     city: {
       type: String,
       required: true,
@@ -91,6 +99,7 @@ const JyotirlingaSchema: Schema = new Schema<IJyotirlinga>(
 );
 
 // Indexes for filtering
+// Note: slug already has unique index from unique: true, so we don't need to add it again
 JyotirlingaSchema.index({ state: 1 });
 JyotirlingaSchema.index({ stateCode: 1 });
 JyotirlingaSchema.index({ city: 1 });

@@ -49,6 +49,7 @@ const TEMPLE_PAGE_MAP: Record<string, React.ComponentType<any>> = {
 
 interface Jyotirlinga {
   _id: string;
+  slug: string;
   name: {
     en: string;
     hi: string;
@@ -74,15 +75,15 @@ export default function JyotirlingaDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (params.id) {
+    if (params.slug) {
       fetchTempleDetails();
     }
-  }, [params.id]);
+  }, [params.slug]);
 
   const fetchTempleDetails = async () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiUrl}/api/jyotirlingas/${params.id}`);
+      const response = await fetch(`${apiUrl}/api/jyotirlingas/${params.slug}`);
       const data = await response.json();
 
       if (data.success) {
@@ -113,8 +114,9 @@ export default function JyotirlingaDetailPage() {
   }
 
   // Determine which component to use
-  const pageTemplate = temple.pageTemplate || temple.name.en.toLowerCase().replace(/\s+/g, '-');
-  const TempleComponent = TEMPLE_PAGE_MAP[pageTemplate] || DefaultTemplePage;
+  const pageTemplate = temple.pageTemplate || temple.slug;
+  const TempleComponent = TEMPLE_PAGE_MAP[pageTemplate] || ComingSoonPage;
 
   return <TempleComponent temple={temple} language={language} />;
 }
+

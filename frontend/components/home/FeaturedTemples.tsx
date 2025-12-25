@@ -9,6 +9,7 @@ import { INDIAN_STATES } from '@/lib/constants';
 
 interface Jyotirlinga {
   _id: string;
+  slug: string;
   name: {
     en: string;
     hi: string;
@@ -18,7 +19,7 @@ interface Jyotirlinga {
   state: string;
   stateCode: string;
   images: string[];
-  description: {
+  description?: {
     en: string;
     hi: string;
     [key: string]: string;
@@ -116,7 +117,7 @@ export default function FeaturedTemples() {
                 {jyotirlingas.map((temple) => (
                   <Link
                     key={temple._id}
-                    href={`/jyotirlinga/${temple._id}`}
+                    href={`/jyotirlinga/${temple.slug}`}
                     className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all transform hover:-translate-y-2"
                   >
                     {/* Temple Image */}

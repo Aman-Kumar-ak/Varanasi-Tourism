@@ -19,6 +19,7 @@ interface DarshanType {
 
 interface Temple {
   _id: string;
+  slug: string;
   name: {
     en: string;
     hi: string;
@@ -50,7 +51,7 @@ export default function SomnathPage({ temple, language }: SomnathPageProps) {
   const fetchDarshanTypes = async () => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiUrl}/api/jyotirlingas/${temple._id}/darshan-types`);
+        const response = await fetch(`${apiUrl}/api/jyotirlingas/${temple.slug}/darshan-types`);
       const data = await response.json();
 
       if (data.success) {

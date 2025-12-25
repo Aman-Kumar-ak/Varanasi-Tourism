@@ -83,12 +83,12 @@ router.get('/states', async (req: Request, res: Response) => {
   }
 });
 
-// Get single Jyotirlinga by ID
-router.get('/:id', async (req: Request, res: Response) => {
+// Get single Jyotirlinga by slug
+router.get('/:slug', async (req: Request, res: Response) => {
   try {
     await connectDB();
 
-    const jyotirlinga = await Jyotirlinga.findById(req.params.id).select('-__v');
+    const jyotirlinga = await Jyotirlinga.findOne({ slug: req.params.slug }).select('-__v');
 
     if (!jyotirlinga) {
       return res.status(404).json({
@@ -110,14 +110,24 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Get darshan types for a Jyotirlinga
-router.get('/:id/darshan-types', async (req: Request, res: Response) => {
+// Get darshan types for a Jyotirlinga by slug
+router.get('/:slug/darshan-types', async (req: Request, res: Response) => {
   try {
     await connectDB();
     const DarshanType = (await import('../models/DarshanType.js')).default;
 
+    // First find the Jyotirlinga by slug
+    const jyotirlinga = await Jyotirlinga.findOne({ slug: req.params.slug });
+    
+    if (!jyotirlinga) {
+      return res.status(404).json({
+        success: false,
+        error: 'Jyotirlinga not found',
+      });
+    }
+
     const darshanTypes = await DarshanType.find({
-      jyotirlingaId: req.params.id,
+      jyotirlingaId: jyotirlinga._id,
       isActive: true,
     }).select('-__v').sort({ price: 1 });
 

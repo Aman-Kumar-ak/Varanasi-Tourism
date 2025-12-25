@@ -8,6 +8,7 @@ import type { LanguageCode } from '@/lib/constants';
 interface TempleCardProps {
   temple: {
     _id: string;
+    slug: string;
     name: {
       en: string;
       hi: string;
@@ -17,7 +18,7 @@ interface TempleCardProps {
     state: string;
     stateCode: string;
     images: string[];
-    description: {
+    description?: {
       en: string;
       hi: string;
       [key: string]: string;
@@ -29,7 +30,7 @@ interface TempleCardProps {
 export default function TempleCard({ temple, language }: TempleCardProps) {
   return (
     <Link
-      href={`/jyotirlinga/${temple._id}`}
+      href={`/jyotirlinga/${temple.slug}`}
       className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all transform hover:-translate-y-2 block"
     >
       {/* Temple Image */}
@@ -61,9 +62,11 @@ export default function TempleCard({ temple, language }: TempleCardProps) {
           <span>📍</span>
           <span>{temple.city}, {temple.state}</span>
         </p>
-        <p className="text-sm text-primary-dark/70 line-clamp-3 mb-4">
-          {getLocalizedContent(temple.description, language)}
-        </p>
+        {temple.description && (
+          <p className="text-sm text-primary-dark/70 line-clamp-3 mb-4">
+            {getLocalizedContent(temple.description, language)}
+          </p>
+        )}
         <div className="flex gap-3">
           <span className="px-4 py-2 bg-primary-blue text-white rounded-lg text-sm font-medium hover:bg-primary-blue/90 transition-colors">
             Book Now

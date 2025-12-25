@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { LanguageProvider } from "@/contexts/LanguageContext";
+import Providers from "@/components/providers/Providers";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
-import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -21,14 +20,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased flex flex-col min-h-screen`}>
-        <LanguageProvider>
-          <Toaster position="top-center" />
+        <Providers>
           <Header />
           <main className="flex-grow">
             {children}
           </main>
           <Footer />
-        </LanguageProvider>
+        </Providers>
       </body>
     </html>
   );
