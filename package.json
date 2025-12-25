@@ -1,0 +1,12 @@
+{
+  "name": "jyotirlinga-booking-platform",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "sync-env": "node scripts/sync-env.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+  }
+}
+
