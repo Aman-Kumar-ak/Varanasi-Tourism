@@ -78,10 +78,10 @@ export default function CityCarousel() {
               <Link
                 key={index}
                 href={`/city/${city.name.toLowerCase()}`}
-                className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all transform hover:-translate-y-2"
+                className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-primary-blue/5 hover:border-primary-blue/20"
               >
                 {/* City Image/Icon */}
-                <div className="h-48 bg-gradient-to-br from-primary-blue/20 to-primary-orange/20 flex items-center justify-center">
+                <div className="h-48 bg-background-parchment flex items-center justify-center border-b border-primary-blue/10">
                   <span className="text-8xl">{city.image}</span>
                 </div>
 

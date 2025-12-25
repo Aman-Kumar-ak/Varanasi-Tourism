@@ -7,6 +7,7 @@ import TempleCard from '@/components/jyotirlinga/TempleCard';
 
 interface Jyotirlinga {
   _id: string;
+  slug: string;
   name: {
     en: string;
     hi: string;
@@ -73,7 +74,7 @@ export default function JyotirlingasPage() {
   return (
     <div className="min-h-screen bg-background-parchment">
       {/* Page Header */}
-      <div className="bg-gradient-to-r from-primary-blue to-primary-orange text-white py-12">
+      <div className="bg-primary-blue text-white py-12 shadow-lg">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             All 12 Jyotirlingas
@@ -148,7 +149,7 @@ export default function JyotirlingasPage() {
 
         {/* Jyotirlingas Grid */}
         {!loading && jyotirlingas.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {jyotirlingas.map((temple) => (
               <TempleCard key={temple._id} temple={temple} language={language} />
             ))}

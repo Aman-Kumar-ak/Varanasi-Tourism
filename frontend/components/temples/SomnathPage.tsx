@@ -65,7 +65,7 @@ export default function SomnathPage({ temple, language }: SomnathPageProps) {
   return (
     <div className="min-h-screen bg-background-parchment">
       {/* Custom Hero for Somnath */}
-      <section className="relative h-[450px] bg-gradient-to-br from-primary-blue via-primary-teal to-primary-orange">
+      <section className="relative h-[450px] bg-primary-blue">
         <div className="absolute inset-0 bg-primary-dark/20"></div>
         <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
           <div className="max-w-2xl">
@@ -103,7 +103,7 @@ export default function SomnathPage({ temple, language }: SomnathPageProps) {
             </section>
 
             {/* Coastal Location */}
-            <section className="bg-gradient-to-r from-primary-teal to-primary-blue rounded-xl p-6 text-white">
+            <section className="bg-primary-teal rounded-xl p-6 text-white shadow-lg">
               <h2 className="text-2xl font-bold mb-4">By the Arabian Sea</h2>
               <p className="text-white/90 leading-relaxed">
                 The temple's location by the Arabian Sea adds to its spiritual significance. 

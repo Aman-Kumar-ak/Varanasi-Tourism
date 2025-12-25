@@ -67,7 +67,7 @@ export default function DefaultTemplePage({ temple, language }: DefaultTemplePag
   return (
     <div className="min-h-screen bg-background-parchment">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-primary-blue to-primary-orange">
+      <section className="relative h-96 bg-primary-blue">
         {temple.images && temple.images.length > 0 ? (
           <Image
             src={temple.images[0]}
@@ -196,7 +196,7 @@ export default function DefaultTemplePage({ temple, language }: DefaultTemplePag
             {/* Explore City */}
             <Link
               href={`/city/${temple.city.toLowerCase()}`}
-              className="block bg-gradient-to-r from-primary-teal to-primary-blue text-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all text-center"
+              className="block bg-primary-teal text-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all text-center"
             >
               <span className="text-2xl block mb-2">🗺️</span>
               <span className="font-semibold">Explore {temple.city}</span>

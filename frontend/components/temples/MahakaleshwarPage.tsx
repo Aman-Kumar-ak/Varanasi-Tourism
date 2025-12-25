@@ -65,7 +65,7 @@ export default function MahakaleshwarPage({ temple, language }: MahakaleshwarPag
   return (
     <div className="min-h-screen bg-background-parchment">
       {/* Custom Hero for Mahakaleshwar */}
-      <section className="relative h-[450px] bg-gradient-to-br from-primary-orange via-primary-blue to-primary-dark">
+      <section className="relative h-[450px] bg-primary-orange">
         <div className="absolute inset-0 bg-primary-dark/30"></div>
         <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
           <div className="max-w-2xl">
@@ -86,7 +86,7 @@ export default function MahakaleshwarPage({ temple, language }: MahakaleshwarPag
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* Bhasma Aarti Highlight */}
-            <section className="bg-gradient-to-r from-primary-orange to-primary-blue rounded-xl p-6 text-white">
+            <section className="bg-primary-orange rounded-xl p-6 text-white shadow-lg">
               <h2 className="text-2xl font-bold mb-4">🌟 Bhasma Aarti</h2>
               <p className="text-white/90 leading-relaxed">
                 Mahakaleshwar is the only Jyotirlinga facing south. The unique Bhasma Aarti 

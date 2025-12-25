@@ -397,36 +397,301 @@ async function seedDatabase() {
       console.log('⚠️  Kashi Vishwanath not found, skipping darshan types');
     }
 
-    // Insert basic city data
+    // Insert city data with comprehensive Varanasi data
     console.log('📝 Inserting City data...');
-    const cityData = insertedJyotirlingas.map((jyotirlinga) => ({
-      name: {
-        en: jyotirlinga.city,
-        hi: jyotirlinga.city,
-      },
-      jyotirlingaId: jyotirlinga._id,
-      state: jyotirlinga.state,
-      images: [],
-      places: [],
-      hotels: [],
-      restaurants: [],
-      transportInfo: {
-        en: `Transport information for ${jyotirlinga.city}`,
-        hi: `${jyotirlinga.city} के लिए परिवहन जानकारी`,
-      },
-      emergencyContacts: [
-        {
-          name: 'Police',
-          phone: '100',
-          type: 'police' as const,
+
+    const cityData = insertedJyotirlingas.map((jyotirlinga) => {
+      // Special handling for Varanasi
+      if (jyotirlinga.city === 'Varanasi' && jyotirlinga.slug === 'kashi-vishwanath') {
+        return {
+          name: {
+            en: 'Varanasi',
+            hi: 'वाराणसी',
+            bn: 'বারাণসী',
+            gu: 'વારાણસી',
+            ta: 'வாரணாசி',
+            te: 'వారణాసి',
+            mr: 'वाराणसी',
+            kn: 'ವಾರಣಾಸಿ',
+            ml: 'വാരണാസി',
+            or: 'ବାରାଣସୀ',
+            pa: 'ਵਾਰਾਣਸੀ',
+            as: 'ৱাৰাণসী',
+            ur: 'وارانسی',
+          },
+          jyotirlingaId: jyotirlinga._id,
+          state: jyotirlinga.state,
+          images: [
+            'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+            'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+            'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+          ],
+          places: [
+            {
+              name: {
+                en: 'Dashashwamedh Ghat',
+                hi: 'दशाश्वमेध घाट',
+              },
+              description: {
+                en: 'The most famous ghat in Varanasi, known for the spectacular Ganga Aarti ceremony performed every evening. It is believed that Lord Brahma performed ten horse sacrifices here.',
+                hi: 'वाराणसी का सबसे प्रसिद्ध घाट, जहाँ हर शाम भव्य गंगा आरती का आयोजन होता है। माना जाता है कि यहाँ भगवान ब्रह्मा ने दस अश्वमेध यज्ञ किए थे।',
+              },
+              image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+              location: { lat: 25.3106, lng: 83.0104 },
+            },
+            {
+              name: {
+                en: 'Assi Ghat',
+                hi: 'अस्सी घाट',
+              },
+              description: {
+                en: 'The southernmost ghat in Varanasi, where the Assi River meets the Ganges. A peaceful place for meditation and yoga, especially popular during sunrise.',
+                hi: 'वाराणसी का सबसे दक्षिणी घाट, जहाँ अस्सी नदी गंगा से मिलती है। ध्यान और योग के लिए शांतिपूर्ण स्थान, विशेष रूप से सूर्योदय के समय लोकप्रिय।',
+              },
+              image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+              location: { lat: 25.2850, lng: 83.0104 },
+            },
+            {
+              name: {
+                en: 'Manikarnika Ghat',
+                hi: 'मणिकर्णिका घाट',
+              },
+              description: {
+                en: 'The main cremation ghat in Varanasi. Hindus believe that being cremated here ensures moksha (liberation from the cycle of rebirth).',
+                hi: 'वाराणसी का मुख्य श्मशान घाट। हिंदुओं का मानना है कि यहाँ अंतिम संस्कार से मोक्ष प्राप्त होता है।',
+              },
+              image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+              location: { lat: 25.3106, lng: 83.0104 },
+            },
+            {
+              name: {
+                en: 'Sarnath',
+                hi: 'सारनाथ',
+              },
+              description: {
+                en: 'A sacred Buddhist site where Lord Buddha gave his first sermon after enlightenment. Home to the famous Dhamek Stupa and several ancient monasteries.',
+                hi: 'एक पवित्र बौद्ध स्थल जहाँ भगवान बुद्ध ने ज्ञान प्राप्ति के बाद अपना पहला उपदेश दिया था। प्रसिद्ध धमेक स्तूप और कई प्राचीन मठों का घर।',
+              },
+              image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+              location: { lat: 25.3811, lng: 83.0214 },
+            },
+            {
+              name: {
+                en: 'Tulsi Manas Temple',
+                hi: 'तुलसी मानस मंदिर',
+              },
+              description: {
+                en: 'A modern temple dedicated to Lord Rama, built where Tulsidas wrote the Ramcharitmanas. The walls are inscribed with verses from the epic.',
+                hi: 'भगवान राम को समर्पित एक आधुनिक मंदिर, जहाँ तुलसीदास ने रामचरितमानस लिखी थी। दीवारों पर महाकाव्य के श्लोक अंकित हैं।',
+              },
+              image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+              location: { lat: 25.3106, lng: 83.0104 },
+            },
+            {
+              name: {
+                en: 'Bharat Mata Temple',
+                hi: 'भारत माता मंदिर',
+              },
+              description: {
+                en: 'A unique temple dedicated to Mother India, featuring a relief map of undivided India carved in marble. Built by freedom fighter Babu Shiv Prasad Gupt.',
+                hi: 'मातृभूमि को समर्पित एक अनूठा मंदिर, जिसमें संगमरमर में उकेरी गई अखंड भारत का राहत नक्शा है। स्वतंत्रता सेनानी बाबू शिव प्रसाद गुप्त द्वारा निर्मित।',
+              },
+              image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+              location: { lat: 25.3106, lng: 83.0104 },
+            },
+            {
+              name: {
+                en: 'Ramnagar Fort',
+                hi: 'रामनगर किला',
+              },
+              description: {
+                en: 'An 18th-century fort on the eastern bank of the Ganges, opposite Varanasi. The fort houses a museum with vintage cars, royal costumes, and antique weapons.',
+                hi: 'गंगा के पूर्वी तट पर 18वीं सदी का किला, वाराणसी के सामने। किले में एक संग्रहालय है जिसमें विंटेज कारें, शाही वस्त्र और प्राचीन हथियार हैं।',
+              },
+              image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+              location: { lat: 25.3106, lng: 83.0104 },
+            },
+            {
+              name: {
+                en: 'Banaras Hindu University (BHU)',
+                hi: 'काशी हिंदू विश्वविद्यालय (BHU)',
+              },
+              description: {
+                en: 'One of the largest residential universities in Asia, founded by Madan Mohan Malaviya. The campus includes the famous Vishwanath Temple and Bharat Kala Bhavan museum.',
+                hi: 'एशिया की सबसे बड़ी आवासीय विश्वविद्यालयों में से एक, मदन मोहन मालवीय द्वारा स्थापित। परिसर में प्रसिद्ध विश्वनाथ मंदिर और भारत कला भवन संग्रहालय शामिल है।',
+              },
+              image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800',
+              location: { lat: 25.2677, lng: 82.9913 },
+            },
+          ],
+          hotels: [
+            {
+              name: 'Hotel Ganges View',
+              address: 'Dashashwamedh Ghat Road, Varanasi',
+              priceRange: 'mid-range' as const,
+              rating: 4.2,
+              contact: '+91-542-2312345',
+              website: 'https://hotelgangesview.com',
+            },
+            {
+              name: 'BrijRama Palace',
+              address: 'Darbhanga Ghat, Varanasi',
+              priceRange: 'luxury' as const,
+              rating: 4.8,
+              contact: '+91-542-2315678',
+              website: 'https://brijramapalace.com',
+            },
+            {
+              name: 'Hotel Surya',
+              address: 'The Mall, Cantonment, Varanasi',
+              priceRange: 'mid-range' as const,
+              rating: 4.0,
+              contact: '+91-542-2501234',
+            },
+            {
+              name: 'Hotel Alka',
+              address: 'D. 38/44, Godowlia, Varanasi',
+              priceRange: 'budget' as const,
+              rating: 3.8,
+              contact: '+91-542-2401681',
+            },
+            {
+              name: 'Taj Ganges Varanasi',
+              address: 'Nadesar Palace Grounds, Varanasi',
+              priceRange: 'luxury' as const,
+              rating: 4.7,
+              contact: '+91-542-2503001',
+              website: 'https://tajhotels.com',
+            },
+            {
+              name: 'Hotel Pradeep',
+              address: 'Dashashwamedh Ghat, Varanasi',
+              priceRange: 'budget' as const,
+              rating: 3.5,
+              contact: '+91-542-2312345',
+            },
+          ],
+          restaurants: [
+            {
+              name: 'Blue Lassi',
+              cuisine: 'Traditional Indian',
+              address: 'Kachori Gali, Varanasi',
+              priceRange: 'budget' as const,
+              contact: '+91-9876543210',
+            },
+            {
+              name: 'Kashi Chat Bhandar',
+              cuisine: 'Street Food',
+              address: 'Godowlia, Varanasi',
+              priceRange: 'budget' as const,
+              contact: '+91-9876543211',
+            },
+            {
+              name: 'Bana Lassi',
+              cuisine: 'Desserts & Beverages',
+              address: 'Dashashwamedh Ghat, Varanasi',
+              priceRange: 'budget' as const,
+              contact: '+91-9876543212',
+            },
+            {
+              name: 'Deena Chaat Bhandar',
+              cuisine: 'Street Food',
+              address: 'Kachori Gali, Varanasi',
+              priceRange: 'budget' as const,
+              contact: '+91-9876543213',
+            },
+            {
+              name: 'Shree Cafe',
+              cuisine: 'Multi-cuisine',
+              address: 'Dashashwamedh Ghat, Varanasi',
+              priceRange: 'mid-range' as const,
+              contact: '+91-542-2312345',
+            },
+            {
+              name: 'Varanasi Thali',
+              cuisine: 'North Indian',
+              address: 'Godowlia, Varanasi',
+              priceRange: 'mid-range' as const,
+              contact: '+91-542-2312346',
+            },
+            {
+              name: 'Tulsi Restaurant',
+              cuisine: 'Vegetarian',
+              address: 'Assi Ghat, Varanasi',
+              priceRange: 'mid-range' as const,
+              contact: '+91-542-2312347',
+            },
+            {
+              name: 'Varuna Restaurant',
+              cuisine: 'Fine Dining',
+              address: 'Taj Ganges Hotel, Varanasi',
+              priceRange: 'luxury' as const,
+              contact: '+91-542-2503001',
+            },
+          ],
+          transportInfo: {
+            en: 'Varanasi is well-connected by air, rail, and road. The Lal Bahadur Shastri International Airport (VNS) is 26 km from the city. Varanasi Junction (BSB) is the main railway station. Auto-rickshaws, cycle-rickshaws, and boats are common modes of local transport. The ghats are best explored on foot or by boat.',
+            hi: 'वाराणसी हवाई, रेल और सड़क मार्ग से अच्छी तरह जुड़ा हुआ है। लाल बहादुर शास्त्री अंतर्राष्ट्रीय हवाई अड्डा (VNS) शहर से 26 किमी दूर है। वाराणसी जंक्शन (BSB) मुख्य रेलवे स्टेशन है। ऑटो-रिक्शा, साइकिल-रिक्शा और नाव स्थानीय परिवहन के सामान्य साधन हैं। घाटों को पैदल या नाव से देखना सबसे अच्छा है।',
+          },
+          emergencyContacts: [
+            {
+              name: 'Police Control Room',
+              phone: '100',
+              type: 'police' as const,
+            },
+            {
+              name: 'Emergency Ambulance',
+              phone: '108',
+              type: 'hospital' as const,
+            },
+            {
+              name: 'Kashi Vishwanath Temple Office',
+              phone: '+91-542-2392629',
+              type: 'temple' as const,
+            },
+            {
+              name: 'Tourist Helpline',
+              phone: '1363',
+              type: 'tourist-helpline' as const,
+            },
+          ],
+          weatherInfo: {
+            bestTimeToVisit: 'October to March',
+            averageTemp: 'Winter: 5-20°C, Summer: 25-45°C',
+          },
+        };
+      }
+
+      // Default city data for other cities
+      return {
+        name: {
+          en: jyotirlinga.city,
+          hi: jyotirlinga.city,
         },
-        {
-          name: 'Hospital',
-          phone: '108',
-          type: 'hospital' as const,
+        jyotirlingaId: jyotirlinga._id,
+        state: jyotirlinga.state,
+        images: [],
+        places: [],
+        hotels: [],
+        restaurants: [],
+        transportInfo: {
+          en: `Transport information for ${jyotirlinga.city}`,
+          hi: `${jyotirlinga.city} के लिए परिवहन जानकारी`,
         },
-      ],
-    }));
+        emergencyContacts: [
+          {
+            name: 'Police',
+            phone: '100',
+            type: 'police' as const,
+          },
+          {
+            name: 'Hospital',
+            phone: '108',
+            type: 'hospital' as const,
+          },
+        ],
+      };
+    });
 
     await City.insertMany(cityData);
     console.log(`✅ Inserted ${cityData.length} Cities`);

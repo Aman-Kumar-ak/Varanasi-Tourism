@@ -28,7 +28,7 @@ export default function ComingSoonPage({ temple, language }: ComingSoonPageProps
   return (
     <div className="min-h-screen bg-background-parchment">
       {/* Hero Section */}
-      <section className="relative h-96 bg-gradient-to-r from-primary-blue to-primary-orange">
+      <section className="relative h-96 bg-primary-blue">
         <div className="absolute inset-0 bg-primary-dark/40"></div>
         <div className="container mx-auto px-4 relative z-10 h-full flex items-center justify-center">
           <div className="text-center">

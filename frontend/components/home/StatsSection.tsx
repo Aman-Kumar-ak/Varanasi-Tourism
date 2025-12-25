@@ -31,13 +31,13 @@ export default function StatsSection() {
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-shadow text-center"
+              className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-primary-blue/5 hover:border-primary-blue/20"
             >
-              <div className="text-4xl mb-3">{stat.icon}</div>
-              <div className="text-3xl md:text-4xl font-bold text-primary-orange mb-2">
+              <div className="text-5xl mb-4">{stat.icon}</div>
+              <div className="text-4xl md:text-5xl font-bold text-primary-orange mb-3">
                 {stat.number}
               </div>
-              <div className="text-sm md:text-base text-primary-dark/70 font-medium">
+              <div className="text-base md:text-lg text-primary-dark/80 font-semibold">
                 {stat.label}
               </div>
             </div>

@@ -48,22 +48,22 @@ export default function HowItWorks() {
             {steps.map((step, index) => (
               <div key={index} className="relative">
                 {/* Step Card */}
-                <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all text-center relative z-10">
+                <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 text-center relative z-10 border border-primary-blue/5 hover:border-primary-blue/20">
                   {/* Step Number Circle */}
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary-blue to-primary-orange rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <span className="text-2xl font-bold text-white">{step.number}</span>
+                  <div className="w-20 h-20 bg-primary-blue rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                    <span className="text-3xl font-bold text-white">{step.number}</span>
                   </div>
 
                   {/* Icon */}
-                  <div className="text-4xl mb-4">{step.icon}</div>
+                  <div className="text-5xl mb-6">{step.icon}</div>
 
                   {/* Title */}
-                  <h3 className="text-lg font-bold text-primary-dark mb-3">
+                  <h3 className="text-xl font-bold text-primary-dark mb-4">
                     {step.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-sm text-primary-dark/70">
+                  <p className="text-base text-primary-dark/70 leading-relaxed">
                     {step.description}
                   </p>
                 </div>

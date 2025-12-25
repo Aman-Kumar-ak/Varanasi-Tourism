@@ -29,11 +29,11 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-blue/10 via-background-parchment to-primary-orange/10 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-background-parchment px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-primary-blue/10">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary-blue to-primary-orange rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-primary-blue rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
               <span className="text-white font-bold text-2xl">J</span>
             </div>
             <h1 className="text-3xl font-bold text-primary-dark mb-2">

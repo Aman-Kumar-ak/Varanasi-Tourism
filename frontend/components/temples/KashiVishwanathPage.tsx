@@ -66,7 +66,7 @@ export default function KashiVishwanathPage({ temple, language }: KashiVishwanat
   return (
     <div className="min-h-screen bg-background-parchment">
       {/* Custom Hero Section for Kashi Vishwanath */}
-      <section className="relative h-[500px] bg-gradient-to-br from-primary-blue via-primary-orange to-primary-teal">
+      <section className="relative h-[500px] bg-primary-blue">
         <div className="absolute inset-0 bg-primary-dark/30"></div>
         <div className="container mx-auto px-4 relative z-10 h-full flex items-center">
           <div className="max-w-2xl">
@@ -119,7 +119,7 @@ export default function KashiVishwanathPage({ temple, language }: KashiVishwanat
             </section>
 
             {/* Ganga Aarti Info */}
-            <section className="bg-gradient-to-r from-primary-blue to-primary-teal rounded-xl p-6 text-white">
+            <section className="bg-primary-teal rounded-xl p-6 text-white shadow-lg">
               <h2 className="text-2xl font-bold mb-4">Ganga Aarti Experience</h2>
               <p className="text-white/90 leading-relaxed">
                 Don't miss the spectacular Ganga Aarti ceremony performed every evening at 

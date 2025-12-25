@@ -8,20 +8,20 @@ export default function Footer() {
 
   return (
     <footer className="bg-primary-dark text-white mt-auto">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           {/* Column 1: Logo & Tagline */}
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4 col-span-2 md:col-span-1">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-blue to-primary-orange rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">J</span>
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-blue rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg sm:text-xl">J</span>
               </div>
-              <span className="text-xl font-bold">Jyotirlinga</span>
+              <span className="text-lg sm:text-xl font-bold">Jyotirlinga</span>
             </div>
-            <p className="text-white/80 text-sm">
+            <p className="text-white/80 text-xs sm:text-sm">
               Your trusted platform for booking Darshan at all 12 Jyotirlingas
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3 sm:gap-4">
               <a href="#" className="text-white/80 hover:text-primary-blue transition-colors">
                 <span className="sr-only">Facebook</span>
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -44,9 +44,9 @@ export default function Footer() {
           </div>
 
           {/* Column 2: Quick Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
+          <div className="col-span-1">
+            <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Quick Links</h3>
+            <ul className="space-y-1.5 sm:space-y-2">
               <li>
                 <Link href="/jyotirlingas" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
                   All Jyotirlingas
@@ -71,9 +71,9 @@ export default function Footer() {
           </div>
 
           {/* Column 3: Support */}
-          <div>
-            <h3 className="font-semibold mb-4">Support</h3>
-            <ul className="space-y-2">
+          <div className="col-span-1">
+            <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Support</h3>
+            <ul className="space-y-1.5 sm:space-y-2">
               <li>
                 <Link href="/help" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
                   Help Center
@@ -93,9 +93,9 @@ export default function Footer() {
           </div>
 
           {/* Column 4: Legal & Language */}
-          <div>
-            <h3 className="font-semibold mb-4">Legal</h3>
-            <ul className="space-y-2 mb-4">
+          <div className="col-span-2 md:col-span-1">
+            <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Legal</h3>
+            <ul className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
               <li>
                 <Link href="/privacy" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
                   Privacy Policy
@@ -119,8 +119,8 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/20 mt-8 pt-8 text-center">
-          <p className="text-white/60 text-sm">
+        <div className="border-t border-white/20 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center">
+          <p className="text-white/60 text-xs sm:text-sm">
             © {currentYear} Jyotirlinga Booking Platform. All rights reserved.
           </p>
         </div>

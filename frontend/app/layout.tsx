@@ -12,6 +12,12 @@ export const metadata: Metadata = {
   description: "Book Darshan at all 12 Jyotirlingas - Spiritual Tourism Platform",
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
