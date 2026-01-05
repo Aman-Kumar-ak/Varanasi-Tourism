@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import FilterBar from '@/components/jyotirlinga/FilterBar';
 import TempleCard from '@/components/jyotirlinga/TempleCard';
+import { getApiUrl } from '@/lib/utils';
 
 interface Jyotirlinga {
   _id: string;
@@ -39,7 +40,7 @@ export default function JyotirlingasPage() {
   const fetchJyotirlingas = async () => {
     try {
       setLoading(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiUrl = getApiUrl();
       let url = `${apiUrl}/api/jyotirlingas`;
       
       const params = new URLSearchParams();
@@ -56,6 +57,8 @@ export default function JyotirlingasPage() {
 
       if (data.success) {
         setJyotirlingas(data.data || []);
+      } else {
+        console.error('API Error:', data.error);
       }
     } catch (error) {
       console.error('Error fetching Jyotirlingas:', error);

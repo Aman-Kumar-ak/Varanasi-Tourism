@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getLocalizedContent } from '@/lib/i18n';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getApiUrl } from '@/lib/utils';
 
 interface DarshanType {
   _id: string;
@@ -16,6 +16,11 @@ interface DarshanType {
   price: number;
   duration: number;
   dailyLimit: number;
+  description?: {
+    en: string;
+    hi: string;
+    [key: string]: string;
+  };
 }
 
 interface Temple {
@@ -44,22 +49,33 @@ interface KashiVishwanathPageProps {
 
 export default function KashiVishwanathPage({ temple, language }: KashiVishwanathPageProps) {
   const [darshanTypes, setDarshanTypes] = useState<DarshanType[]>([]);
+  const [loadingDarshanTypes, setLoadingDarshanTypes] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDarshanTypes();
-  }, [temple._id]);
+    if (temple.slug) {
+      fetchDarshanTypes();
+    }
+  }, [temple.slug]);
 
   const fetchDarshanTypes = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/jyotirlingas/${temple.slug}/darshan-types`);
+      setLoadingDarshanTypes(true);
+      setError(null);
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/jyotirlingas/${temple.slug}/darshan-types`);
       const data = await response.json();
 
       if (data.success) {
         setDarshanTypes(data.data || []);
+      } else {
+        setError(data.error || 'Failed to load darshan types');
       }
     } catch (error) {
       console.error('Error fetching darshan types:', error);
+      setError('Unable to load darshan types. Please try again later.');
+    } finally {
+      setLoadingDarshanTypes(false);
     }
   };
 
@@ -84,6 +100,85 @@ export default function KashiVishwanathPage({ temple, language }: KashiVishwanat
       </section>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Booking Section - Prominent Display */}
+        <section className="bg-white rounded-xl p-6 shadow-lg mb-8 border border-primary-blue/10">
+          <div className="bg-primary-blue text-white rounded-lg px-6 py-4 mb-6 -mx-6 -mt-6">
+            <h2 className="text-2xl font-bold text-center">
+              List of Pooja / Darshan
+            </h2>
+          </div>
+          
+          {loadingDarshanTypes ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-blue mb-3"></div>
+              <p className="text-primary-dark/60">Loading darshan types...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-red-600 mb-4">{error}</p>
+              <button
+                onClick={fetchDarshanTypes}
+                className="px-6 py-2 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 transition-colors font-medium"
+              >
+                Retry
+              </button>
+            </div>
+          ) : darshanTypes.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-5xl mb-4">📿</div>
+              <p className="text-primary-dark/70 mb-2 text-lg">No darshan types available yet.</p>
+              <p className="text-sm text-primary-dark/50">Please check back later or contact the temple office.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {darshanTypes.map((type) => (
+                <Link
+                  key={type._id}
+                  href={`/booking?temple=${temple.slug || temple._id}&darshan=${type._id}`}
+                  className="block group"
+                >
+                  <div className="bg-primary-orange hover:bg-primary-orange/90 text-white rounded-lg p-6 transition-all duration-200 shadow-md hover:shadow-xl transform hover:scale-[1.02] cursor-pointer h-full">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mt-1">
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <div className="flex-grow">
+                        <h3 className="font-bold text-xl mb-2">
+                          {getLocalizedContent(type.name, language as any)}
+                        </h3>
+                        {type.description && (
+                          <p className="text-white/90 text-sm mb-4 leading-relaxed">
+                            {getLocalizedContent(type.description, language as any)}
+                          </p>
+                        )}
+                        <div className="flex items-center justify-between pt-4 border-t border-white/20">
+                          <div className="flex items-center gap-4 text-sm">
+                            <span className="flex items-center gap-1">
+                              <span>⏱️</span>
+                              <span>{type.duration} min</span>
+                            </span>
+                            {type.dailyLimit && (
+                              <span className="flex items-center gap-1">
+                                <span>👥</span>
+                                <span>{type.dailyLimit.toLocaleString()}/day</span>
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-2xl font-bold bg-white/20 px-4 py-2 rounded-lg">
+                            {formatCurrency(type.price)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content - Custom for Kashi */}
           <div className="lg:col-span-2 space-y-8">
@@ -146,44 +241,8 @@ export default function KashiVishwanathPage({ temple, language }: KashiVishwanat
             )}
           </div>
 
-          {/* Sidebar - Same booking component */}
+          {/* Sidebar */}
           <div className="space-y-6">
-            <section className="bg-white rounded-xl p-6 shadow-md sticky top-24">
-              <h2 className="text-2xl font-bold text-primary-dark mb-4">
-                Book Your Darshan
-              </h2>
-              {darshanTypes.length === 0 ? (
-                <p className="text-primary-dark/70">No darshan types available yet.</p>
-              ) : (
-                <div className="space-y-4">
-                  {darshanTypes.map((type) => (
-                    <div
-                      key={type._id}
-                      className="border border-primary-blue/20 rounded-lg p-4 hover:border-primary-orange transition-colors"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-primary-dark">
-                          {getLocalizedContent(type.name, language as any)}
-                        </h3>
-                        <span className="text-xl font-bold text-primary-orange">
-                          {formatCurrency(type.price)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-primary-dark/60 mb-3">
-                        Duration: {type.duration} minutes
-                      </p>
-                      <Link
-                        href={`/booking?temple=${temple._id}&darshan=${type._id}`}
-                        className="block w-full text-center px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 transition-colors font-medium"
-                      >
-                        Book Now
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-
             {/* Quick Info */}
             <section className="bg-white rounded-xl p-6 shadow-md">
               <h3 className="text-lg font-bold text-primary-dark mb-4">Quick Info</h3>

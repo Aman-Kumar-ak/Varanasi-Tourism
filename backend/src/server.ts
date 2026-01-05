@@ -9,6 +9,8 @@ import jyotirlingaRoutes from './routes/jyotirlingas.js';
 import bookingRoutes from './routes/bookings.js';
 import cityRoutes from './routes/cities.js';
 import paymentRoutes from './routes/payments.js';
+import timeSlotRoutes from './routes/time-slots.js';
+import receiptRoutes from './routes/receipts.js';
 
 // Load environment variables from backend/.env file
 const __filename = fileURLToPath(import.meta.url);
@@ -28,7 +30,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
-connectDB();
+connectDB().catch((error) => {
+  console.error('Failed to connect to MongoDB on startup:', error.message);
+  console.error('Server will continue to run, but database operations will fail.');
+  console.error('Please fix the MongoDB connection issue and restart the server.');
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -36,6 +42,8 @@ app.use('/api/jyotirlingas', jyotirlingaRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/cities', cityRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/time-slots', timeSlotRoutes);
+app.use('/api/receipts', receiptRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

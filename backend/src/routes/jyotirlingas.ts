@@ -83,12 +83,20 @@ router.get('/states', async (req: Request, res: Response) => {
   }
 });
 
-// Get single Jyotirlinga by slug
+// Get single Jyotirlinga by slug or ID
 router.get('/:slug', async (req: Request, res: Response) => {
   try {
     await connectDB();
 
-    const jyotirlinga = await Jyotirlinga.findOne({ slug: req.params.slug }).select('-__v');
+    const identifier = req.params.slug;
+    
+    // Try to find by slug first
+    let jyotirlinga = await Jyotirlinga.findOne({ slug: identifier }).select('-__v');
+
+    // If not found by slug, try by MongoDB ObjectId
+    if (!jyotirlinga && /^[0-9a-fA-F]{24}$/.test(identifier)) {
+      jyotirlinga = await Jyotirlinga.findById(identifier).select('-__v');
+    }
 
     if (!jyotirlinga) {
       return res.status(404).json({

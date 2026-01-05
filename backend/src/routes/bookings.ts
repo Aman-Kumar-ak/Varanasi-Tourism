@@ -104,6 +104,29 @@ const createBookingSchema = z.object({
   date: z.string().refine((val) => !isNaN(Date.parse(val)), {
     message: 'Invalid date format',
   }),
+  primaryContact: z.object({
+    name: z.string().min(1),
+    phone: z.string().min(10),
+    email: z.string().email().optional(),
+  }),
+  adults: z.array(
+    z.object({
+      name: z.string().min(1),
+      age: z.number().min(18),
+      gender: z.enum(['male', 'female', 'other']),
+      idProof: z.string().optional(),
+      idProofNumber: z.string().optional(),
+    })
+  ).min(1),
+  children: z.array(
+    z.object({
+      name: z.string().min(1),
+      age: z.number().min(0).max(17),
+      gender: z.enum(['male', 'female', 'other']),
+      idProof: z.string().optional(),
+      idProofNumber: z.string().optional(),
+    })
+  ).optional().default([]),
 });
 
 router.post('/', async (req: AuthRequest, res: Response) => {
@@ -111,7 +134,7 @@ router.post('/', async (req: AuthRequest, res: Response) => {
     await connectDB();
 
     const validatedData = createBookingSchema.parse(req.body);
-    const { jyotirlingaId, darshanTypeId, timeSlotId, date } = validatedData;
+    const { jyotirlingaId, darshanTypeId, timeSlotId, date, primaryContact, adults, children } = validatedData;
 
     // Verify user is authenticated
     if (!req.user) {
@@ -189,6 +212,9 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       }
     }
 
+    // Calculate total amount (price per person)
+    const totalAmount = darshanType.price * (adults.length + (children?.length || 0));
+
     // Create booking
     const booking = await Booking.create({
       userId: req.user.userId,
@@ -196,10 +222,13 @@ router.post('/', async (req: AuthRequest, res: Response) => {
       darshanTypeId,
       timeSlotId,
       date: selectedDate,
-      amount: darshanType.price,
+      amount: totalAmount,
       paymentStatus: 'pending',
       receiptNumber,
       status: 'confirmed',
+      primaryContact,
+      adults,
+      children: children || [],
     });
 
     res.status(201).json({
@@ -254,6 +283,54 @@ router.get('/my-bookings', async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch bookings',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// Update booking payment status
+router.post('/:id/payment', async (req: AuthRequest, res: Response) => {
+  try {
+    await connectDB();
+
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        error: 'Unauthorized',
+      });
+    }
+
+    const { paymentId, paymentStatus } = req.body;
+
+    const booking = await Booking.findOne({
+      _id: req.params.id,
+      userId: req.user.userId,
+    });
+
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        error: 'Booking not found',
+      });
+    }
+
+    booking.paymentStatus = paymentStatus || 'completed';
+    if (paymentId) {
+      booking.paymentId = paymentId;
+    }
+
+    await booking.save();
+
+    res.json({
+      success: true,
+      data: booking,
+      message: 'Payment status updated successfully',
+    });
+  } catch (error) {
+    console.error('Error updating payment:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update payment status',
       message: error instanceof Error ? error.message : 'Unknown error',
     });
   }

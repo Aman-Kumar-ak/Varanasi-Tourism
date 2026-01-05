@@ -12,6 +12,7 @@ export interface IDarshanType extends Document {
   price: number;
   duration: number; // in minutes
   dailyLimit: number;
+  description?: IMultiLanguageContent;
   isActive: boolean;
 }
 
@@ -45,6 +46,10 @@ const DarshanTypeSchema: Schema = new Schema<IDarshanType>(
       type: Number,
       required: true,
       min: 1,
+    },
+    description: {
+      type: MultiLanguageSchema,
+      required: false,
     },
     isActive: {
       type: Boolean,

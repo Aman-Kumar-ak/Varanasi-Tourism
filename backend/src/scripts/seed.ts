@@ -296,43 +296,59 @@ const jyotirlingasData = [
   },
 ];
 
-// Darshan types data
+// Darshan types data - Matching official Kashi Vishwanath Temple Trust offerings
 const darshanTypesData = [
   {
     name: {
-      en: 'General Darshan',
-      hi: 'सामान्य दर्शन',
+      en: 'Sugam Darshan',
+      hi: 'सुगम दर्शन',
     },
-    price: 0,
-    duration: 15,
-    dailyLimit: 10000,
+    price: 50,
+    duration: 20,
+    dailyLimit: 8000,
+    description: {
+      en: 'Fast and easy darshan with shorter waiting time',
+      hi: 'कम प्रतीक्षा समय के साथ त्वरित और आसान दर्शन',
+    },
   },
   {
     name: {
-      en: 'Special Darshan',
-      hi: 'विशेष दर्शन',
-    },
-    price: 100,
-    duration: 30,
-    dailyLimit: 5000,
-  },
-  {
-    name: {
-      en: 'VIP Darshan',
-      hi: 'वीआईपी दर्शन',
+      en: 'Rudrabhishek',
+      hi: 'रुद्राभिषेक',
     },
     price: 500,
     duration: 45,
-    dailyLimit: 1000,
+    dailyLimit: 200,
+    description: {
+      en: 'Sacred abhishekam with Rudra mantras and holy water',
+      hi: 'रुद्र मंत्रों और पवित्र जल के साथ पवित्र अभिषेक',
+    },
   },
   {
     name: {
-      en: 'Aarti Darshan',
-      hi: 'आरती दर्शन',
+      en: 'Aarti',
+      hi: 'आरती',
     },
     price: 200,
     duration: 60,
-    dailyLimit: 2000,
+    dailyLimit: 500,
+    description: {
+      en: 'Participate in the divine Aarti ceremony',
+      hi: 'दिव्य आरती समारोह में भाग लें',
+    },
+  },
+  {
+    name: {
+      en: 'Other Pooja',
+      hi: 'अन्य पूजा',
+    },
+    price: 100,
+    duration: 30,
+    dailyLimit: 1000,
+    description: {
+      en: 'Various other pooja services available',
+      hi: 'विभिन्न अन्य पूजा सेवाएं उपलब्ध',
+    },
   },
 ];
 
@@ -365,36 +381,77 @@ async function seedDatabase() {
 
     // Insert Jyotirlingas
     console.log('📝 Inserting Jyotirlingas...');
-    const insertedJyotirlingas = await Jyotirlinga.insertMany(jyotirlingasData);
+    const jyotirlingasToInsert = jyotirlingasData.map((j) => ({
+      ...j,
+      isActive: true, // Explicitly set isActive
+    }));
+    const insertedJyotirlingas = await Jyotirlinga.insertMany(jyotirlingasToInsert);
     console.log(`✅ Inserted ${insertedJyotirlingas.length} Jyotirlingas`);
 
     // Insert Darshan Types and Time Slots ONLY for Kashi Vishwanath
     console.log('📝 Inserting Darshan Types and Time Slots for Kashi Vishwanath...');
-    const kashiVishwanath = insertedJyotirlingas.find(
+    
+    // Try multiple ways to find Kashi Vishwanath
+    let kashiVishwanath = insertedJyotirlingas.find(
       (j) => j.pageTemplate === 'kashi-vishwanath'
     );
     
-    if (kashiVishwanath) {
-      // Insert darshan types for Kashi Vishwanath only
-      const darshanTypes = await DarshanType.insertMany(
-        darshanTypesData.map((darshan) => ({
-          ...darshan,
-          jyotirlingaId: kashiVishwanath._id,
-        }))
+    // Fallback: try by slug
+    if (!kashiVishwanath) {
+      kashiVishwanath = insertedJyotirlingas.find(
+        (j) => j.slug === 'kashi-vishwanath'
       );
+    }
+    
+    // Fallback: try by name
+    if (!kashiVishwanath) {
+      kashiVishwanath = insertedJyotirlingas.find(
+        (j) => j.name?.en === 'Kashi Vishwanath' || j.name?.en?.includes('Kashi')
+      );
+    }
+    
+    if (kashiVishwanath) {
+      console.log(`✅ Found Kashi Vishwanath: ${kashiVishwanath.name.en} (ID: ${kashiVishwanath._id})`);
+      
+      // Insert darshan types for Kashi Vishwanath only
+      const darshanTypesToInsert = darshanTypesData.map((darshan) => ({
+        ...darshan,
+        jyotirlingaId: kashiVishwanath._id,
+        isActive: true, // Ensure isActive is set
+      }));
+      
+      console.log(`📋 Preparing to insert ${darshanTypesToInsert.length} darshan types...`);
+      
+      try {
+        const darshanTypes = await DarshanType.insertMany(darshanTypesToInsert);
+        console.log(`✅ Successfully inserted ${darshanTypes.length} darshan types`);
 
-      // Insert time slots for each darshan type
-      for (const darshanType of darshanTypes) {
-        await TimeSlot.insertMany(
-          timeSlotsData.map((slot) => ({
+        // Insert time slots for each darshan type
+        let totalSlotsInserted = 0;
+        for (const darshanType of darshanTypes) {
+          const slotsToInsert = timeSlotsData.map((slot) => ({
             ...slot,
             darshanTypeId: darshanType._id,
-          }))
-        );
+            isActive: true,
+          }));
+          const slots = await TimeSlot.insertMany(slotsToInsert);
+          totalSlotsInserted += slots.length;
+        }
+        console.log(`✅ Successfully inserted ${totalSlotsInserted} time slots`);
+        console.log('✅ Completed: Darshan Types and Time Slots for Kashi Vishwanath');
+      } catch (error) {
+        console.error('❌ Error inserting darshan types:', error);
+        if (error instanceof Error) {
+          console.error('Error details:', error.message);
+        }
+        throw error;
       }
-      console.log('✅ Inserted Darshan Types and Time Slots for Kashi Vishwanath');
     } else {
-      console.log('⚠️  Kashi Vishwanath not found, skipping darshan types');
+      console.error('❌ Kashi Vishwanath not found! Available Jyotirlingas:');
+      insertedJyotirlingas.forEach((j) => {
+        console.error(`   - ${j.name?.en || 'Unknown'} (slug: ${j.slug}, pageTemplate: ${j.pageTemplate || 'none'})`);
+      });
+      throw new Error('Kashi Vishwanath not found in inserted Jyotirlingas');
     }
 
     // Insert city data with comprehensive Varanasi data
@@ -696,7 +753,29 @@ async function seedDatabase() {
     await City.insertMany(cityData);
     console.log(`✅ Inserted ${cityData.length} Cities`);
 
-    console.log('🎉 Database seeding completed successfully!');
+    // Verify darshan types were inserted
+    console.log('\n🔍 Verifying inserted data...');
+    const verifyDarshanTypes = await DarshanType.find({}).countDocuments();
+    const verifyTimeSlots = await TimeSlot.find({}).countDocuments();
+    const verifyJyotirlingas = await Jyotirlinga.find({}).countDocuments();
+    const verifyCities = await City.find({}).countDocuments();
+    
+    console.log(`✅ Verification Results:`);
+    console.log(`   - Jyotirlingas: ${verifyJyotirlingas}`);
+    console.log(`   - Darshan Types: ${verifyDarshanTypes} (Expected: ${darshanTypesData.length})`);
+    console.log(`   - Time Slots: ${verifyTimeSlots} (Expected: ${darshanTypesData.length * timeSlotsData.length})`);
+    console.log(`   - Cities: ${verifyCities}`);
+    
+    if (verifyDarshanTypes === 0) {
+      console.error('\n❌ WARNING: No darshan types found in database!');
+      console.error('   Please check the logs above for errors.');
+    } else if (verifyDarshanTypes < darshanTypesData.length) {
+      console.warn(`\n⚠️  WARNING: Only ${verifyDarshanTypes} darshan types found, expected ${darshanTypesData.length}`);
+    } else {
+      console.log('\n✅ All darshan types successfully inserted!');
+    }
+
+    console.log('\n🎉 Database seeding completed successfully!');
     console.log(`\n📊 Summary:`);
     console.log(`   - Jyotirlingas: ${insertedJyotirlingas.length}`);
     console.log(`   - Darshan Types: ${darshanTypesData.length} (Kashi Vishwanath only)`);
@@ -705,7 +784,11 @@ async function seedDatabase() {
 
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error seeding database:', error);
+    console.error('\n❌ Error seeding database:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     process.exit(1);
   }
 }

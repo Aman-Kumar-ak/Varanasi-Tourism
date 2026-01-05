@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import DatePicker from './DatePicker';
 import SlotSelector from './SlotSelector';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { formatCurrency, formatDate, getApiUrl } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 interface Jyotirlinga {
@@ -50,29 +50,53 @@ export default function BookingFlow({ jyotirlingaId, darshanTypeId }: BookingFlo
 
   const fetchTempleAndDarshanType = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      setLoading(true);
+      const apiUrl = getApiUrl();
       
-      const [templeRes, darshanRes] = await Promise.all([
-        fetch(`${apiUrl}/api/jyotirlingas/${jyotirlingaId}`),
-        fetch(`${apiUrl}/api/jyotirlingas/${jyotirlingaId}/darshan-types`),
-      ]);
-
-      const templeData = await templeRes.json();
-      const darshanData = await darshanRes.json();
-
-      if (templeData.success) {
-        setTemple(templeData.data);
+      // First, try to fetch temple by ID (MongoDB ObjectId)
+      let templeData;
+      let templeRes = await fetch(`${apiUrl}/api/jyotirlingas/${jyotirlingaId}`);
+      templeData = await templeRes.json();
+      
+      // If not found by ID (might be ObjectId), try fetching all temples and finding by ID
+      if (!templeData.success) {
+        const allTemplesRes = await fetch(`${apiUrl}/api/jyotirlingas`);
+        const allTemplesData = await allTemplesRes.json();
+        if (allTemplesData.success && allTemplesData.data) {
+          const foundTemple = allTemplesData.data.find((t: any) => t._id === jyotirlingaId);
+          if (foundTemple) {
+            templeData = { success: true, data: foundTemple };
+          }
+        }
       }
 
-      if (darshanData.success) {
-        const type = darshanData.data.find((dt: DarshanType) => dt._id === darshanTypeId);
-        if (type) {
-          setDarshanType(type);
+      if (templeData.success && templeData.data) {
+        setTemple(templeData.data);
+        const templeSlug = templeData.data.slug || jyotirlingaId;
+        
+        // Fetch darshan types using slug (API expects slug)
+        const darshanRes = await fetch(`${apiUrl}/api/jyotirlingas/${templeSlug}/darshan-types`);
+        const darshanData = await darshanRes.json();
+
+        if (darshanData.success && darshanData.data) {
+          const type = darshanData.data.find((dt: DarshanType) => dt._id === darshanTypeId);
+          if (type) {
+            setDarshanType(type);
+          } else {
+            console.error('Darshan type not found in list:', darshanTypeId);
+            toast.error('Darshan type not found');
+          }
+        } else {
+          console.error('Failed to fetch darshan types:', darshanData);
+          toast.error(darshanData.error || 'Failed to load darshan types');
         }
+      } else {
+        console.error('Temple not found:', jyotirlingaId);
+        toast.error('Temple not found');
       }
     } catch (error) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to load booking details');
+      toast.error('Failed to load booking details. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -89,7 +113,7 @@ export default function BookingFlow({ jyotirlingaId, darshanTypeId }: BookingFlo
     setStep(3);
   };
 
-  const handleConfirmBooking = async () => {
+  const handleConfirmBooking = () => {
     if (!selectedDate || !selectedSlotId) {
       toast.error('Please select date and time slot');
       return;
@@ -103,38 +127,13 @@ export default function BookingFlow({ jyotirlingaId, darshanTypeId }: BookingFlo
       return;
     }
 
-    setSubmitting(true);
-
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-      const response = await fetch(`${apiUrl}/api/bookings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          jyotirlingaId,
-          darshanTypeId,
-          timeSlotId: selectedSlotId,
-          date: selectedDate.toISOString(),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success('Booking created successfully!');
-        router.push(`/booking/confirm/${data.data._id}`);
-      } else {
-        throw new Error(data.error || 'Failed to create booking');
-      }
-    } catch (error: any) {
-      console.error('Error creating booking:', error);
-      toast.error(error.message || 'Failed to create booking. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
+    // Get temple ID (might be slug, need to convert to ID)
+    const templeId = temple?._id || jyotirlingaId;
+    
+    // Redirect to enhanced booking flow to collect attendee details
+    router.push(
+      `/booking/details?temple=${templeId}&darshan=${darshanTypeId}&date=${selectedDate.toISOString()}&slot=${selectedSlotId}`
+    );
   };
 
   if (loading) {
@@ -305,7 +304,7 @@ export default function BookingFlow({ jyotirlingaId, darshanTypeId }: BookingFlo
                 disabled={submitting}
                 className="w-full px-8 py-4 bg-primary-orange text-white rounded-lg hover:bg-primary-orange/90 transition-colors font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {submitting ? 'Creating Booking...' : 'Confirm & Proceed to Payment'}
+                {submitting ? 'Loading...' : 'Continue to Attendee Details'}
               </button>
             </div>
           )}

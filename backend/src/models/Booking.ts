@@ -1,5 +1,13 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+export interface IAttendee {
+  name: string;
+  age: number;
+  gender: 'male' | 'female' | 'other';
+  idProof?: string;
+  idProofNumber?: string;
+}
+
 export interface IBooking extends Document {
   userId: mongoose.Types.ObjectId;
   jyotirlingaId: mongoose.Types.ObjectId;
@@ -12,6 +20,14 @@ export interface IBooking extends Document {
   receiptNumber: string;
   qrCode?: string;
   status: 'confirmed' | 'cancelled' | 'completed';
+  // Attendee information
+  primaryContact: {
+    name: string;
+    phone: string;
+    email?: string;
+  };
+  adults: IAttendee[];
+  children: IAttendee[];
   createdAt: Date;
 }
 
@@ -67,6 +83,45 @@ const BookingSchema: Schema = new Schema<IBooking>(
       enum: ['confirmed', 'cancelled', 'completed'],
       default: 'confirmed',
     },
+    primaryContact: {
+      name: {
+        type: String,
+        required: true,
+      },
+      phone: {
+        type: String,
+        required: true,
+      },
+      email: {
+        type: String,
+      },
+    },
+    adults: [
+      {
+        name: { type: String, required: true },
+        age: { type: Number, required: true, min: 0 },
+        gender: {
+          type: String,
+          enum: ['male', 'female', 'other'],
+          required: true,
+        },
+        idProof: { type: String },
+        idProofNumber: { type: String },
+      },
+    ],
+    children: [
+      {
+        name: { type: String, required: true },
+        age: { type: Number, required: true, min: 0, max: 17 },
+        gender: {
+          type: String,
+          enum: ['male', 'female', 'other'],
+          required: true,
+        },
+        idProof: { type: String },
+        idProofNumber: { type: String },
+      },
+    ],
   },
   {
     timestamps: true,

@@ -5,44 +5,7 @@ import Jyotirlinga from '../models/Jyotirlinga.js';
 
 const router = express.Router();
 
-// Get city info by name (case-insensitive)
-router.get('/:name', async (req: Request, res: Response) => {
-  try {
-    await connectDB();
-
-    const cityName = req.params.name.toLowerCase();
-    
-    // Find city by name (case-insensitive)
-    const city = await City.findOne({
-      $or: [
-        { 'name.en': { $regex: new RegExp(cityName, 'i') } },
-        { 'name.hi': { $regex: new RegExp(cityName, 'i') } },
-      ],
-    })
-      .populate('jyotirlingaId', 'name slug city state images')
-      .select('-__v');
-
-    if (!city) {
-      return res.status(404).json({
-        success: false,
-        error: 'City not found',
-      });
-    }
-
-    res.json({
-      success: true,
-      data: city,
-    });
-  } catch (error) {
-    console.error('Error fetching city:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch city',
-    });
-  }
-});
-
-// Get all cities
+// Get all cities - MUST come before /:name route
 router.get('/', async (req: Request, res: Response) => {
   try {
     await connectDB();
@@ -61,6 +24,61 @@ router.get('/', async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch cities',
+    });
+  }
+});
+
+// Get city info by name (case-insensitive, handles URL slugs)
+router.get('/:name', async (req: Request, res: Response) => {
+  try {
+    await connectDB();
+
+    const cityNameParam = req.params.name.toLowerCase();
+    // Convert URL slug back to city name (e.g., "varanasi" -> "Varanasi")
+    const cityName = cityNameParam
+      .split('-')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    
+    // Try exact match first, then regex match
+    let city = await City.findOne({
+      $or: [
+        { 'name.en': { $regex: new RegExp(`^${cityName}$`, 'i') } },
+        { 'name.en': { $regex: new RegExp(cityNameParam.replace(/-/g, ' '), 'i') } },
+      ],
+    })
+      .populate('jyotirlingaId', 'name slug city state images')
+      .select('-__v');
+
+    // If not found, try more flexible search
+    if (!city) {
+      city = await City.findOne({
+        $or: [
+          { 'name.en': { $regex: new RegExp(cityNameParam.replace(/-/g, '.*'), 'i') } },
+          { 'name.hi': { $regex: new RegExp(cityNameParam.replace(/-/g, '.*'), 'i') } },
+        ],
+      })
+        .populate('jyotirlingaId', 'name slug city state images')
+        .select('-__v');
+    }
+
+    if (!city) {
+      return res.status(404).json({
+        success: false,
+        error: 'City not found',
+      });
+    }
+
+    res.json({
+      success: true,
+      data: city,
+    });
+  } catch (error) {
+    console.error('Error fetching city:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch city',
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });
