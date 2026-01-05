@@ -15,6 +15,9 @@ if (!JWT_SECRET) {
   throw new Error('JWT_SECRET is not defined in .env file');
 }
 
+// Type assertion after runtime check
+const JWT_SECRET_KEY: string = JWT_SECRET;
+
 export interface JWTPayload {
   userId: string;
   phone: string;
@@ -25,7 +28,7 @@ export interface JWTPayload {
  * Generate JWT token for user
  */
 export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, JWT_SECRET_KEY, {
     expiresIn: '7d', // Token expires in 7 days
   });
 }
@@ -35,8 +38,12 @@ export function generateToken(payload: JWTPayload): string {
  */
 export function verifyToken(token: string): JWTPayload | null {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JWTPayload;
-    return decoded;
+    const decoded = jwt.verify(token, JWT_SECRET_KEY);
+    // Type guard to ensure decoded has the required properties
+    if (typeof decoded === 'object' && decoded !== null && 'userId' in decoded && 'phone' in decoded && 'name' in decoded) {
+      return decoded as JWTPayload;
+    }
+    return null;
   } catch (error) {
     return null;
   }
