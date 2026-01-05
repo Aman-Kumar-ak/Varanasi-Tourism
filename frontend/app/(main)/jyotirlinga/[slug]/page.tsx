@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getApiUrl } from '@/lib/utils';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -95,11 +96,12 @@ export default function JyotirlingaDetailPage() {
     if (params.slug) {
       fetchTempleDetails();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.slug]);
 
   const fetchTempleDetails = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiUrl = getApiUrl();
       const response = await fetch(`${apiUrl}/api/jyotirlingas/${params.slug}`);
       const data = await response.json();
 

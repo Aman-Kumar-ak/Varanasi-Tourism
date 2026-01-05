@@ -35,6 +35,7 @@ export default function JyotirlingasPage() {
 
   useEffect(() => {
     fetchJyotirlingas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedState, selectedCity, searchQuery]);
 
   const fetchJyotirlingas = async () => {

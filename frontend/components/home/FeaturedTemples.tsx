@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getLocalizedContent } from '@/lib/i18n';
 import { INDIAN_STATES } from '@/lib/constants';
+import { getApiUrl } from '@/lib/utils';
 
 interface Jyotirlinga {
   _id: string;
@@ -39,7 +40,7 @@ export default function FeaturedTemples() {
   const fetchJyotirlingas = async () => {
     try {
       setLoading(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiUrl = getApiUrl();
       const url = selectedState === 'all' 
         ? `${apiUrl}/api/jyotirlingas`
         : `${apiUrl}/api/jyotirlingas?state=${selectedState}`;

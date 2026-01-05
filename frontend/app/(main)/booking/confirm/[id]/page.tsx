@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { formatCurrency, formatDate, formatTime } from '@/lib/utils';
+import { formatCurrency, formatDate, formatTime, getApiUrl } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 interface BookingDetails {
@@ -57,7 +57,7 @@ export default function BookingConfirmationPage() {
         return;
       }
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const apiUrl = getApiUrl();
       const response = await fetch(`${apiUrl}/api/bookings/${params.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,

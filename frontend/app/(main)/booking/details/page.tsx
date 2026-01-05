@@ -1,9 +1,10 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import EnhancedBookingFlow from '@/components/booking/EnhancedBookingFlow';
 
-export default function BookingDetailsPage() {
+function BookingDetailsContent() {
   const searchParams = useSearchParams();
   const templeId = searchParams.get('temple');
   const darshanId = searchParams.get('darshan');
@@ -36,6 +37,23 @@ export default function BookingDetailsPage() {
       date={date}
       timeSlotId={slotId}
     />
+  );
+}
+
+export default function BookingDetailsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background-parchment">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue"></div>
+            <p className="mt-4 text-primary-dark/70">Loading booking details...</p>
+          </div>
+        </div>
+      }
+    >
+      <BookingDetailsContent />
+    </Suspense>
   );
 }
 
