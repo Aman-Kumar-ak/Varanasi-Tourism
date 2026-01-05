@@ -91,7 +91,7 @@ export default function MahakaleshwarPage({ temple, language }: MahakaleshwarPag
               <p className="text-white/90 leading-relaxed">
                 Mahakaleshwar is the only Jyotirlinga facing south. The unique Bhasma Aarti 
                 performed here every morning with sacred ash is a powerful spiritual experience. 
-                This ritual is believed to grant wishes and remove obstacles from one's life.
+                This ritual is believed to grant wishes and remove obstacles from one&apos;s life.
               </p>
             </section>
 

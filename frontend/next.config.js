@@ -1,6 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  eslint: {
+    // Don't fail build on ESLint warnings (only errors)
+    // React Hook dependency warnings are common and often intentional
+    ignoreDuringBuilds: false,
+  },
+  typescript: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has type errors. Only use this if you need to.
+    ignoreBuildErrors: false,
+  },
   images: {
     domains: ['localhost'],
     remotePatterns: [

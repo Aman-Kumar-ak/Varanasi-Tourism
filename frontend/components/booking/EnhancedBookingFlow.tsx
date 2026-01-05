@@ -660,7 +660,7 @@ export default function EnhancedBookingFlow({
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800 text-sm">
                 <strong>Demo Mode:</strong> This is a demonstration payment. No actual payment will be processed.
-                Click "Complete Payment" to proceed with the booking.
+                Click &quot;Complete Payment&quot; to proceed with the booking.
               </p>
             </div>
 

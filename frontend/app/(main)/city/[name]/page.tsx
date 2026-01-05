@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getApiUrl } from '@/lib/utils';
@@ -13,13 +13,9 @@ export default function CityPage() {
   const [city, setCity] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (params.name) {
-      fetchCityData();
-    }
-  }, [params.name, language]);
-
-  const fetchCityData = async () => {
+  const fetchCityData = useCallback(async () => {
+    if (!params.name) return;
+    
     try {
       setLoading(true);
       const apiUrl = getApiUrl();
@@ -37,7 +33,11 @@ export default function CityPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [params.name]);
+
+  useEffect(() => {
+    fetchCityData();
+  }, [fetchCityData, language]);
 
   if (loading) {
     return (

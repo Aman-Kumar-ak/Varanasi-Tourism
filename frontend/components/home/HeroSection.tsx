@@ -24,7 +24,7 @@ export default function HeroSection() {
           
           {/* Subheadline */}
           <p className="text-xl md:text-2xl text-white/90 mb-10 leading-relaxed">
-            Book your spiritual journey with ease. Connect with the divine at India's most sacred temples.
+            Book your spiritual journey with ease. Connect with the divine at India&apos;s most sacred temples.
           </p>
 
           {/* CTA Buttons */}

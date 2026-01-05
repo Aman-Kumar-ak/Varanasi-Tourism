@@ -9,7 +9,7 @@ export default function MyBookingsPage() {
         <div className="text-6xl mb-4">🚧</div>
         <h2 className="text-2xl font-bold text-primary-dark mb-4">My Bookings Coming Soon</h2>
         <p className="text-primary-dark/70 mb-6">
-          We're currently in guide mode, helping you discover and learn about sacred places.
+          We&apos;re currently in guide mode, helping you discover and learn about sacred places.
           Booking management will be available soon when we integrate with official temple trust booking systems.
         </p>
         <div className="flex flex-col gap-3">

@@ -83,7 +83,7 @@ export default function JyotirlingasPage() {
             All 12 Jyotirlingas
           </h1>
           <p className="text-xl text-white/90">
-            Discover and book Darshan at India's most sacred temples
+            Discover and book Darshan at India&apos;s most sacred temples
           </p>
         </div>
       </div>
