@@ -151,9 +151,11 @@ export default function FeaturedTemples() {
                         <p className="text-xs sm:text-sm text-primary-dark/60 mb-2 sm:mb-4 line-clamp-1">
                           {temple.city}, {temple.state}
                         </p>
-                        <p className="text-xs sm:text-sm text-primary-dark/70 line-clamp-2 mb-3 sm:mb-4 hidden sm:block">
-                          {getLocalizedContent(temple.description, language)}
-                        </p>
+                        {temple.description && (
+                          <p className="text-xs sm:text-sm text-primary-dark/70 line-clamp-2 mb-3 sm:mb-4 hidden sm:block">
+                            {getLocalizedContent(temple.description, language)}
+                          </p>
+                        )}
                         <div className="flex gap-2 sm:gap-3 mt-auto">
                           <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-blue text-white rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-blue/90 transition-colors whitespace-nowrap">
                             Book Now

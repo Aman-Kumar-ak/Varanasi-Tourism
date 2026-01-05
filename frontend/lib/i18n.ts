@@ -4,7 +4,7 @@ import { type LanguageCode, SUPPORTED_LANGUAGES } from './constants';
  * Get multi-language content based on current language
  * Falls back to English if translation not available
  */
-export function getLocalizedContent<T extends Record<string, any>>(
+export function getLocalizedContent<T extends Record<string, any> | undefined>(
   content: T,
   language: LanguageCode
 ): string {
