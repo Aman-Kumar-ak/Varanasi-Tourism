@@ -1,5 +1,7 @@
 # Ignore backend directory in Vercel builds
 backend/
+backend/**
+!frontend/
 node_modules/
 .git/
 *.md
