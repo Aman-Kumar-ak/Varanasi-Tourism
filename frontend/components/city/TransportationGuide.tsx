@@ -82,12 +82,12 @@ export default function TransportationGuide({
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
             
             {/* Icon and Header */}
-            <div className="flex items-center gap-4 mb-4 relative z-10">
-              <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-3xl shadow-temple">
+            <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-4 relative z-10">
+              <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-xl sm:text-2xl md:text-3xl shadow-temple">
                 <span>{transportIcons[option.type] || '🚗'}</span>
               </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-primary-dark">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg sm:text-xl font-bold text-primary-dark break-words leading-tight">
                   {option.name}
                 </h3>
               </div>

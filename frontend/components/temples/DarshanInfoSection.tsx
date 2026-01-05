@@ -74,10 +74,10 @@ export default function DarshanInfoSection({
                 : 'bg-primary-orange/90 text-white'
             } rounded-lg p-6 transition-all duration-200 shadow-md h-full`}
           >
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mt-1">
+            <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+              <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center mt-1">
                 <svg
-                  className="w-6 h-6 text-white"
+                  className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -90,8 +90,8 @@ export default function DarshanInfoSection({
                   />
                 </svg>
               </div>
-              <div className="flex-grow">
-                <h3 className="font-bold text-xl mb-2">
+              <div className="flex-grow min-w-0">
+                <h3 className="font-bold text-lg sm:text-xl mb-2 break-words leading-tight">
                   {getLocalizedContent(type.name, language)}
                 </h3>
                 {type.description && (

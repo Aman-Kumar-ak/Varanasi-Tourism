@@ -90,6 +90,16 @@ h1, h2, h3, h4, h5, h6,
 
 /* Scrollbar hover effect removed */
 
+/* Hide scrollbar for carousel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Remove default focus outlines and add custom focus styles */
 button:focus,
 a:focus,

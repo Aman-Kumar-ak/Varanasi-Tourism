@@ -86,21 +86,21 @@ export default function RoutePlanner({
         <h3 className="text-xl font-bold text-primary-dark mb-5">{t('entry.points', language)}</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {entryPoints.map((entryPoint, index) => (
-            <button
+            <div
               key={index}
               onClick={() =>
                 setSelectedEntryPoint(
                   selectedEntryPoint === entryPoint.name ? null : entryPoint.name
                 )
               }
-              className={`w-full transition-all focus:outline-none rounded-xl ${
+              className={`w-full transition-all cursor-pointer rounded-xl ${
                 selectedEntryPoint === entryPoint.name
                   ? 'ring-2 ring-primary-gold ring-offset-2'
                   : ''
               }`}
             >
               <EntryPointCard entryPoint={entryPoint} language={language} />
-            </button>
+            </div>
           ))}
         </div>
       </div>

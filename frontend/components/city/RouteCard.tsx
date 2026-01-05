@@ -87,12 +87,12 @@ export default function RouteCard({ route, language }: RouteCardProps) {
             key={index}
             className="bg-gradient-to-br from-primary-gold/10 to-primary-saffron/5 rounded-xl p-4 border border-primary-gold/20"
           >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-gradient-temple flex items-center justify-center text-xl shadow-temple">
+            <div className="flex items-center justify-between mb-3 gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-gradient-temple flex items-center justify-center text-lg sm:text-xl shadow-temple flex-shrink-0">
                   {transportIcons[option.type] || '🚗'}
                 </div>
-                <span className="font-bold text-primary-dark capitalize text-base">
+                <span className="font-bold text-primary-dark capitalize text-sm sm:text-base break-words">
                   {option.type}
                 </span>
               </div>

@@ -7,7 +7,7 @@ import { getOptimizedVideoUrl, getVideoThumbnail } from '@/lib/cloudinary';
 import { t } from '@/lib/translations';
 import type { LanguageCode } from '@/lib/constants';
 import SectionHeader from './SectionHeader';
-import PlaceCard from './PlaceCard';
+import PlacesCarousel from './PlacesCarousel';
 import TransportationGuide from './TransportationGuide';
 import RoutePlanner from './RoutePlanner';
 
@@ -211,7 +211,6 @@ export default function ComprehensiveCityGuide({
               {/* Decorative gradient background */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
               <div className="flex items-start gap-5 relative z-10">
-                <div className="text-4xl flex-shrink-0">📜</div>
                 <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-lg flex-1">
                   {getLocalizedContent(city.history, language)}
                 </p>
@@ -228,11 +227,7 @@ export default function ComprehensiveCityGuide({
               icon="📍"
               subtitle={t('explore.sacred.sites', language)}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-              {city.places.map((place, index) => (
-                <PlaceCard key={index} place={place} language={language} />
-              ))}
-            </div>
+            <PlacesCarousel places={city.places} language={language} />
           </section>
         )}
 
@@ -320,9 +315,6 @@ export default function ComprehensiveCityGuide({
               {/* Decorative gradient background */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
               <div className="flex items-start gap-5 mb-6 relative z-10">
-                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-3xl shadow-temple">
-                  📿
-                </div>
                 <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-lg flex-1">
                   {getLocalizedContent(city.darshanInfo, language)}
                 </p>

@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import { getLocalizedContent } from '@/lib/i18n';
+import { openGoogleMapsDirections } from '@/lib/googleMaps';
+import { t } from '@/lib/translations';
 import type { LanguageCode } from '@/lib/constants';
 
 interface Place {
@@ -49,7 +51,7 @@ export default function PlaceCard({ place, language }: PlaceCardProps) {
   const icon = categoryIcons[category] || '📍';
 
   return (
-    <div className="card-modern rounded-2xl overflow-hidden shadow-card border-l-4 border-primary-gold relative h-full flex flex-col">
+    <div className="card-modern rounded-2xl overflow-hidden border-l-4 border-primary-gold relative h-full flex flex-col">
       {/* Decorative gradient background */}
       <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mb-16 z-0"></div>
       
@@ -66,11 +68,11 @@ export default function PlaceCard({ place, language }: PlaceCardProps) {
         </div>
       )}
       <div className="p-6 sm:p-8 flex-grow flex flex-col relative z-10">
-        <div className="flex items-center gap-4 mb-4">
-          <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-2xl shadow-temple">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-4">
+          <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-lg sm:text-xl md:text-2xl shadow-temple">
             {icon}
           </div>
-          <h3 className="text-xl sm:text-2xl font-bold text-primary-dark flex-1 leading-tight">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-dark flex-1 min-w-0 leading-tight break-words">
             {getLocalizedContent(place.name, language)}
           </h3>
         </div>
@@ -103,6 +105,18 @@ export default function PlaceCard({ place, language }: PlaceCardProps) {
               <span>⏱️</span>
               <span>{place.visitDuration}</span>
             </span>
+          )}
+          {place.location && (
+            <button
+              onClick={() => openGoogleMapsDirections(place.location!, getLocalizedContent(place.name, language))}
+              className="flex items-center gap-2 bg-primary-blue/10 hover:bg-primary-blue/20 px-3 py-1.5 rounded-lg font-medium transition-colors text-primary-blue"
+              aria-label={t('get.directions', language)}
+              title={t('get.directions', language)}
+            >
+              <span>🗺️</span>
+              <span className="hidden sm:inline">{t('directions', language)}</span>
+              <span className="sm:hidden">{t('map', language)}</span>
+            </button>
           )}
         </div>
       </div>
