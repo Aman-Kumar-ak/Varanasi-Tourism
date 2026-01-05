@@ -90,7 +90,7 @@ export default function CityCarousel() {
                   <h3 className="text-2xl font-bold text-primary-dark mb-2">
                     {city.name}
                   </h3>
-                  <p className="text-sm text-primary-teal font-semibold mb-2">
+                  <p className="text-sm text-primary-gold font-semibold mb-2">
                     {city.jyotirlinga}
                   </p>
                   <p className="text-sm text-primary-dark/60 mb-4">

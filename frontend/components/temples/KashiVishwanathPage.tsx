@@ -165,7 +165,7 @@ export default function KashiVishwanathPage({ temple, language }: KashiVishwanat
             </section>
 
             {/* Ganga Aarti Info */}
-            <section className="bg-primary-teal rounded-xl p-6 text-white shadow-lg">
+            <section className="bg-primary-gold rounded-xl p-6 text-white shadow-lg">
               <h2 className="text-2xl font-bold mb-4">Ganga Aarti Experience</h2>
               <p className="text-white/90 leading-relaxed">
                 Don't miss the spectacular Ganga Aarti ceremony performed every evening at 

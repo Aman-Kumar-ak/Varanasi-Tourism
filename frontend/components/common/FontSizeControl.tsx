@@ -5,8 +5,8 @@ import { useFontSize } from '@/contexts/FontSizeContext';
 export default function FontSizeControl() {
   const { fontSizeLevel, increaseFontSize, decreaseFontSize } = useFontSize();
 
-  const isMaxSize = fontSizeLevel >= 2;
-  const isMinSize = fontSizeLevel <= -2;
+  const isMaxSize = fontSizeLevel >= 1;
+  const isMinSize = fontSizeLevel <= -1;
 
   return (
     <div className="flex items-center gap-1 bg-white rounded-lg border border-primary-blue/20 p-1 shadow-sm">

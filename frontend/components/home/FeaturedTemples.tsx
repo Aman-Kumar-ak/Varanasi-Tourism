@@ -138,7 +138,7 @@ export default function FeaturedTemples() {
                           </div>
                         )}
                         {/* State Badge */}
-                        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-primary-teal text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
+                        <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-primary-gold text-white px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold">
                           {temple.stateCode}
                         </div>
                       </div>
@@ -158,7 +158,7 @@ export default function FeaturedTemples() {
                           <span className="px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-blue text-white rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-blue/90 transition-colors whitespace-nowrap">
                             Book Now
                           </span>
-                          <span className="px-3 py-1.5 sm:px-4 sm:py-2 border border-primary-teal text-primary-teal rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-teal/10 transition-colors whitespace-nowrap">
+                          <span className="px-3 py-1.5 sm:px-4 sm:py-2 border border-primary-gold text-primary-gold rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap">
                             Explore
                           </span>
                         </div>

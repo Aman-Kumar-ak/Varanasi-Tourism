@@ -51,58 +51,65 @@ function formatCurrency(amount: number): string {
 
 export default function RouteCard({ route, language }: RouteCardProps) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all border border-primary-blue/5 h-full flex flex-col">
-      <div className="mb-4">
-        <h3 className="text-lg font-bold text-primary-dark mb-1">
+    <div className="card-modern rounded-2xl p-6 shadow-card border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden">
+      {/* Decorative gradient background */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
+      
+      <div className="mb-5 relative z-10">
+        <h3 className="text-xl font-bold text-primary-dark mb-3 leading-tight">
           {route.from} → {route.to}
         </h3>
-        <div className="flex items-center gap-4 text-base text-primary-dark/60">
-          <span className="flex items-center gap-1">
-            <span>📏</span>
-            <span>{route.distance} {t('km', language)}</span>
+        <div className="flex items-center gap-5 text-base text-primary-dark/70">
+          <span className="flex items-center gap-2 bg-primary-gold/10 px-3 py-1.5 rounded-lg">
+            <span className="text-lg">📏</span>
+            <span className="font-medium">{route.distance} {t('km', language)}</span>
           </span>
-          <span className="flex items-center gap-1">
-            <span>⏱️</span>
-            <span>{route.duration} {t('min', language)}</span>
+          <span className="flex items-center gap-2 bg-primary-saffron/10 px-3 py-1.5 rounded-lg">
+            <span className="text-lg">⏱️</span>
+            <span className="font-medium">{route.duration} {t('min', language)}</span>
           </span>
         </div>
       </div>
 
       {route.routeDescription && (
-        <p className="text-sm text-primary-dark/70 mb-4">
+        <p className="text-sm text-primary-dark/80 mb-5 leading-relaxed relative z-10">
           {getLocalizedContent(route.routeDescription, language)}
         </p>
       )}
 
-      <div className="space-y-3">
-        <h4 className="text-base font-semibold text-primary-dark">{t('transport.options', language)}</h4>
+      <div className="space-y-4 relative z-10 flex-grow">
+        <h4 className="text-lg font-bold text-primary-dark flex items-center gap-2">
+          <span className="w-6 h-0.5 bg-gradient-temple"></span>
+          {t('transport.options', language)}
+        </h4>
         {route.transportOptions.map((option, index) => (
           <div
             key={index}
-            className="bg-background-parchment rounded-lg p-4 border border-primary-blue/10"
+            className="bg-gradient-to-br from-primary-gold/10 to-primary-saffron/5 rounded-xl p-4 border border-primary-gold/20"
           >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-temple flex items-center justify-center text-xl shadow-temple">
                   {transportIcons[option.type] || '🚗'}
-                </span>
-                <span className="font-semibold text-primary-dark capitalize">
+                </div>
+                <span className="font-bold text-primary-dark capitalize text-base">
                   {option.type}
                 </span>
               </div>
               <div className="text-right">
-                <div className="font-bold text-primary-orange">
+                <div className="font-bold text-gradient-temple text-lg">
                   {formatCurrency(option.priceRange.min)} - {formatCurrency(option.priceRange.max)}
                 </div>
-                <div className="text-sm text-primary-dark/60">
+                <div className="text-sm text-primary-dark/70 font-medium">
                   ~{option.estimatedTime} {t('min', language)}
                 </div>
               </div>
             </div>
             {option.tips && (
-              <div className="mt-2 pt-2 border-t border-primary-blue/20">
-                <p className="text-sm text-primary-teal">
-                  💡 {getLocalizedContent(option.tips, language)}
+              <div className="mt-3 pt-3 border-t border-primary-gold/20">
+                <p className="text-sm text-primary-dark/80 leading-relaxed flex items-start gap-2">
+                  <span className="text-primary-gold flex-shrink-0">💡</span>
+                  <span>{getLocalizedContent(option.tips, language)}</span>
                 </p>
               </div>
             )}

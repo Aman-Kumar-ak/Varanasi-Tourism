@@ -55,11 +55,19 @@ export default function TransportationGuide({
 
   return (
     <section className="mb-12">
-      <div className="mb-6">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-dark mb-2">
-          🚗 {t('transportation.guide', language)}
-        </h2>
-        <p className="text-primary-dark/70 text-base">
+      <div className="mb-8">
+        <div className="flex items-center gap-4 mb-3">
+          <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-temple flex items-center justify-center text-2xl shadow-temple">
+            🚗
+          </div>
+          <div className="flex-1">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gradient-temple mb-2">
+              {t('transportation.guide', language)}
+            </h2>
+            <div className="w-20 h-1 bg-gradient-temple rounded-full"></div>
+          </div>
+        </div>
+        <p className="text-primary-dark/80 text-base sm:text-lg ml-[4.5rem] font-medium">
           {t('transportation.subtitle', language)}
         </p>
       </div>
@@ -68,29 +76,41 @@ export default function TransportationGuide({
         {transportOptions.map((option, index) => (
           <div
             key={index}
-            className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all border border-primary-blue/5"
+            className="card-modern rounded-2xl p-6 shadow-card border-l-4 border-primary-gold relative overflow-hidden flex flex-col h-full"
           >
-            <div className="flex items-start gap-3 mb-3">
-              <span className="text-3xl">{transportIcons[option.type] || '🚗'}</span>
+            {/* Decorative gradient background */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
+            
+            {/* Icon and Header */}
+            <div className="flex items-center gap-4 mb-4 relative z-10">
+              <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-3xl shadow-temple">
+                <span>{transportIcons[option.type] || '🚗'}</span>
+              </div>
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-primary-dark mb-1">
+                <h3 className="text-xl font-bold text-primary-dark">
                   {option.name}
                 </h3>
-                <p className="text-base text-primary-dark/70">
-                  {getLocalizedContent(option.description, language)}
-                </p>
               </div>
             </div>
-            <div className="bg-primary-orange/10 rounded-lg p-3 mt-4">
-              <div className="text-center">
-                <div className="text-xl font-bold text-primary-orange mb-1">
-                  {formatCurrency(option.priceRange.min, option.priceRange.currency)} -{' '}
-                  {formatCurrency(option.priceRange.max, option.priceRange.currency)}
-                </div>
-                <div className="text-sm text-primary-dark/60">
-                  {option.perKm && t('per.km', language)}
-                  {option.perHour && t('per.hour', language)}
-                  {!option.perKm && !option.perHour && t('per.trip', language)}
+            
+            {/* Description */}
+            <p className="text-base text-primary-dark/80 leading-relaxed mb-5 relative z-10 flex-grow">
+              {getLocalizedContent(option.description, language)}
+            </p>
+            
+            {/* Price Section */}
+            <div className="relative z-10 mt-auto pt-4 border-t border-primary-gold/20">
+              <div className="bg-gradient-to-br from-primary-gold/15 to-primary-saffron/10 rounded-xl p-4 border border-primary-gold/20">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gradient-temple mb-1">
+                    {formatCurrency(option.priceRange.min, option.priceRange.currency)} -{' '}
+                    {formatCurrency(option.priceRange.max, option.priceRange.currency)}
+                  </div>
+                  <div className="text-sm font-medium text-primary-dark/70 mt-1">
+                    {option.perKm && t('per.km', language)}
+                    {option.perHour && t('per.hour', language)}
+                    {!option.perKm && !option.perHour && t('per.trip', language)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -99,7 +119,7 @@ export default function TransportationGuide({
       </div>
 
       {transportTips && (
-        <div className="bg-primary-teal/10 border border-primary-teal/30 rounded-xl p-6">
+        <div className="bg-primary-gold/10 border border-primary-gold/30 rounded-xl p-6">
           <h3 className="text-lg font-bold text-primary-dark mb-3 flex items-center gap-2">
             <span>💡</span>
             <span>{t('travel.tips', language)}</span>

@@ -508,7 +508,7 @@ export default function EnhancedBookingFlow({
                 </h3>
                 <button
                   onClick={addChild}
-                  className="px-4 py-2 bg-primary-teal text-white rounded-lg hover:bg-primary-teal/90 text-sm font-medium"
+                  className="px-4 py-2 bg-primary-gold text-white rounded-lg text-sm font-medium"
                 >
                   + Add Child
                 </button>
@@ -518,7 +518,7 @@ export default function EnhancedBookingFlow({
               ) : (
                 <div className="space-y-4">
                   {children.map((child, index) => (
-                    <div key={index} className="border border-primary-teal/20 rounded-lg p-4">
+                    <div key={index} className="border border-primary-gold/20 rounded-lg p-4">
                       <div className="flex items-center justify-between mb-4">
                         <span className="font-medium text-primary-dark">Child {index + 1}</span>
                         <button

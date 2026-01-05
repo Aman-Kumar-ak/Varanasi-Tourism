@@ -130,7 +130,7 @@ export default function DarshanInfoSection({
       </div>
 
       {!bookingEnabled && officialBookingUrl && (
-        <div className="bg-primary-teal/10 border border-primary-teal/30 rounded-xl p-6 text-center">
+        <div className="bg-primary-gold/10 border border-primary-gold/30 rounded-xl p-6 text-center">
           <h3 className="text-lg font-bold text-primary-dark mb-2">
             Official Booking Website
           </h3>
@@ -141,7 +141,7 @@ export default function DarshanInfoSection({
             href={officialBookingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-6 py-3 bg-primary-teal text-white rounded-lg hover:bg-primary-teal/90 transition-colors font-medium"
+            className="inline-block px-6 py-3 bg-primary-gold text-white rounded-lg font-medium"
           >
             Visit Official Booking Site →
           </a>

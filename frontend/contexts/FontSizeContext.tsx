@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-type FontSizeLevel = -2 | -1 | 0 | 1 | 2;
+type FontSizeLevel = -1 | 0 | 1;
 
 interface FontSizeContextType {
   fontSizeLevel: FontSizeLevel;
@@ -21,7 +21,7 @@ export function FontSizeProvider({ children }: { children: React.ReactNode }) {
     const saved = localStorage.getItem('fontSizeLevel');
     if (saved) {
       const level = parseInt(saved) as FontSizeLevel;
-      if (level >= -2 && level <= 2) {
+      if (level >= -1 && level <= 1) {
         setFontSizeLevel(level);
       }
     }
@@ -32,13 +32,11 @@ export function FontSizeProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement;
     const baseSize = 16; // Base font size in pixels
     
-    // Font size multipliers: -2: 0.875, -1: 0.9375, 0: 1, 1: 1.125, 2: 1.25
+    // Font size multipliers: -1: 0.9375, 0: 1, 1: 1.125
     const multipliers: Record<FontSizeLevel, number> = {
-      '-2': 0.875,
       '-1': 0.9375,
       '0': 1,
       '1': 1.125,
-      '2': 1.25,
     };
 
     const multiplier = multipliers[fontSizeLevel];
@@ -50,7 +48,7 @@ export function FontSizeProvider({ children }: { children: React.ReactNode }) {
 
   const increaseFontSize = () => {
     setFontSizeLevel((prev) => {
-      if (prev < 2) {
+      if (prev < 1) {
         return (prev + 1) as FontSizeLevel;
       }
       return prev;
@@ -59,7 +57,7 @@ export function FontSizeProvider({ children }: { children: React.ReactNode }) {
 
   const decreaseFontSize = () => {
     setFontSizeLevel((prev) => {
-      if (prev > -2) {
+      if (prev > -1) {
         return (prev - 1) as FontSizeLevel;
       }
       return prev;

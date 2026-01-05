@@ -64,19 +64,27 @@ export default function RoutePlanner({
 
   return (
     <section className="mb-12">
-      <div className="mb-6">
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-dark mb-2">
-          🗺️ {t('how.to.reach', language)}
-        </h2>
-        <p className="text-primary-dark/70 text-base">
+      <div className="mb-8">
+        <div className="flex items-center gap-5 mb-4">
+          <div className="flex-shrink-0 w-14 h-14 rounded-full bg-gradient-temple flex items-center justify-center text-2xl shadow-temple">
+            🗺️
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gradient-temple mb-3 leading-tight break-words">
+              {t('how.to.reach', language)}
+            </h2>
+            <div className="w-20 h-1 bg-gradient-temple rounded-full"></div>
+          </div>
+        </div>
+        <p className="text-primary-dark/80 text-base sm:text-lg ml-[4.5rem] font-medium">
           {t('select.entry.point', language)}
         </p>
       </div>
 
       {/* Entry Points */}
       <div className="mb-8">
-        <h3 className="text-xl font-bold text-primary-dark mb-4">{t('entry.points', language)}</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <h3 className="text-xl font-bold text-primary-dark mb-5">{t('entry.points', language)}</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {entryPoints.map((entryPoint, index) => (
             <button
               key={index}
@@ -87,7 +95,7 @@ export default function RoutePlanner({
               }
               className={`w-full transition-all focus:outline-none rounded-xl ${
                 selectedEntryPoint === entryPoint.name
-                  ? 'ring-2 ring-primary-orange ring-offset-2'
+                  ? 'ring-2 ring-primary-gold ring-offset-2'
                   : ''
               }`}
             >
@@ -100,7 +108,8 @@ export default function RoutePlanner({
       {/* Routes */}
       {filteredRoutes.length > 0 && (
         <div>
-          <h3 className="text-xl font-bold text-primary-dark mb-4">
+          <h3 className="text-2xl font-bold text-primary-dark mb-6 flex items-center gap-3">
+            <span className="w-8 h-1 bg-gradient-temple rounded-full"></span>
             {selectedEntryPoint
               ? `${t('routes.from', language)} ${selectedEntryPoint}`
               : t('all.available.routes', language)}

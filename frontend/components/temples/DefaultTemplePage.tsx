@@ -175,7 +175,7 @@ export default function DefaultTemplePage({ temple, language }: DefaultTemplePag
             {/* Explore City */}
             <Link
               href={`/city/${temple.city.toLowerCase()}`}
-              className="block bg-primary-teal text-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all text-center"
+              className="block bg-primary-gold text-white rounded-xl p-6 shadow-md text-center"
             >
               <span className="text-2xl block mb-2">🗺️</span>
               <span className="font-semibold">Explore {temple.city}</span>

@@ -103,7 +103,7 @@ export default function SomnathPage({ temple, language }: SomnathPageProps) {
             </section>
 
             {/* Coastal Location */}
-            <section className="bg-primary-teal rounded-xl p-6 text-white shadow-lg">
+            <section className="bg-primary-gold rounded-xl p-6 text-white shadow-lg">
               <h2 className="text-2xl font-bold mb-4">By the Arabian Sea</h2>
               <p className="text-white/90 leading-relaxed">
                 The temple's location by the Arabian Sea adds to its spiritual significance. 

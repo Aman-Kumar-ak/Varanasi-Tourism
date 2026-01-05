@@ -12,15 +12,15 @@ export default function Header() {
   const { isAuthenticated } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-md">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-temple border-b border-primary-gold/20">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/city/varanasi" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-blue to-primary-orange rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">V</span>
+          <Link href="/city/varanasi" className="flex items-center gap-3 group">
+            <div className="w-12 h-12 bg-gradient-temple rounded-xl flex items-center justify-center shadow-temple">
+              <span className="text-white font-bold text-xl drop-shadow-lg">🕉️</span>
             </div>
-            <span className="text-xl font-bold text-primary-dark hidden sm:block">
+            <span className="text-xl font-bold text-gradient-temple hidden sm:block">
               Varanasi Tourism
             </span>
           </Link>
@@ -29,7 +29,7 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-6">
             <Link
               href="/city/varanasi"
-              className="text-primary-dark hover:text-primary-orange transition-colors font-medium"
+              className="text-primary-dark font-medium"
             >
               Varanasi
             </Link>
@@ -42,12 +42,12 @@ export default function Header() {
             {isAuthenticated ? (
               <UserMenu />
             ) : (
-              <Link
-                href="/login"
-                className="px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 transition-colors font-medium text-sm md:text-base"
-              >
-                Login
-              </Link>
+            <Link
+              href="/login"
+              className="px-6 py-2 bg-gradient-temple text-white rounded-xl font-semibold text-sm md:text-base"
+            >
+              Login
+            </Link>
             )}
 
             {/* Mobile Menu Button */}

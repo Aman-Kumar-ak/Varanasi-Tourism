@@ -4,7 +4,12 @@ import { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SUPPORTED_LANGUAGES, type LanguageCode } from '@/lib/constants';
 
-export default function LanguageSelector() {
+interface LanguageSelectorProps {
+  disableHover?: boolean;
+  variant?: 'default' | 'footer';
+}
+
+export default function LanguageSelector({ disableHover = false, variant = 'default' }: LanguageSelectorProps) {
   const { language, setLanguage, getNativeLanguageName } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -32,7 +37,11 @@ export default function LanguageSelector() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background-parchment hover:bg-primary-blue/10 transition-colors text-primary-dark font-medium text-sm md:text-base"
+        className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+          variant === 'footer' 
+            ? 'bg-white/10 text-white' 
+            : 'bg-background-parchment text-primary-dark'
+        } ${disableHover ? '' : variant === 'footer' ? 'hover:bg-white/20' : 'hover:bg-primary-gold/20'} transition-colors font-medium text-sm md:text-base`}
         aria-label="Select language"
       >
         <span className="text-lg">🌐</span>
@@ -49,14 +58,14 @@ export default function LanguageSelector() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-primary-blue/20 z-50 max-h-96 overflow-y-auto">
+        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-primary-gold/30 z-50 max-h-96 overflow-y-auto">
           <div className="py-1">
             {SUPPORTED_LANGUAGES.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
-                className={`w-full text-left px-4 py-2 hover:bg-primary-blue/10 transition-colors flex items-center justify-between ${
-                  language === lang.code ? 'bg-primary-blue/20 font-semibold' : ''
+                className={`w-full text-left px-4 py-2 ${disableHover ? '' : 'hover:bg-primary-gold/20'} transition-colors flex items-center justify-between ${
+                  language === lang.code ? 'bg-primary-gold/30 font-semibold' : ''
                 }`}
               >
                 <div className="flex flex-col">
@@ -64,7 +73,7 @@ export default function LanguageSelector() {
                   <span className="text-xs text-primary-dark/60">{lang.name}</span>
                 </div>
                 {language === lang.code && (
-                  <span className="text-primary-blue">✓</span>
+                  <span className="text-primary-gold">✓</span>
                 )}
               </button>
             ))}
