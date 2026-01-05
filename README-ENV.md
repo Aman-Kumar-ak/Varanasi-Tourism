@@ -18,10 +18,10 @@ All variables are stored in the `backend/.env` file:
 
 - `MONGODB_URI` - MongoDB connection string
 - `PORT` - Backend server port (default: 5000)
-- `FRONTEND_URL` - Frontend URL for CORS
 - `JWT_SECRET` - Secret key for JWT tokens
 - `RAZORPAY_KEY_ID` - Razorpay API key ID
 - `RAZORPAY_KEY_SECRET` - Razorpay API secret
+- `CLOUDINARY_*` - Cloudinary configuration for media uploads
 - `NEXT_PUBLIC_FIREBASE_*` - Firebase configuration for OTP
 - `NEXT_PUBLIC_API_URL` - Backend API URL for frontend
 

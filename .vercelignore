@@ -1,0 +1,7 @@
+# Ignore backend directory in Vercel builds
+backend/
+node_modules/
+.git/
+*.md
+!README.md
+
