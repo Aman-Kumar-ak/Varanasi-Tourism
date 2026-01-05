@@ -8,8 +8,8 @@ import Footer from "@/components/common/Footer";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Jyotirlinga Booking Platform",
-  description: "Book Darshan at all 12 Jyotirlingas - Spiritual Tourism Platform",
+  title: "Varanasi Tourism Guide",
+  description: "Complete guide to Varanasi - Spiritual significance, places to visit, transportation, hotels, restaurants, and more",
 };
 
 export const viewport = {

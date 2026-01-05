@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { getLocalizedContent } from '@/lib/i18n';
-import { formatCurrency, getApiUrl } from '@/lib/utils';
+import { getApiUrl } from '@/lib/utils';
+import type { LanguageCode } from '@/lib/constants';
+import DarshanInfoSection from './DarshanInfoSection';
 
 interface DarshanType {
   _id: string;
@@ -40,11 +40,13 @@ interface Temple {
   };
   templeRules: string[];
   nearbyPlaces: string[];
+  bookingEnabled?: boolean;
+  officialBookingUrl?: string;
 }
 
 interface KashiVishwanathPageProps {
   temple: Temple;
-  language: string;
+  language: LanguageCode;
 }
 
 export default function KashiVishwanathPage({ temple, language }: KashiVishwanathPageProps) {
@@ -102,12 +104,6 @@ export default function KashiVishwanathPage({ temple, language }: KashiVishwanat
       <div className="container mx-auto px-4 py-8">
         {/* Booking Section - Prominent Display */}
         <section className="bg-white rounded-xl p-6 shadow-lg mb-8 border border-primary-blue/10">
-          <div className="bg-primary-blue text-white rounded-lg px-6 py-4 mb-6 -mx-6 -mt-6">
-            <h2 className="text-2xl font-bold text-center">
-              List of Pooja / Darshan
-            </h2>
-          </div>
-          
           {loadingDarshanTypes ? (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-primary-blue mb-3"></div>
@@ -123,59 +119,14 @@ export default function KashiVishwanathPage({ temple, language }: KashiVishwanat
                 Retry
               </button>
             </div>
-          ) : darshanTypes.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-5xl mb-4">📿</div>
-              <p className="text-primary-dark/70 mb-2 text-lg">No darshan types available yet.</p>
-              <p className="text-sm text-primary-dark/50">Please check back later or contact the temple office.</p>
-            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {darshanTypes.map((type) => (
-                <Link
-                  key={type._id}
-                  href={`/booking?temple=${temple.slug || temple._id}&darshan=${type._id}`}
-                  className="block group"
-                >
-                  <div className="bg-primary-orange hover:bg-primary-orange/90 text-white rounded-lg p-6 transition-all duration-200 shadow-md hover:shadow-xl transform hover:scale-[1.02] cursor-pointer h-full">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-full flex items-center justify-center mt-1">
-                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <div className="flex-grow">
-                        <h3 className="font-bold text-xl mb-2">
-                          {getLocalizedContent(type.name, language as any)}
-                        </h3>
-                        {type.description && (
-                          <p className="text-white/90 text-sm mb-4 leading-relaxed">
-                            {getLocalizedContent(type.description, language as any)}
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between pt-4 border-t border-white/20">
-                          <div className="flex items-center gap-4 text-sm">
-                            <span className="flex items-center gap-1">
-                              <span>⏱️</span>
-                              <span>{type.duration} min</span>
-                            </span>
-                            {type.dailyLimit && (
-                              <span className="flex items-center gap-1">
-                                <span>👥</span>
-                                <span>{type.dailyLimit.toLocaleString()}/day</span>
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-2xl font-bold bg-white/20 px-4 py-2 rounded-lg">
-                            {formatCurrency(type.price)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <DarshanInfoSection
+              darshanTypes={darshanTypes}
+              bookingEnabled={temple.bookingEnabled || false}
+              officialBookingUrl={temple.officialBookingUrl}
+              language={language}
+              templeSlug={temple.slug}
+            />
           )}
         </section>
 

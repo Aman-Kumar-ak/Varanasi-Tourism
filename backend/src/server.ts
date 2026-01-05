@@ -11,6 +11,7 @@ import cityRoutes from './routes/cities.js';
 import paymentRoutes from './routes/payments.js';
 import timeSlotRoutes from './routes/time-slots.js';
 import receiptRoutes from './routes/receipts.js';
+import uploadRoutes from './routes/upload.js';
 
 // Load environment variables from backend/.env file
 const __filename = fileURLToPath(import.meta.url);
@@ -39,11 +40,16 @@ connectDB().catch((error) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/jyotirlingas', jyotirlingaRoutes);
-app.use('/api/bookings', bookingRoutes);
+// Booking routes disabled for guide-first phase - will be re-enabled when temple trusts are onboarded
+// app.use('/api/bookings', bookingRoutes);
 app.use('/api/cities', cityRoutes);
-app.use('/api/payments', paymentRoutes);
-app.use('/api/time-slots', timeSlotRoutes);
-app.use('/api/receipts', receiptRoutes);
+app.use('/api/upload', uploadRoutes);
+// Payment routes disabled for guide-first phase
+// app.use('/api/payments', paymentRoutes);
+// Time slot routes disabled for guide-first phase
+// app.use('/api/time-slots', timeSlotRoutes);
+// Receipt routes disabled for guide-first phase
+// app.use('/api/receipts', receiptRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

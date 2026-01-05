@@ -52,15 +52,6 @@ export default function UserMenu() {
             <p className="text-xs text-primary-dark/60">{user.phone}</p>
           </div>
           <button
-            onClick={() => {
-              router.push('/my-bookings');
-              setIsOpen(false);
-            }}
-            className="w-full text-left px-4 py-2 text-sm text-primary-dark hover:bg-primary-blue/10 transition-colors"
-          >
-            My Bookings
-          </button>
-          <button
             onClick={handleLogout}
             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
           >

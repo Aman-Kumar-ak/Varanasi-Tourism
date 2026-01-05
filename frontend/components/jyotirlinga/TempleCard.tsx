@@ -42,6 +42,7 @@ export default function TempleCard({ temple, language }: TempleCardProps) {
               src={temple.images[0]}
               alt={getLocalizedContent(temple.name, language)}
               fill
+              sizes="(max-width: 640px) 128px, (max-width: 1024px) 50vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-300"
             />
           ) : (

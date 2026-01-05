@@ -37,3 +37,6 @@ backend/.env
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# temporary uploads (files are uploaded to Cloudinary and then deleted)
+backend/uploads/

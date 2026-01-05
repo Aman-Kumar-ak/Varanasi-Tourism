@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import LanguageSelector from './LanguageSelector';
 import UserMenu from './UserMenu';
+import FontSizeControl from './FontSizeControl';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function Header() {
@@ -15,45 +16,28 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/city/varanasi" className="flex items-center gap-2">
             <div className="w-10 h-10 bg-gradient-to-br from-primary-blue to-primary-orange rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">J</span>
+              <span className="text-white font-bold text-xl">V</span>
             </div>
             <span className="text-xl font-bold text-primary-dark hidden sm:block">
-              Jyotirlinga
+              Varanasi Tourism
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             <Link
-              href="/"
+              href="/city/varanasi"
               className="text-primary-dark hover:text-primary-orange transition-colors font-medium"
             >
-              Home
-            </Link>
-            <Link
-              href="/jyotirlingas"
-              className="text-primary-dark hover:text-primary-orange transition-colors font-medium"
-            >
-              Jyotirlingas
-            </Link>
-            <Link
-              href="/cities"
-              className="text-primary-dark hover:text-primary-orange transition-colors font-medium"
-            >
-              Cities
-            </Link>
-            <Link
-              href="/my-bookings"
-              className="text-primary-dark hover:text-primary-orange transition-colors font-medium"
-            >
-              My Bookings
+              Varanasi
             </Link>
           </nav>
 
-          {/* Right Side - Language & Auth */}
-          <div className="flex items-center gap-4">
+          {/* Right Side - Font Size, Language & Auth */}
+          <div className="flex items-center gap-3">
+            <FontSizeControl />
             <LanguageSelector />
             {isAuthenticated ? (
               <UserMenu />
@@ -103,32 +87,11 @@ export default function Header() {
           <div className="md:hidden py-4 border-t border-primary-blue/20">
             <nav className="flex flex-col gap-4">
               <Link
-                href="/"
+                href="/city/varanasi"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="text-primary-dark hover:text-primary-orange transition-colors font-medium px-2 py-1"
               >
-                Home
-              </Link>
-              <Link
-                href="/jyotirlingas"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-primary-dark hover:text-primary-orange transition-colors font-medium px-2 py-1"
-              >
-                Jyotirlingas
-              </Link>
-              <Link
-                href="/cities"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-primary-dark hover:text-primary-orange transition-colors font-medium px-2 py-1"
-              >
-                Cities
-              </Link>
-              <Link
-                href="/my-bookings"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-primary-dark hover:text-primary-orange transition-colors font-medium px-2 py-1"
-              >
-                My Bookings
+                Varanasi
               </Link>
             </nav>
           </div>

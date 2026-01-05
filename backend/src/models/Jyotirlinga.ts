@@ -33,6 +33,12 @@ export interface IJyotirlinga extends Document {
   displayOrder: number;
   // Optional: Custom page identifier for frontend customization
   pageTemplate?: string; // e.g., 'kashi-vishwanath', 'somnath', etc.
+  // New fields for guide-first system
+  bookingEnabled?: boolean;
+  officialBookingUrl?: string;
+  spiritualSignificance?: IMultiLanguageContent;
+  history?: IMultiLanguageContent;
+  darshanInfo?: IMultiLanguageContent;
 }
 
 const MultiLanguageSchema = new Schema<IMultiLanguageContent>({
@@ -92,6 +98,16 @@ const JyotirlingaSchema: Schema = new Schema<IJyotirlinga>(
       type: Number,
       default: 0,
     },
+    pageTemplate: String,
+    // New fields for guide-first system
+    bookingEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    officialBookingUrl: String,
+    spiritualSignificance: MultiLanguageSchema,
+    history: MultiLanguageSchema,
+    darshanInfo: MultiLanguageSchema,
   },
   {
     timestamps: true,

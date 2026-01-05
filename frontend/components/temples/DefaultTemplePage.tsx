@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getLocalizedContent } from '@/lib/i18n';
-import { formatCurrency } from '@/lib/utils';
+import { getApiUrl } from '@/lib/utils';
+import type { LanguageCode } from '@/lib/constants';
+import DarshanInfoSection from './DarshanInfoSection';
 
 interface DarshanType {
   _id: string;
@@ -36,11 +38,13 @@ interface Temple {
   };
   templeRules: string[];
   nearbyPlaces: string[];
+  bookingEnabled?: boolean;
+  officialBookingUrl?: string;
 }
 
 interface DefaultTemplePageProps {
   temple: Temple;
-  language: string;
+  language: LanguageCode;
 }
 
 export default function DefaultTemplePage({ temple, language }: DefaultTemplePageProps) {
@@ -52,8 +56,8 @@ export default function DefaultTemplePage({ temple, language }: DefaultTemplePag
 
   const fetchDarshanTypes = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${apiUrl}/api/jyotirlingas/${temple.slug}/darshan-types`);
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/jyotirlingas/${temple.slug}/darshan-types`);
       const data = await response.json();
 
       if (data.success) {
@@ -73,6 +77,7 @@ export default function DefaultTemplePage({ temple, language }: DefaultTemplePag
             src={temple.images[0]}
             alt={getLocalizedContent(temple.name, language as any)}
             fill
+            sizes="100vw"
             className="object-cover opacity-80"
           />
         ) : null}
@@ -143,39 +148,13 @@ export default function DefaultTemplePage({ temple, language }: DefaultTemplePag
           <div className="space-y-6">
             {/* Darshan Types */}
             <section className="bg-white rounded-xl p-6 shadow-md sticky top-24">
-              <h2 className="text-2xl font-bold text-primary-dark mb-4">
-                Darshan Types & Pricing
-              </h2>
-              {darshanTypes.length === 0 ? (
-                <p className="text-primary-dark/70">No darshan types available yet.</p>
-              ) : (
-                <div className="space-y-4">
-                  {darshanTypes.map((type) => (
-                    <div
-                      key={type._id}
-                      className="border border-primary-blue/20 rounded-lg p-4 hover:border-primary-orange transition-colors"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-primary-dark">
-                          {getLocalizedContent(type.name, language as any)}
-                        </h3>
-                        <span className="text-xl font-bold text-primary-orange">
-                          {formatCurrency(type.price)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-primary-dark/60 mb-3">
-                        Duration: {type.duration} minutes
-                      </p>
-                      <Link
-                        href={`/booking?temple=${temple._id}&darshan=${type._id}`}
-                        className="block w-full text-center px-4 py-2 bg-primary-blue text-white rounded-lg hover:bg-primary-blue/90 transition-colors font-medium"
-                      >
-                        Book Now
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <DarshanInfoSection
+                darshanTypes={darshanTypes}
+                bookingEnabled={temple.bookingEnabled || false}
+                officialBookingUrl={temple.officialBookingUrl}
+                language={language}
+                templeSlug={temple.slug}
+              />
             </section>
 
             {/* Quick Info */}

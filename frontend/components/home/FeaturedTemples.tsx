@@ -129,6 +129,7 @@ export default function FeaturedTemples() {
                             src={temple.images[0]}
                             alt={getLocalizedContent(temple.name, language)}
                             fill
+                            sizes="(max-width: 640px) 112px, 100vw"
                             className="object-cover group-hover:scale-110 transition-transform duration-300"
                           />
                         ) : (

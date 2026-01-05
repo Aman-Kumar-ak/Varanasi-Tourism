@@ -69,9 +69,12 @@ router.get('/:name', async (req: Request, res: Response) => {
       });
     }
 
+    // Convert Mongoose document to plain object to ensure all fields are serialized
+    const cityData = city.toObject ? city.toObject() : city;
+
     res.json({
       success: true,
-      data: city,
+      data: cityData,
     });
   } catch (error) {
     console.error('Error fetching city:', error);

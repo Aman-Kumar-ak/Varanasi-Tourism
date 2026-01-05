@@ -14,6 +14,10 @@ export interface IPlace {
     lat: number;
     lng: number;
   };
+  category?: 'temple' | 'ghat' | 'monument' | 'market' | 'museum' | 'other';
+  spiritualImportance?: IMultiLanguageContent;
+  bestTimeToVisit?: string;
+  visitDuration?: string;
 }
 
 export interface IHotel {
@@ -33,11 +37,66 @@ export interface IRestaurant {
   contact?: string;
 }
 
+export interface IEntryPoint {
+  type: 'airport' | 'railway' | 'bus';
+  name: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  code?: string;
+}
+
+export interface ITransportOption {
+  type: 'taxi' | 'auto' | 'rickshaw' | 'bus' | 'metro' | 'boat';
+  name: string;
+  description: IMultiLanguageContent;
+  priceRange: {
+    min: number;
+    max: number;
+    currency: string;
+  };
+  perKm?: boolean;
+  perHour?: boolean;
+}
+
+export interface IRouteTransportOption {
+  type: string;
+  priceRange: {
+    min: number;
+    max: number;
+  };
+  estimatedTime: number;
+  tips?: IMultiLanguageContent;
+}
+
+export interface IRoute {
+  from: string;
+  to: string;
+  distance: number;
+  duration: number;
+  transportOptions: IRouteTransportOption[];
+  routeDescription?: IMultiLanguageContent;
+}
+
+export interface IFestival {
+  name: string;
+  date: string;
+  description: IMultiLanguageContent;
+}
+
+export interface IRitual {
+  name: IMultiLanguageContent;
+  description: IMultiLanguageContent;
+  timing?: string;
+}
+
 export interface ICity extends Document {
   name: IMultiLanguageContent;
   jyotirlingaId: mongoose.Types.ObjectId;
   state: string;
   images: string[];
+  videos?: string[];
   places: IPlace[];
   hotels: IHotel[];
   restaurants: IRestaurant[];
@@ -51,12 +110,31 @@ export interface ICity extends Document {
     bestTimeToVisit: string;
     averageTemp: string;
   };
+  // New fields for guide-first system
+  bookingEnabled?: boolean;
+  officialBookingUrl?: string;
+  spiritualSignificance?: IMultiLanguageContent;
+  history?: IMultiLanguageContent;
+  festivals?: IFestival[];
+  rituals?: IRitual[];
+  darshanInfo?: IMultiLanguageContent;
+  // Transportation system
+  entryPoints?: IEntryPoint[];
+  transportOptions?: ITransportOption[];
+  routes?: IRoute[];
+  transportTips?: IMultiLanguageContent;
 }
 
-const MultiLanguageSchema = new Schema<IMultiLanguageContent>({
-  en: { type: String, required: true },
-  hi: { type: String, required: true },
-});
+const MultiLanguageSchema = new Schema<IMultiLanguageContent>(
+  {
+    en: { type: String, required: true },
+    hi: { type: String, required: true },
+  },
+  {
+    strict: false, // Allow additional language fields (gu, ta, te, etc.)
+    _id: false, // Don't create _id for subdocuments
+  }
+);
 
 const PlaceSchema = new Schema<IPlace>({
   name: { type: MultiLanguageSchema, required: true },
@@ -66,6 +144,13 @@ const PlaceSchema = new Schema<IPlace>({
     lat: Number,
     lng: Number,
   },
+  category: {
+    type: String,
+    enum: ['temple', 'ghat', 'monument', 'market', 'museum', 'other'],
+  },
+  spiritualImportance: MultiLanguageSchema,
+  bestTimeToVisit: String,
+  visitDuration: String,
 });
 
 const HotelSchema = new Schema<IHotel>({
@@ -93,6 +178,68 @@ const RestaurantSchema = new Schema<IRestaurant>({
   contact: String,
 });
 
+const EntryPointSchema = new Schema<IEntryPoint>({
+  type: {
+    type: String,
+    enum: ['airport', 'railway', 'bus'],
+    required: true,
+  },
+  name: { type: String, required: true },
+  location: {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true },
+  },
+  code: String,
+});
+
+const TransportOptionSchema = new Schema<ITransportOption>({
+  type: {
+    type: String,
+    enum: ['taxi', 'auto', 'rickshaw', 'bus', 'metro', 'boat'],
+    required: true,
+  },
+  name: { type: String, required: true },
+  description: { type: MultiLanguageSchema, required: true },
+  priceRange: {
+    min: { type: Number, required: true },
+    max: { type: Number, required: true },
+    currency: { type: String, default: 'INR' },
+  },
+  perKm: Boolean,
+  perHour: Boolean,
+});
+
+const RouteTransportOptionSchema = new Schema<IRouteTransportOption>({
+  type: { type: String, required: true },
+  priceRange: {
+    min: { type: Number, required: true },
+    max: { type: Number, required: true },
+  },
+  estimatedTime: { type: Number, required: true },
+  tips: MultiLanguageSchema,
+});
+
+const RouteSchema = new Schema<IRoute>({
+  from: { type: String, required: true },
+  to: { type: String, required: true },
+  distance: { type: Number, required: true },
+  duration: { type: Number, required: true },
+  transportOptions: [RouteTransportOptionSchema],
+  routeDescription: MultiLanguageSchema,
+});
+
+const FestivalSchema = new Schema<IFestival>({
+  name: { type: String, required: true },
+  date: { type: String, required: true },
+  description: { type: MultiLanguageSchema, required: true },
+});
+
+const RitualSchema = new Schema<IRitual>({
+  name: { type: MultiLanguageSchema, required: true },
+  description: { type: MultiLanguageSchema, required: true },
+  timing: String,
+});
+
 const CitySchema: Schema = new Schema<ICity>(
   {
     name: {
@@ -109,6 +256,7 @@ const CitySchema: Schema = new Schema<ICity>(
       required: true,
     },
     images: [String],
+    videos: [String],
     places: [PlaceSchema],
     hotels: [HotelSchema],
     restaurants: [RestaurantSchema],
@@ -131,6 +279,22 @@ const CitySchema: Schema = new Schema<ICity>(
       bestTimeToVisit: String,
       averageTemp: String,
     },
+    // New fields for guide-first system
+    bookingEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    officialBookingUrl: String,
+    spiritualSignificance: MultiLanguageSchema,
+    history: MultiLanguageSchema,
+    festivals: [FestivalSchema],
+    rituals: [RitualSchema],
+    darshanInfo: MultiLanguageSchema,
+    // Transportation system
+    entryPoints: [EntryPointSchema],
+    transportOptions: [TransportOptionSchema],
+    routes: [RouteSchema],
+    transportTips: MultiLanguageSchema,
   },
   {
     timestamps: true,

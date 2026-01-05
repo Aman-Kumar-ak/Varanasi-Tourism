@@ -14,12 +14,12 @@ export default function Footer() {
           <div className="space-y-3 sm:space-y-4 col-span-2 md:col-span-1">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-blue rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg sm:text-xl">J</span>
+                <span className="text-white font-bold text-lg sm:text-xl">V</span>
               </div>
-              <span className="text-lg sm:text-xl font-bold">Jyotirlinga</span>
+              <span className="text-lg sm:text-xl font-bold">Varanasi Tourism</span>
             </div>
             <p className="text-white/80 text-xs sm:text-sm">
-              Your trusted platform for booking Darshan at all 12 Jyotirlingas
+              Your complete guide to exploring Varanasi - The Spiritual Capital of India
             </p>
             <div className="flex gap-3 sm:gap-4">
               <a href="#" className="text-white/80 hover:text-primary-blue transition-colors">
@@ -48,23 +48,18 @@ export default function Footer() {
             <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Quick Links</h3>
             <ul className="space-y-1.5 sm:space-y-2">
               <li>
-                <Link href="/jyotirlingas" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
-                  All Jyotirlingas
+                <Link href="/city/varanasi" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
+                  Varanasi Guide
                 </Link>
               </li>
               <li>
-                <Link href="/booking" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
-                  Book Darshan
+                <Link href="/city/varanasi#places" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
+                  Places to Visit
                 </Link>
               </li>
               <li>
-                <Link href="/cities" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
-                  Explore Cities
-                </Link>
-              </li>
-              <li>
-                <Link href="/my-bookings" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
-                  My Bookings
+                <Link href="/city/varanasi#transport" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
+                  How to Reach
                 </Link>
               </li>
             </ul>
@@ -121,7 +116,7 @@ export default function Footer() {
 
         <div className="border-t border-white/20 mt-6 sm:mt-8 pt-6 sm:pt-8 text-center">
           <p className="text-white/60 text-xs sm:text-sm">
-            © {currentYear} Jyotirlinga Booking Platform. All rights reserved.
+            © {currentYear} Varanasi Tourism Guide. All rights reserved.
           </p>
         </div>
       </div>

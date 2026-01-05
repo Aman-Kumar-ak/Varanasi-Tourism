@@ -16,10 +16,16 @@ export interface IDarshanType extends Document {
   isActive: boolean;
 }
 
-const MultiLanguageSchema = new Schema<IMultiLanguageContent>({
-  en: { type: String, required: true },
-  hi: { type: String, required: true },
-});
+const MultiLanguageSchema = new Schema<IMultiLanguageContent>(
+  {
+    en: { type: String, required: true },
+    hi: { type: String, required: true },
+  },
+  {
+    strict: false, // Allow additional language fields (gu, ta, te, etc.)
+    _id: false, // Don't create _id for subdocuments
+  }
+);
 
 const DarshanTypeSchema: Schema = new Schema<IDarshanType>(
   {

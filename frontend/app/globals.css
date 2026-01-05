@@ -6,12 +6,56 @@
   --foreground-rgb: 24, 52, 70;
   --background-start-rgb: 237, 230, 227;
   --background-end-rgb: 255, 255, 255;
+  --font-size-multiplier: 1;
+  --body-font-size-base: 1.125rem; /* 18px base, increased from default 16px */
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
   min-height: 100vh;
+  font-size: calc(var(--body-font-size-base) * var(--font-size-multiplier));
+}
+
+/* Apply font size multiplier to body text elements */
+/* This will scale all text proportionally except headings */
+p,
+span:not([class*="text-xl"]):not([class*="text-2xl"]):not([class*="text-3xl"]):not([class*="text-4xl"]):not([class*="text-5xl"]):not([class*="text-6xl"]),
+li,
+td,
+th,
+label,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+  font-size: calc(1em * var(--font-size-multiplier));
+}
+
+/* Scale Tailwind text size utilities with multiplier */
+/* Base sizes are increased: text-xs -> larger, text-sm -> larger, etc. */
+.text-xs {
+  font-size: calc(0.875rem * var(--font-size-multiplier)) !important;
+}
+
+.text-sm {
+  font-size: calc(1rem * var(--font-size-multiplier)) !important;
+}
+
+.text-base {
+  font-size: calc(1.125rem * var(--font-size-multiplier)) !important;
+}
+
+.text-lg {
+  font-size: calc(1.25rem * var(--font-size-multiplier)) !important;
+}
+
+/* Ensure headings are NOT affected by font size multiplier */
+h1, h2, h3, h4, h5, h6,
+.text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl {
+  font-size: inherit;
 }
 
 @layer utilities {
@@ -36,5 +80,21 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #00ABE7;
+}
+
+/* Remove default focus outlines and add custom focus styles */
+button:focus,
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+}
+
+/* Custom focus styles for accessibility (optional - can be removed if not needed) */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 

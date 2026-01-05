@@ -10,23 +10,36 @@ export function getLocalizedContent<T extends Record<string, any>>(
 ): string {
   if (!content) return '';
   
+  // Ensure content is an object (handle Mongoose documents, etc.)
+  const contentObj: Record<string, any> = typeof content === 'object' && content !== null ? content : {};
+  
   // Try to get content in requested language
-  if (content[language]) {
-    return content[language];
+  if (contentObj[language] && typeof contentObj[language] === 'string') {
+    return contentObj[language];
   }
   
   // Fallback to English
-  if (content.en) {
-    return content.en;
+  if (contentObj.en && typeof contentObj.en === 'string') {
+    return contentObj.en;
   }
   
   // Fallback to Hindi
-  if (content.hi) {
-    return content.hi;
+  if (contentObj.hi && typeof contentObj.hi === 'string') {
+    return contentObj.hi;
   }
   
-  // Return first available value
-  return Object.values(content)[0] || '';
+  // Try to find any available language translation
+  for (const lang of SUPPORTED_LANGUAGES) {
+    if (contentObj[lang.code] && typeof contentObj[lang.code] === 'string') {
+      return contentObj[lang.code];
+    }
+  }
+  
+  // Return first available string value
+  const firstValue = Object.values(contentObj).find(
+    (val) => typeof val === 'string' && val.length > 0
+  );
+  return (firstValue as string) || '';
 }
 
 /**

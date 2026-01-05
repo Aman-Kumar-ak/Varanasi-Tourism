@@ -66,6 +66,23 @@ interface Jyotirlinga {
   templeRules: string[];
   nearbyPlaces: string[];
   pageTemplate?: string;
+  bookingEnabled?: boolean;
+  officialBookingUrl?: string;
+  spiritualSignificance?: {
+    en: string;
+    hi: string;
+    [key: string]: string;
+  };
+  history?: {
+    en: string;
+    hi: string;
+    [key: string]: string;
+  };
+  darshanInfo?: {
+    en: string;
+    hi: string;
+    [key: string]: string;
+  };
 }
 
 export default function JyotirlingaDetailPage() {
