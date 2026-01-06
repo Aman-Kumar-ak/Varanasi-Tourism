@@ -60,8 +60,19 @@ const isFirebaseConfigValid = (config: any): boolean => {
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
 let initPromise: Promise<void> | null = null;
+let initError: Error | null = null;
 
 const initializeFirebase = async (): Promise<void> => {
+  // If already initialized successfully, return
+  if (app && auth) {
+    return;
+  }
+
+  // If initialization failed before, don't retry
+  if (initError) {
+    throw initError;
+  }
+
   if (initPromise) {
     return initPromise;
   }
@@ -71,23 +82,37 @@ const initializeFirebase = async (): Promise<void> => {
       return;
     }
 
-    // Fetch config from backend
-    firebaseConfig = await fetchFirebaseConfig();
-
-    if (!isFirebaseConfigValid(firebaseConfig)) {
-      console.error('Firebase configuration is missing. Please configure Firebase in backend environment variables.');
-      return;
-    }
-
     try {
-      if (!getApps().length) {
-        app = initializeApp(firebaseConfig);
-      } else {
-        app = getApps()[0];
+      // Fetch config from backend
+      firebaseConfig = await fetchFirebaseConfig();
+
+      if (!isFirebaseConfigValid(firebaseConfig)) {
+        const error = new Error('Firebase configuration is missing. Please configure Firebase in backend environment variables.');
+        initError = error;
+        console.error(error.message);
+        return;
       }
-      auth = getAuth(app);
+
+      // Check if Firebase is already initialized
+      const existingApps = getApps();
+      if (existingApps.length > 0) {
+        app = existingApps[0];
+        try {
+          auth = getAuth(app);
+        } catch (error) {
+          // If auth fails, try to reinitialize
+          console.warn('Firebase auth instance error, reinitializing...', error);
+          app = initializeApp(firebaseConfig);
+          auth = getAuth(app);
+        }
+      } else {
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+      }
     } catch (error) {
+      initError = error instanceof Error ? error : new Error('Firebase initialization failed');
       console.error('Firebase initialization error:', error);
+      // Don't throw - let components handle gracefully
     }
   })();
 

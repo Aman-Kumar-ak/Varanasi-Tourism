@@ -27,29 +27,62 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
         // Ensure Firebase is initialized
         await initializeFirebase();
 
-        if (auth && !window.recaptchaVerifier) {
+        // Check if auth is available before initializing reCAPTCHA
+        if (!auth) {
+          console.warn('Firebase auth not available. Authentication features may not work.');
+          return;
+        }
+
+        // Clean up existing verifier if present
+        if (window.recaptchaVerifier) {
           try {
-            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-              size: 'invisible',
-              callback: () => {
-                // reCAPTCHA solved
-              },
-              'expired-callback': () => {
-                toast.error('reCAPTCHA expired. Please try again.');
-              },
-            });
-          } catch (error) {
-            console.error('Error initializing reCAPTCHA:', error);
+            window.recaptchaVerifier.clear();
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+          window.recaptchaVerifier = null as any;
+        }
+
+        // Initialize new reCAPTCHA verifier
+        try {
+          window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            size: 'invisible',
+            callback: () => {
+              // reCAPTCHA solved
+            },
+            'expired-callback': () => {
+              toast.error('reCAPTCHA expired. Please try again.');
+            },
+          });
+        } catch (error: any) {
+          console.error('Error initializing reCAPTCHA:', error);
+          // Don't show toast on every navigation - only log the error
+          if (error?.code !== 'auth/invalid-api-key') {
             toast.error('Firebase authentication is not configured. Please check backend environment variables.');
           }
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error initializing Firebase:', error);
-        toast.error('Failed to initialize Firebase. Please check backend configuration.');
+        // Only show error toast if it's not an invalid API key (to avoid spam)
+        if (error?.message && !error.message.includes('invalid-api-key')) {
+          toast.error('Failed to initialize Firebase. Please check backend configuration.');
+        }
       }
     };
 
     init();
+
+    // Cleanup function
+    return () => {
+      if (typeof window !== 'undefined' && window.recaptchaVerifier) {
+        try {
+          window.recaptchaVerifier.clear();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
+        window.recaptchaVerifier = null as any;
+      }
+    };
   }, []);
 
   const handleSendOTP = async (e: React.FormEvent) => {

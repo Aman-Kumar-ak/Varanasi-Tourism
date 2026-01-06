@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 import { useAuth } from '@/contexts/AuthContext';
@@ -103,13 +104,13 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-primary-dark/60">
               By continuing, you agree to our{' '}
-              <a href="/terms" className="text-primary-blue hover:underline">
+              <Link href="/terms" className="text-primary-blue hover:underline">
                 Terms of Service
-              </a>{' '}
+              </Link>{' '}
               and{' '}
-              <a href="/privacy" className="text-primary-blue hover:underline">
+              <Link href="/privacy" className="text-primary-blue hover:underline">
                 Privacy Policy
-              </a>
+              </Link>
             </p>
           </div>
         </div>
