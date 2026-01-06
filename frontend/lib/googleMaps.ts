@@ -62,3 +62,39 @@ export function getGoogleMapsEmbedUrl(location: Location, zoom: number = 15): st
   return `https://www.google.com/maps?q=${lat},${lng}&z=${zoom}`;
 }
 
+/**
+ * Opens Google Maps with directions from origin to destination
+ * @param origin - The starting location name or coordinates
+ * @param destination - The destination location name or coordinates
+ * @param originLocation - Optional origin coordinates (if origin is a name)
+ * @param destinationLocation - Optional destination coordinates (if destination is a name)
+ */
+export function openGoogleMapsRouteDirections(
+  origin: string | Location,
+  destination: string | Location,
+  originLocation?: Location,
+  destinationLocation?: Location
+): void {
+  const baseUrl = 'https://www.google.com/maps/dir/?api=1';
+  
+  // Handle origin
+  let originParam = '';
+  if (typeof origin === 'string') {
+    originParam = `&origin=${encodeURIComponent(origin)}`;
+  } else {
+    originParam = `&origin=${origin.lat},${origin.lng}`;
+  }
+  
+  // Handle destination
+  let destinationParam = '';
+  if (typeof destination === 'string') {
+    destinationParam = `&destination=${encodeURIComponent(destination)}`;
+  } else {
+    destinationParam = `&destination=${destination.lat},${destination.lng}`;
+  }
+  
+  const mapsUrl = `${baseUrl}${originParam}${destinationParam}`;
+  
+  window.open(mapsUrl, '_blank', 'noopener,noreferrer');
+}
+

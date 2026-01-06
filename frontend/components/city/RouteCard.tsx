@@ -2,6 +2,7 @@
 
 import { getLocalizedContent } from '@/lib/i18n';
 import { t } from '@/lib/translations';
+import { openGoogleMapsRouteDirections } from '@/lib/googleMaps';
 import type { LanguageCode } from '@/lib/constants';
 
 interface RouteTransportOption {
@@ -59,7 +60,7 @@ export default function RouteCard({ route, language }: RouteCardProps) {
         <h3 className="text-xl font-bold text-primary-dark mb-3 leading-tight">
           {route.from} → {route.to}
         </h3>
-        <div className="flex items-center gap-5 text-base text-primary-dark/70">
+        <div className="flex items-center gap-3 flex-wrap text-base text-primary-dark/70">
           <span className="flex items-center gap-2 bg-primary-gold/10 px-3 py-1.5 rounded-lg">
             <span className="text-lg">📏</span>
             <span className="font-medium">{route.distance} {t('km', language)}</span>
@@ -68,6 +69,15 @@ export default function RouteCard({ route, language }: RouteCardProps) {
             <span className="text-lg">⏱️</span>
             <span className="font-medium">{route.duration} {t('min', language)}</span>
           </span>
+          <button
+            onClick={() => openGoogleMapsRouteDirections(route.from, route.to)}
+            className="flex items-center gap-2 bg-primary-blue/10 hover:bg-primary-blue/20 px-3 py-1.5 rounded-lg font-medium transition-colors text-primary-blue"
+            aria-label={t('get.directions', language)}
+            title={t('get.directions', language)}
+          >
+            <span className="text-lg">🗺️</span>
+            <span className="font-medium">{t('directions', language)}</span>
+          </button>
         </div>
       </div>
 

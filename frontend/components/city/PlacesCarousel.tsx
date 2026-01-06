@@ -38,19 +38,14 @@ interface PlacesCarouselProps {
 export default function PlacesCarousel({ places, language }: PlacesCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-  const [isUserInteracting, setIsUserInteracting] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const autoPlayRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const touchStartX = useRef<number>(0);
-  const touchEndX = useRef<number>(0);
   const currentIndexRef = useRef(0);
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const previousIndexRef = useRef(0);
   const isTransitioningRef = useRef(false);
 
   // Keep ref in sync with state
   useEffect(() => {
-    previousIndexRef.current = currentIndexRef.current;
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
 
@@ -70,89 +65,137 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
     }
   };
 
-  // Initialize scroll position to first real card (skip duplicate last card)
+  // Scroll to a specific index
+  const scrollToIndex = (index: number, smooth: boolean = true) => {
+    if (!scrollContainerRef.current || places.length === 0) return;
+    
+    const container = scrollContainerRef.current;
+    const cards = container.children;
+    
+    // Account for duplicate last card at start - real cards start at index 1
+    const realCardIndex = index + 1;
+    
+    if (cards[realCardIndex]) {
+      const card = cards[realCardIndex] as HTMLElement;
+      // Use offsetLeft which includes gap spacing
+      const scrollPosition = card.offsetLeft;
+      
+      container.scrollTo({
+        left: scrollPosition,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
+      
+      setCurrentIndex(index);
+    }
+  };
+
+  // Navigate to next slide
+  const goToNext = () => {
+    if (isTransitioningRef.current) return;
+    
+    setIsAutoPlaying(false);
+    clearAutoPlay();
+    clearResumeTimeout();
+    
+    const nextIndex = (currentIndex + 1) % places.length;
+    
+    // Check if we're moving to the duplicate first card at the end
+    if (nextIndex === 0 && currentIndex === places.length - 1) {
+      isTransitioningRef.current = true;
+      scrollToIndex(nextIndex, true);
+      
+      // After scroll animation completes, jump to real first card
+          setTimeout(() => {
+            if (scrollContainerRef.current) {
+              const container = scrollContainerRef.current;
+              const cards = container.children;
+              if (cards[1]) {
+                const firstCard = cards[1] as HTMLElement;
+                // Use offsetLeft which includes gap spacing
+                container.scrollTo({
+                  left: firstCard.offsetLeft,
+                  behavior: 'auto',
+                });
+                isTransitioningRef.current = false;
+              }
+            }
+          }, 500);
+    } else {
+      scrollToIndex(nextIndex, true);
+    }
+    
+    // Resume auto-play after 3 seconds
+    resumeTimeoutRef.current = setTimeout(() => {
+      setIsAutoPlaying(true);
+    }, 3000);
+  };
+
+  // Navigate to previous slide
+  const goToPrevious = () => {
+    if (isTransitioningRef.current) return;
+    
+    setIsAutoPlaying(false);
+    clearAutoPlay();
+    clearResumeTimeout();
+    
+    const prevIndex = (currentIndex - 1 + places.length) % places.length;
+    scrollToIndex(prevIndex, true);
+    
+    // Resume auto-play after 3 seconds
+    resumeTimeoutRef.current = setTimeout(() => {
+      setIsAutoPlaying(true);
+    }, 3000);
+  };
+
+  // Initialize scroll position to first real card
   useEffect(() => {
     if (scrollContainerRef.current && places.length > 0) {
       const container = scrollContainerRef.current;
       const cards = container.children;
-      // Scroll to first real card (index 1, after duplicate last card)
       if (cards[1]) {
         const firstCard = cards[1] as HTMLElement;
-        const cardLeft = firstCard.offsetLeft;
-        const cardWidth = firstCard.offsetWidth;
-        const containerWidth = container.offsetWidth;
-        const scrollPosition = cardLeft - (containerWidth - cardWidth) / 2;
-        container.scrollLeft = Math.max(0, scrollPosition);
+        // Use offsetLeft which includes gap spacing
+        container.scrollLeft = firstCard.offsetLeft;
       }
     }
   }, [places.length]);
 
   // Auto-scroll functionality
   useEffect(() => {
-    if (!isAutoPlaying || isUserInteracting || places.length <= 1) {
+    if (!isAutoPlaying || places.length <= 1) {
       clearAutoPlay();
       return;
     }
 
-    // Start auto-play from current position    
     const interval = setInterval(() => {
-      // Double check user is not interacting before auto-scrolling
-      if (!isUserInteracting && scrollContainerRef.current && !isTransitioningRef.current) {
-        const container = scrollContainerRef.current;
-        const cards = container.children;
+      if (!isTransitioningRef.current) {
         const currentIdx = currentIndexRef.current;
         const nextIndex = (currentIdx + 1) % places.length;
         
-        // Calculate the actual card index in the DOM (accounting for duplicate last card at start)
-        // Real cards start at index 1 (after duplicate last card)
-        const realCardIndex = nextIndex + 1;
-        
-        if (cards[realCardIndex]) {
-          const card = cards[realCardIndex] as HTMLElement;
-          const cardLeft = card.offsetLeft;
-          const cardWidth = card.offsetWidth;
-          const containerWidth = container.offsetWidth;
-          const scrollPosition = cardLeft - (containerWidth - cardWidth) / 2;
+        if (nextIndex === 0 && currentIdx === places.length - 1) {
+          isTransitioningRef.current = true;
+          scrollToIndex(nextIndex, true);
           
-          // Check if we're moving to the duplicate first card at the end
-          if (nextIndex === 0 && currentIdx === places.length - 1) {
-            // We're at the duplicate first card - after scroll completes, jump to real first card
-            isTransitioningRef.current = true;
-            
-            container.scrollTo({
-              left: Math.max(0, scrollPosition),
-              behavior: 'smooth',
-            });
-            
-            // After scroll animation completes, instantly jump to real first card
-            setTimeout(() => {
-              if (scrollContainerRef.current && cards[1]) {
+          setTimeout(() => {
+            if (scrollContainerRef.current) {
+              const container = scrollContainerRef.current;
+              const cards = container.children;
+              if (cards[1]) {
                 const firstCard = cards[1] as HTMLElement;
-                const firstCardLeft = firstCard.offsetLeft;
-                const firstCardWidth = firstCard.offsetWidth;
-                const containerWidth = scrollContainerRef.current.offsetWidth;
-                const firstScrollPosition = firstCardLeft - (containerWidth - firstCardWidth) / 2;
-                
-                // Instantly jump to real first card without animation
-                scrollContainerRef.current.scrollTo({
-                  left: Math.max(0, firstScrollPosition),
+                // Use offsetLeft which includes gap spacing
+                container.scrollTo({
+                  left: firstCard.offsetLeft,
                   behavior: 'auto',
                 });
                 isTransitioningRef.current = false;
               }
-            }, 500); // Wait for smooth scroll to complete
-          } else {
-            // Normal forward scroll
-            container.scrollTo({
-              left: Math.max(0, scrollPosition),
-              behavior: 'smooth',
-            });
-          }
-          
-          setCurrentIndex(nextIndex);
+            }
+          }, 500);
+        } else {
+          scrollToIndex(nextIndex, true);
         }
       }
-    }, 4000); // Change slide every 4 seconds
+    }, 4000);
 
     autoPlayRef.current = interval;
 
@@ -160,184 +203,121 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
       clearAutoPlay();
       clearResumeTimeout();
     };
-  }, [isAutoPlaying, isUserInteracting, places.length]);
+  }, [isAutoPlaying, places.length]);
 
-  // Touch handlers for swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-    setIsUserInteracting(true);
-    setIsAutoPlaying(false);
-    clearAutoPlay();
-    clearResumeTimeout();
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    touchEndX.current = e.touches[0].clientX;
-    // User is actively touching, keep auto-play disabled
-    setIsUserInteracting(true);
-  };
-
-  const handleTouchEnd = () => {
-    setIsUserInteracting(false);
-    
-    if (!touchStartX.current || !touchEndX.current) {
-      touchStartX.current = 0;
-      touchEndX.current = 0;
-      // Resume auto-play after a delay, starting from current position
-      clearResumeTimeout();
-      resumeTimeoutRef.current = setTimeout(() => {
-        setIsAutoPlaying(true);
-      }, 3000);
-      return;
-    }
-
-    const distance = touchStartX.current - touchEndX.current;
-    const minSwipeDistance = 50;
-
-    if (Math.abs(distance) > minSwipeDistance && scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const cards = container.children;
-      let targetIndex = currentIndex;
-      
-      if (distance > minSwipeDistance) {
-        // Swipe left - next
-        targetIndex = (currentIndex + 1) % places.length;
-      } else if (distance < -minSwipeDistance) {
-        // Swipe right - previous
-        targetIndex = (currentIndex - 1 + places.length) % places.length;
-      }
-      
-      // Account for duplicate last card at start - real cards start at index 1
-      const realCardIndex = targetIndex + 1;
-      
-      if (cards[realCardIndex]) {
-        const card = cards[realCardIndex] as HTMLElement;
-        const cardLeft = card.offsetLeft;
-        const cardWidth = card.offsetWidth;
-        const containerWidth = container.offsetWidth;
-        const scrollPosition = cardLeft - (containerWidth - cardWidth) / 2;
-        
-        // Scroll only the carousel container, not the entire page
-        container.scrollTo({
-          left: Math.max(0, scrollPosition),
-          behavior: 'smooth',
-        });
-        setCurrentIndex(targetIndex);
-      }
-    }
-
-    touchStartX.current = 0;
-    touchEndX.current = 0;
-
-    // Resume auto-play after 3 seconds, starting from the new current position
-    clearResumeTimeout();
-    resumeTimeoutRef.current = setTimeout(() => {
-      setIsAutoPlaying(true);
-    }, 3000);
-  };
+  // Arrow icon component
+  const ArrowIcon = ({ direction }: { direction: 'left' | 'right' }) => (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+    >
+      {direction === 'left' ? (
+        <path
+          d="M15 18L9 12L15 6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ) : (
+        <path
+          d="M9 18L15 12L9 6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
+    </svg>
+  );
 
   return (
     <div className="relative">
       {/* Mobile: Horizontal Scrollable Carousel */}
       <div className="sm:hidden">
-        <div
-          ref={scrollContainerRef}
-          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
-          style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {/* Duplicate last card at the beginning for seamless loop */}
-          {places.length > 0 && (
-            <div
-              key={`duplicate-last-${places.length - 1}`}
-              className="flex-shrink-0 w-full snap-center px-2"
-              style={{ scrollSnapAlign: 'center' }}
-            >
-              <PlaceCard place={places[places.length - 1]} language={language} />
-            </div>
-          )}
-          
-          {/* Original cards */}
-          {places.map((place, index) => (
-            <div
-              key={index}
-              className="flex-shrink-0 w-full snap-center px-2"
-              style={{ scrollSnapAlign: 'center' }}
-            >
-              <PlaceCard place={place} language={language} />
-            </div>
-          ))}
-          
-          {/* Duplicate first card at the end for seamless loop */}
-          {places.length > 0 && (
-            <div
-              key={`duplicate-first-0`}
-              className="flex-shrink-0 w-full snap-center px-2"
-              style={{ scrollSnapAlign: 'center' }}
-            >
-              <PlaceCard place={places[0]} language={language} />
-            </div>
-          )}
-        </div>
-
-        {/* Dots Indicator */}
+        {/* Navigation Buttons */}
         {places.length > 1 && (
-          <div className="flex justify-center gap-2 mt-6 relative">
-            <div className="flex gap-2">
-              {places.map((_, index) => {
-                const isActive = index === currentIndex;
-                const wasActive = previousIndexRef.current === index;
-                
-                return (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setCurrentIndex(index);
-                      setIsAutoPlaying(false);
-                      clearAutoPlay();
-                      clearResumeTimeout();
-                      if (scrollContainerRef.current) {
-                        const container = scrollContainerRef.current;
-                        const cards = container.children;
-                        // Account for duplicate last card at start - real cards start at index 1
-                        const realCardIndex = index + 1;
-                        if (cards[realCardIndex]) {
-                          const card = cards[realCardIndex] as HTMLElement;
-                          const cardLeft = card.offsetLeft;
-                          const cardWidth = card.offsetWidth;
-                          const containerWidth = container.offsetWidth;
-                          const scrollPosition = cardLeft - (containerWidth - cardWidth) / 2;
-                          
-                          // Scroll only the carousel container, not the entire page
-                          container.scrollTo({
-                            left: Math.max(0, scrollPosition),
-                            behavior: 'smooth',
-                          });
-                        }
-                      }
-                      // Resume auto-play after 3 seconds, starting from clicked position
-                      resumeTimeoutRef.current = setTimeout(() => {
-                        setIsAutoPlaying(true);
-                      }, 3000);
-                    }}
-                    className={`h-2 rounded-full relative ${
-                      isActive
-                        ? 'w-8 bg-gradient-temple'
-                        : 'w-2 bg-primary-gold/30'
-                    }`}
-                    style={{
-                      transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease-in-out',
-                      order: index, // Ensure proper order for animation
-                    }}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                );
-              })}
-            </div>
-          </div>
+          <>
+            {/* Left Button */}
+            <button
+              onClick={goToPrevious}
+              className="absolute left-2 bottom-4 z-20 bg-gradient-to-br from-white to-primary-gold/10 backdrop-blur-md rounded-full p-1.5 shadow-lg hover:shadow-xl active:scale-90 transition-all duration-300 flex items-center justify-center border border-primary-gold/30 hover:border-primary-gold/50 group"
+              aria-label="Previous slide"
+              style={{ 
+                boxShadow: '0 4px 12px rgba(255, 184, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.08)',
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation'
+              }}
+            >
+              <div className="text-primary-gold group-active:text-primary-saffron transition-colors">
+                <ArrowIcon direction="left" />
+              </div>
+            </button>
+
+            {/* Right Button */}
+            <button
+              onClick={goToNext}
+              className="absolute right-2 bottom-4 z-20 bg-gradient-to-br from-white to-primary-gold/10 backdrop-blur-md rounded-full p-1.5 shadow-lg hover:shadow-xl active:scale-90 transition-all duration-300 flex items-center justify-center border border-primary-gold/30 hover:border-primary-gold/50 group"
+              aria-label="Next slide"
+              style={{ 
+                boxShadow: '0 4px 12px rgba(255, 184, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.08)',
+                WebkitTapHighlightColor: 'transparent',
+                touchAction: 'manipulation'
+              }}
+            >
+              <div className="text-primary-gold group-active:text-primary-saffron transition-colors">
+                <ArrowIcon direction="right" />
+              </div>
+            </button>
+          </>
         )}
+
+        {/* Carousel Container */}
+        <div className="relative overflow-hidden">
+          <div
+            ref={scrollContainerRef}
+            className="flex overflow-x-auto scrollbar-hide gap-4"
+            style={{ 
+              scrollBehavior: 'smooth',
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'pan-y pinch-zoom'
+            }}
+          >
+            {/* Duplicate last card at the beginning for seamless loop */}
+            {places.length > 0 && (
+              <div
+                key={`duplicate-last-${places.length - 1}`}
+                className="flex-shrink-0 w-full"
+              >
+                <PlaceCard place={places[places.length - 1]} language={language} />
+              </div>
+            )}
+            
+            {/* Original cards */}
+            {places.map((place, index) => (
+              <div
+                key={index}
+                className="flex-shrink-0 w-full"
+              >
+                <PlaceCard place={place} language={language} />
+              </div>
+            ))}
+            
+            {/* Duplicate first card at the end for seamless loop */}
+            {places.length > 0 && (
+              <div
+                key={`duplicate-first-0`}
+                className="flex-shrink-0 w-full"
+              >
+                <PlaceCard place={places[0]} language={language} />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Desktop: Grid Layout */}
