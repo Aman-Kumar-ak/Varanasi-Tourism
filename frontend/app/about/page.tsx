@@ -27,7 +27,7 @@ export default function AboutUsPage() {
               <h2 className="text-3xl font-bold text-primary-dark">Our Mission</h2>
             </div>
             <p className="text-primary-dark/80 leading-relaxed text-lg">
-              Varanasi Tourism Guide is dedicated to providing comprehensive, accurate, and inspiring information about Varanasi - one of the world's oldest continuously inhabited cities and a spiritual hub for millions. Our mission is to help travelers discover the rich cultural heritage, sacred sites, and unique experiences that make Varanasi a truly special destination.
+              Varanasi Tourism Guide is dedicated to providing comprehensive, accurate, and inspiring information about Varanasi - one of the world&apos;s oldest continuously inhabited cities and a spiritual hub for millions. Our mission is to help travelers discover the rich cultural heritage, sacred sites, and unique experiences that make Varanasi a truly special destination.
             </p>
           </div>
 
@@ -112,7 +112,7 @@ export default function AboutUsPage() {
               Varanasi, also known as Kashi or Banaras, is one of the seven holiest cities in Hinduism and Jainism. Situated on the banks of the sacred Ganges River, it has been a center of learning, culture, and spirituality for over 3,000 years.
             </p>
             <p className="text-primary-dark/80 leading-relaxed text-lg">
-              The city is home to numerous temples, ghats, and sacred sites, including the famous Kashi Vishwanath Temple. It's a place where ancient traditions meet modern life, creating a unique atmosphere that draws millions of pilgrims and travelers each year.
+              The city is home to numerous temples, ghats, and sacred sites, including the famous Kashi Vishwanath Temple. It&apos;s a place where ancient traditions meet modern life, creating a unique atmosphere that draws millions of pilgrims and travelers each year.
             </p>
           </div>
 
@@ -120,7 +120,7 @@ export default function AboutUsPage() {
           <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 md:p-10">
             <h2 className="text-3xl font-bold text-primary-dark mb-6">Get in Touch</h2>
             <p className="text-primary-dark/80 leading-relaxed mb-6">
-              Have questions, suggestions, or feedback? We'd love to hear from you!
+              Have questions, suggestions, or feedback? We&apos;d love to hear from you!
             </p>
             <div className="space-y-4">
               <div className="flex items-start gap-3">

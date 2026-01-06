@@ -70,13 +70,35 @@ app.use('/api/config', configRoutes);
 // Receipt routes disabled for guide-first phase
 // app.use('/api/receipts', receiptRoutes);
 
-// Health check
+// Root route - for UptimeRobot and general access
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Varanasi Tourism Backend API',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/api/health',
+      cities: '/api/cities',
+      jyotirlingas: '/api/jyotirlingas',
+      auth: '/api/auth',
+    },
+  });
+});
+
+// Health check endpoint - optimized for monitoring services
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'ok',
     message: 'Server is healthy',
     timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
   });
+});
+
+// Lightweight ping endpoint for UptimeRobot (even faster than health check)
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
 });
 
 // Error handling middleware
