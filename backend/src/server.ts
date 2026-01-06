@@ -13,11 +13,15 @@ import timeSlotRoutes from './routes/time-slots.js';
 import receiptRoutes from './routes/receipts.js';
 import uploadRoutes from './routes/upload.js';
 
-// Load environment variables from backend/.env file
+// Load environment variables
+// In Vercel, environment variables are provided directly, but we still load .env for local development
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const envPath = path.resolve(__dirname, '../.env');
-dotenv.config({ path: envPath });
+// Only load .env file if not in Vercel (Vercel provides env vars directly)
+if (process.env.VERCEL !== '1') {
+  dotenv.config({ path: envPath });
+}
 
 const app = express();
 const PORT = process.env.PORT || 5000;
