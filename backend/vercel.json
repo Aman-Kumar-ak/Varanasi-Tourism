@@ -1,11 +1,17 @@
 {
+  "version": 2,
   "buildCommand": "npm run build",
   "installCommand": "npm install",
-  "framework": null,
-  "rewrites": [
+  "functions": {
+    "api/server.js": {
+      "runtime": "@vercel/node",
+      "includeFiles": "dist/**"
+    }
+  },
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/api/server"
+      "src": "/(.*)",
+      "dest": "/api/server"
     }
   ]
 }
