@@ -1,6 +1,6 @@
-# Ignore backend directory in Vercel builds
-backend/
-backend/**
+# Ignore files in Vercel builds
+# Note: backend/ is NOT ignored here because we deploy backend separately
+# If deploying frontend, set Root Directory to "frontend" in Vercel dashboard
 node_modules/
 .git/
 *.md
