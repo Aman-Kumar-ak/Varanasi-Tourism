@@ -1,7 +1,9 @@
 // Vercel serverless function handler for Express app
+// This file must be in the api/ directory for Vercel to recognize it as a serverless function
+
+// Import the compiled Express app
 import app from '../dist/server.js';
 
-// Export the Express app as the default handler for Vercel
-// Vercel will automatically handle the request/response conversion
+// Export as default handler for Vercel
 export default app;
 
