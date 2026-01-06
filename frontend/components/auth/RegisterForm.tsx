@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, initializeFirebase } from '@/lib/firebase';
 import { validatePhoneNumber, formatPhoneNumber } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
@@ -19,18 +19,37 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
 
   useEffect(() => {
-    // Initialize reCAPTCHA
-    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: () => {
-          // reCAPTCHA solved
-        },
-        'expired-callback': () => {
-          toast.error('reCAPTCHA expired. Please try again.');
-        },
-      });
-    }
+    // Initialize Firebase and reCAPTCHA
+    const init = async () => {
+      if (typeof window === 'undefined') return;
+
+      try {
+        // Ensure Firebase is initialized
+        await initializeFirebase();
+
+        if (auth && !window.recaptchaVerifier) {
+          try {
+            window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+              size: 'invisible',
+              callback: () => {
+                // reCAPTCHA solved
+              },
+              'expired-callback': () => {
+                toast.error('reCAPTCHA expired. Please try again.');
+              },
+            });
+          } catch (error) {
+            console.error('Error initializing reCAPTCHA:', error);
+            toast.error('Firebase authentication is not configured. Please check backend environment variables.');
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing Firebase:', error);
+        toast.error('Failed to initialize Firebase. Please check backend configuration.');
+      }
+    };
+
+    init();
   }, []);
 
   const handleSendOTP = async (e: React.FormEvent) => {
@@ -46,10 +65,20 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
       return;
     }
 
+    if (!auth) {
+      toast.error('Firebase authentication is not configured. Please check backend environment variables.');
+      return;
+    }
+
     setLoading(true);
     try {
       const phoneNumber = `+91${phone.replace(/\D/g, '')}`;
       const appVerifier = window.recaptchaVerifier;
+
+      if (!appVerifier) {
+        toast.error('reCAPTCHA not initialized. Please refresh the page.');
+        return;
+      }
 
       const confirmation = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setConfirmationResult(confirmation);
