@@ -14,17 +14,14 @@ import receiptRoutes from './routes/receipts.js';
 import uploadRoutes from './routes/upload.js';
 
 // Load environment variables
-// In Vercel, environment variables are provided directly, but we still load .env for local development
+// Render provides environment variables directly, but we load .env for local development
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const envPath = path.resolve(__dirname, '../.env');
-// Only load .env file if not in Vercel (Vercel provides env vars directly)
-if (process.env.VERCEL !== '1') {
-  dotenv.config({ path: envPath });
-}
+dotenv.config({ path: envPath });
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = parseInt(process.env.PORT || '5000', 10);
 
 // Middleware
 // CORS configuration - support both localhost and production frontend URL
@@ -89,13 +86,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Export app for Vercel serverless functions
-export default app;
-
-// Start server only if not in serverless environment
-if (process.env.VERCEL !== '1') {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
-}
+// Start the server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+});
 
