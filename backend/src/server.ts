@@ -28,6 +28,9 @@ const PORT = parseInt(process.env.PORT || '5000', 10);
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const isProduction = NODE_ENV === 'production';
 
+// Trust proxy (required for rate limiting behind reverse proxy like Render)
+app.set('trust proxy', true);
+
 // ==================== SECURITY MIDDLEWARE ====================
 
 // 1. Security Headers (Helmet)
