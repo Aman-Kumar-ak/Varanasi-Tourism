@@ -284,6 +284,10 @@ export default function ComprehensiveCityGuide({
             fill
             sizes="100vw"
             className="object-cover scale-105"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-temple"></div>
@@ -458,27 +462,66 @@ export default function ComprehensiveCityGuide({
               icon="📿"
               subtitle={t('how.to.book.darshan', language)}
             />
-            <div className="card-modern rounded-2xl p-8 shadow-temple border-l-4 border-primary-blue relative overflow-hidden">
-              {/* Decorative gradient background */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-              <div className="flex items-start gap-5 mb-6 relative z-10">
-                <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-lg flex-1">
-                  {getLocalizedContent(city.darshanInfo, language)}
-                </p>
-              </div>
-              {city.officialBookingUrl && (
-                <div className="relative z-10 mt-4">
-                  <a
-                    href={city.officialBookingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-temple text-white rounded-xl font-semibold shadow-md text-sm sm:text-base min-h-[44px] touch-manipulation w-full sm:w-auto"
-                  >
-                    {t('visit.official.website', language)}
-                    <span className="text-lg sm:text-xl">→</span>
-                  </a>
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-primary-gold/20 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-gold/10 to-primary-orange/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-primary-blue/5 to-primary-teal/5 rounded-full -ml-24 -mb-24 blur-2xl"></div>
+              
+              {/* Content */}
+              <div className="relative z-10 p-6 sm:p-8 md:p-10">
+                {/* Icon and Title */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-primary-orange flex items-center justify-center shadow-lg">
+                    <span className="text-2xl sm:text-3xl">🕉️</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl sm:text-2xl font-bold text-primary-dark mb-1">
+                      {t('darshan.information', language)}
+                    </h3>
+                    <p className="text-sm sm:text-base text-primary-dark/70">
+                      {t('how.to.book.darshan', language)}
+                    </p>
+                  </div>
                 </div>
-              )}
+
+                {/* Information Text */}
+                <div className="mb-8">
+                  <p className="text-base sm:text-lg text-primary-dark/90 leading-relaxed whitespace-pre-line">
+                    {getLocalizedContent(city.darshanInfo, language)}
+                  </p>
+                </div>
+
+                {/* Call to Action Button */}
+                {city.officialBookingUrl && (
+                  <div className="flex flex-col gap-3">
+                    <a
+                      href={city.officialBookingUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 bg-primary-gold text-white rounded-2xl font-bold text-base sm:text-lg shadow-xl hover:shadow-2xl hover:bg-primary-orange transform hover:-translate-y-1 transition-all duration-300 min-h-[56px] touch-manipulation whitespace-nowrap"
+                    >
+                      {/* Button content */}
+                      <span className="flex items-center gap-3">
+                        <span className="whitespace-nowrap">{t('visit.official.website', language).replace(' →', '')}</span>
+                        <span className="text-xl sm:text-2xl">→</span>
+                      </span>
+                    </a>
+                    
+                    {/* Official website indicator - Right aligned */}
+                    <div className="flex items-center justify-end gap-2 text-sm sm:text-base text-primary-dark/80">
+                      <span className="font-medium">
+                        {language === 'hi' ? 'आधिकारिक वेबसाइट' : 
+                         language === 'en' ? 'Official website' : 'Official website'}
+                      </span>
+                      <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         )}

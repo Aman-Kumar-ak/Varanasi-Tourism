@@ -44,6 +44,10 @@ export default function TempleCard({ temple, language }: TempleCardProps) {
               fill
               sizes="(max-width: 640px) 128px, (max-width: 1024px) 50vw, 33vw"
               className="object-cover group-hover:scale-110 transition-transform duration-300"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-4xl sm:text-7xl">

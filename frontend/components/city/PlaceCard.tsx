@@ -64,6 +64,11 @@ export default function PlaceCard({ place, language }: PlaceCardProps) {
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover"
+            onError={(e) => {
+              // Silently handle missing images to prevent console errors
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
           />
         </div>
       )}

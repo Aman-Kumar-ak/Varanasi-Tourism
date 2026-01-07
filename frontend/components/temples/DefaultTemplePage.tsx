@@ -79,6 +79,11 @@ export default function DefaultTemplePage({ temple, language }: DefaultTemplePag
             fill
             sizes="100vw"
             className="object-cover opacity-80"
+            onError={(e) => {
+              // Silently handle missing images to prevent console errors
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+            }}
           />
         ) : null}
         <div className="absolute inset-0 bg-primary-dark/40"></div>

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getApiUrl } from '@/lib/utils';
 import ComprehensiveCityGuide from '@/components/city/ComprehensiveCityGuide';
+import BeautifulLoading from '@/components/common/BeautifulLoading';
 
 export default function CityPage() {
   const params = useParams();
@@ -40,14 +41,7 @@ export default function CityPage() {
   }, [fetchCityData, language]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background-parchment flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-blue"></div>
-          <p className="mt-4 text-primary-dark/70">Loading city information...</p>
-        </div>
-      </div>
-    );
+    return <BeautifulLoading />;
   }
 
   if (!city) {
