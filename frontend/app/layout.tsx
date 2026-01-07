@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers/Providers";
-import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
 import ScrollToTopButton from "@/components/common/ScrollToTopButton";
+import FloatingButtonGroup from "@/components/common/FloatingButtonGroup";
+import BackButton from "@/components/common/BackButton";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -28,10 +29,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased flex flex-col min-h-screen`}>
         <Providers>
-          <Header />
           <main className="flex-grow">
             {children}
           </main>
+          <BackButton />
+          <FloatingButtonGroup />
           <ScrollToTopButton />
           <Footer />
         </Providers>

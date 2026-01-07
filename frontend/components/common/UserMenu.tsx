@@ -39,21 +39,21 @@ export default function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary-blue flex items-center justify-center text-white font-bold text-base sm:text-lg hover:ring-2 ring-primary-blue/50 transition-all shadow-md hover:shadow-lg active:scale-95 flex-shrink-0"
+        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-temple flex items-center justify-center text-white font-bold text-sm sm:text-base hover:ring-2 ring-primary-gold/50 transition-all shadow-md hover:shadow-lg active:scale-95 flex-shrink-0"
         aria-label="User menu"
       >
         {firstLetter}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-primary-blue/20 py-2 z-50">
-          <div className="px-4 py-2 border-b border-primary-blue/10">
-            <p className="text-sm font-semibold text-primary-dark">{user.name}</p>
-            <p className="text-xs text-primary-dark/60">{user.phone}</p>
+        <div className="absolute -right-10 sm:-right-1 mt-2 w-40 sm:w-44 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-primary-gold/30 py-1.5 z-50 transform transition-all duration-200 opacity-100 translate-y-0">
+          <div className="px-3 py-2 border-b border-primary-blue/10">
+            <p className="text-sm sm:text-base font-semibold text-primary-dark truncate">{user.name}</p>
+            <p className="text-xs sm:text-sm text-primary-dark/60 truncate">{user.phone}</p>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full text-left px-3 py-1.5 text-sm sm:text-base text-red-600 hover:bg-red-50 transition-colors rounded-md mx-1 my-1"
           >
             Logout
           </button>

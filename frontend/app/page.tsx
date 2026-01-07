@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { t } from "@/lib/translations";
-
 export default function Home() {
   const { language } = useLanguage();
 
@@ -16,7 +15,45 @@ export default function Home() {
         {/* New subtle radial accents */}
         <div className="pointer-events-none absolute inset-0 opacity-40 mix-blend-screen bg-[radial-gradient(circle_at_top,_#38bdf8_0,_transparent_55%),radial-gradient(circle_at_bottom,_#f97316_0,_transparent_55%)]" />
 
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 flex flex-col md:flex-row items-center gap-6 md:gap-8">
+        {/* Website Name and Login at top */}
+        <div className="absolute top-0 left-0 right-0 z-10 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto flex items-center justify-between pt-4 sm:pt-7">
+            {/* Website Name */}
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group transition-all duration-300 hover:scale-105 active:scale-95">
+              {/* Logo - Spiritual Design with Sacred Geometry */}
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-gradient-temple flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 ring-2 ring-white/30 hover:ring-white/40">
+                {/* Outer sacred glow - multiple layers for depth */}
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-primary-gold/40 via-primary-gold/20 to-transparent blur-sm opacity-60 group-hover:opacity-80 transition-opacity"></div>
+                <div className="absolute -inset-0.5 rounded-full bg-gradient-to-br from-white/40 via-white/20 to-transparent blur-[2px] opacity-50"></div>
+                
+                {/* Inner sacred mandala effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-primary-gold/20 to-transparent rounded-full"></div>
+                <div className="absolute inset-1 rounded-full bg-gradient-to-t from-black/20 via-transparent to-white/10"></div>
+                
+                {/* Sacred border pattern */}
+                <div className="absolute inset-0 rounded-full border-2 border-white/40"></div>
+                <div className="absolute inset-[3px] rounded-full border border-primary-gold/30"></div>
+                
+                {/* Om symbol - Large and prominent, spiritual presence */}
+                <span className="text-white font-bold text-2xl sm:text-3xl md:text-4xl drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] relative z-10 leading-none select-none filter brightness-110">🕉️</span>
+                
+                {/* Inner sacred light */}
+                <div className="absolute inset-[4px] rounded-full bg-gradient-to-br from-white/20 via-transparent to-primary-gold/10 pointer-events-none"></div>
+                
+                {/* Subtle pulsing glow effect on hover */}
+                <div className="absolute inset-0 rounded-full bg-primary-gold/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md"></div>
+              </div>
+              <span className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-white tracking-tight hidden sm:block drop-shadow-sm">
+                Varanasi Tourism
+              </span>
+            </Link>
+
+            {/* Spacer for alignment with FloatingButtonGroup */}
+            <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16" />
+          </div>
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-8 md:pb-10 lg:pb-12 pb-6 sm:pb-8 flex flex-col md:flex-row items-center gap-6 md:gap-8">
           {/* Text side */}
           <div className="w-full md:w-3/5 space-y-4 sm:space-y-5 text-white">
              <p className="inline-flex items-center gap-2 text-sm sm:text-base font-medium tracking-[0.2em] uppercase text-sky-200/90 bg-white/5 rounded-full px-4 py-1.5 backdrop-blur">
@@ -285,6 +322,7 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
     </div>
   );
 }
