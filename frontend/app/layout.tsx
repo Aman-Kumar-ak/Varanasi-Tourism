@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import Providers from "@/components/providers/Providers";
 import Footer from "@/components/common/Footer";
@@ -33,7 +34,9 @@ export default function RootLayout({
             {children}
           </main>
           <BackButton />
-          <FloatingButtonGroup />
+          <Suspense fallback={null}>
+            <FloatingButtonGroup />
+          </Suspense>
           <ScrollToTopButton />
           <Footer />
         </Providers>
