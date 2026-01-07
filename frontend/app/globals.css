@@ -22,9 +22,19 @@ body {
   /* Main background gradient - adjust percentages: 0% = top color, 100% = bottom color */
   /* To keep top color longer: change 0% to something like 0%, 0%, 30% (top color, top color, transition point) */
   background: linear-gradient(135deg, rgb(var(--background-start-rgb)) 0%, rgb(var(--background-end-rgb)) 100%);
-  background-attachment: fixed;
   min-height: 100vh;
   font-size: calc(var(--body-font-size-base) * var(--font-size-multiplier));
+}
+
+/* Help long multi-language text wrap safely inside cards/headings */
+.multilingual-text {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Apply font size multiplier to body text elements */
@@ -121,12 +131,6 @@ h1, h2, h3, h4, h5, h6,
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
-  }
-
-  /* Smooth scrolling */
-  html {
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Better tap highlight */
