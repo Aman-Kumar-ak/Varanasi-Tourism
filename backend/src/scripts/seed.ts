@@ -1630,6 +1630,180 @@ async function seedDatabase() {
             as: 'নিরাপত্তা টিপছ: যিকোনো যানবাহনত উঠাৰ আগতে সদায় ভাড়াত আলোচনা কৰক। বিমানবন্দৰ আৰু ৰেলৱে ষ্টেচনত উপলব্ধ থাকিলে প্ৰিপেইড টেক্সি/অটো কাউণ্টাৰ ব্যৱহাৰ কৰক। অটো-ৰিক্সাৰ বাবে, সাধাৰণ হাৰ ₹12-15/কিমি। ই-ৰিক্সাৰ বাবে, ₹5-10/কিমি। বহুত বেছি দাম বিচৰা ড্ৰাইভাৰসকলৰ পৰা সাৱধান থাকক। অফিচিয়েল টেক্সি ষ্টেণ্ড এলোমেলো পিকআপতকৈ নিরাপদ। গংগাত নাও ভ্ৰমণৰ বাবে, উঠাৰ আগতে সময়কাল আৰু দামত সম্মত হ\'ব। পুৱাৰ নাও ভ্ৰমণ (সূৰ্যোদয়) অধিক ব্যয়বহুল কিন্তু সুন্দৰ দৃশ্য প্ৰদান কৰে।',
             ur: 'حفاظتی نکات: کسی بھی گاڑی میں چڑھنے سے پہلے ہمیشہ کرایہ پر بات چیت کریں۔ ہوائی اڈے اور ریلوے اسٹیشن پر دستیاب ہونے پر پری پیڈ ٹیکسی/آٹو کاؤنٹر استعمال کریں۔ آٹو-رکشا کے لیے، عام شرح ₹12-15/کلومیٹر ہے۔ ای-رکشا کے لیے، ₹5-10/کلومیٹر۔ بہت زیادہ قیمت مانگنے والے ڈرائیوروں سے محتاط رہیں۔ سرکاری ٹیکسی اسٹینڈ بے ترتیب پک اپ سے محفوظ ہیں۔ گنگا پر کشتی کی سواری کے لیے، چڑھنے سے پہلے مدت اور قیمت پر اتفاق کریں۔ صبح کی کشتی کی سواریاں (طلوع آفتاب) زیادہ مہنگی ہیں لیکن خوبصورت مناظر پیش کرتی ہیں۔',
           },
+          // New features - Events, Ropeway, Stadium, Wellness, Academic
+          events: [
+            {
+              name: 'Kashiyatra',
+              date: '2025-03-07',
+              endDate: '2025-03-09',
+              type: 'cultural',
+              description: {
+                en: 'The annual socio-cultural festival of IIT (BHU) Varanasi. One of India\'s prominent college festivals featuring cultural performances, competitions, and workshops.',
+                hi: 'आईआईटी (बीएचयू) वाराणसी का वार्षिक सामाजिक-सांस्कृतिक उत्सव। भारत के प्रमुख कॉलेज उत्सवों में से एक जिसमें सांस्कृतिक प्रदर्शन, प्रतियोगिताएं और कार्यशालाएं शामिल हैं।',
+              },
+              venue: 'IIT (BHU) Campus',
+              website: 'https://kashiyatra.org',
+            },
+            {
+              name: 'Holiday Expo Varanasi',
+              date: '2026-02-27',
+              endDate: '2026-03-01',
+              type: 'exhibition',
+              description: {
+                en: 'India\'s leading travel and tourism exhibition for Tier 2 and Tier 3 cities. Showcasing destinations, products, and services from the tourism industry.',
+                hi: 'टियर 2 और टियर 3 शहरों के लिए भारत की अग्रणी यात्रा और पर्यटन प्रदर्शनी। पर्यटन उद्योग से गंतव्य, उत्पाद और सेवाएं प्रदर्शित कर रही है।',
+              },
+              venue: 'Rudraksh Convention Centre',
+            },
+            {
+              name: 'ITM Varanasi',
+              date: '2026-03-27',
+              endDate: '2026-03-29',
+              type: 'exhibition',
+              description: {
+                en: 'Prominent travel and tourism exhibition promoting inbound, outbound, and domestic tourism. Platform for businesses to showcase their offerings.',
+                hi: 'इनबाउंड, आउटबाउंड और घरेलू पर्यटन को बढ़ावा देने वाली प्रमुख यात्रा और पर्यटन प्रदर्शनी। व्यवसायों के लिए अपने प्रस्ताव प्रदर्शित करने का मंच।',
+              },
+              venue: 'Rudraksh Convention Centre',
+            },
+            {
+              name: 'Annual Symposium - Architecture, Culture & Spirituality',
+              date: '2026-01-08',
+              endDate: '2026-01-11',
+              type: 'academic',
+              description: {
+                en: 'Exploring the relationship between myths and placemaking. Global symposium at IIT (BHU) bringing together scholars and enthusiasts.',
+                hi: 'मिथकों और स्थान निर्माण के बीच संबंध की खोज। आईआईटी (बीएचयू) में वैश्विक सम्मेलन जो विद्वानों और उत्साही लोगों को एक साथ लाता है।',
+              },
+              venue: 'IIT (BHU) Varanasi',
+            },
+          ],
+          kashiRopeway: {
+            name: {
+              en: 'Kashi Ropeway',
+              hi: 'काशी रोपवे',
+            },
+            description: {
+              en: 'India\'s first public transport ropeway system, spanning 3.75 km with five stations. Connecting Varanasi Cantonment railway station to Godowlia Chowk, offering panoramic views of the city and significantly reducing travel time.',
+              hi: 'भारत की पहली सार्वजनिक परिवहन रोपवे प्रणाली, पांच स्टेशनों के साथ 3.75 किमी तक फैली हुई। वाराणसी छावनी रेलवे स्टेशन को गोदौलिया चौक से जोड़ती है, शहर के मनोरम दृश्य प्रदान करती है और यात्रा के समय को काफी कम करती है।',
+            },
+            route: {
+              en: 'Varanasi Cantonment Railway Station → Godowlia Chowk (3.75 km)',
+              hi: 'वाराणसी छावनी रेलवे स्टेशन → गोदौलिया चौक (3.75 किमी)',
+            },
+            stations: [
+              { name: 'Varanasi Cantonment Station', confirmed: true },
+              { name: 'Station 2', confirmed: false },
+              { name: 'Station 3', confirmed: false },
+              { name: 'Station 4', confirmed: false },
+              { name: 'Godowlia Chowk', confirmed: true },
+            ],
+            openingDate: 'May 2026',
+            capacity: '96,000 passengers daily',
+            ticketPrice: {
+              min: 50,
+              max: 100,
+              currency: 'INR',
+            },
+            features: {
+              en: '153 cabins, each accommodating 10 passengers. Eco-friendly transport solution reducing traffic congestion. Offers breathtaking aerial views of the Ganges and ancient ghats.',
+              hi: '153 केबिन, प्रत्येक में 10 यात्रियों को समायोजित करता है। यातायात भीड़ को कम करने वाला पर्यावरण के अनुकूल परिवहन समाधान। गंगा और प्राचीन घाटों के लुभावने हवाई दृश्य प्रदान करता है।',
+            },
+            location: {
+              lat: 25.3176,
+              lng: 82.9739,
+            },
+          },
+          cricketStadium: {
+            name: {
+              en: 'Varanasi International Cricket Stadium',
+              hi: 'वाराणसी अंतर्राष्ट्रीय क्रिकेट स्टेडियम',
+            },
+            description: {
+              en: 'A state-of-the-art international cricket stadium with a seating capacity of 30,000-40,000. The design draws inspiration from Lord Shiva, featuring trident-shaped floodlights and crescent-shaped roof covers.',
+              hi: '30,000-40,000 की बैठने की क्षमता वाला एक अत्याधुनिक अंतर्राष्ट्रीय क्रिकेट स्टेडियम। डिज़ाइन भगवान शिव से प्रेरणा लेता है, जिसमें त्रिशूल के आकार के फ्लडलाइट्स और अर्धचंद्राकार छत कवर हैं।',
+            },
+            capacity: '30,000-40,000',
+            openingDate: 'January 2026',
+            features: {
+              en: 'Trident-shaped floodlights symbolizing Lord Shiva\'s trident. Crescent-shaped roof covers. Modern facilities including VIP lounges, media center, and world-class pitch.',
+              hi: 'भगवान शिव के त्रिशूल का प्रतीक त्रिशूल के आकार के फ्लडलाइट्स। अर्धचंद्राकार छत कवर। वीआईपी लाउंज, मीडिया सेंटर और विश्व स्तरीय पिच सहित आधुनिक सुविधाएं।',
+            },
+            location: {
+              lat: 25.29575,
+              lng: 82.85422,
+            },
+            tourInfo: {
+              en: 'Stadium tours will be available after opening. Contact the stadium administration for tour schedules and bookings.',
+              hi: 'खुलने के बाद स्टेडियम टूर उपलब्ध होंगे। टूर शेड्यूल और बुकिंग के लिए स्टेडियम प्रशासन से संपर्क करें।',
+            },
+          },
+          wellnessCenters: [
+            {
+              name: 'Yoga Niketan',
+              type: 'yoga',
+              description: {
+                en: 'Traditional yoga center offering classes in Hatha, Ashtanga, and Vinyasa yoga. Located near Assi Ghat, perfect for morning practice.',
+                hi: 'हठ, अष्टांग और विन्यास योग में कक्षाएं प्रदान करने वाला पारंपरिक योग केंद्र। अस्सी घाट के पास स्थित, सुबह के अभ्यास के लिए आदर्श।',
+              },
+              address: 'Near Assi Ghat, Varanasi',
+              priceRange: 'budget',
+              rating: 4.5,
+            },
+            {
+              name: 'Varanasi Ayurveda Center',
+              type: 'ayurveda',
+              description: {
+                en: 'Authentic Ayurvedic treatments and therapies. Offers Panchakarma, massage therapies, and wellness consultations.',
+                hi: 'प्रामाणिक आयुर्वेदिक उपचार और चिकित्सा। पंचकर्म, मालिश चिकित्सा और कल्याण परामर्श प्रदान करता है।',
+              },
+              address: 'Godowlia, Varanasi',
+              priceRange: 'mid-range',
+              rating: 4.7,
+            },
+            {
+              name: 'Ganga Aarti Meditation Center',
+              type: 'meditation',
+              description: {
+                en: 'Meditation center offering guided meditation sessions, especially during Ganga Aarti. Spiritual guidance and peaceful environment.',
+                hi: 'गाइडेड ध्यान सत्र प्रदान करने वाला ध्यान केंद्र, विशेष रूप से गंगा आरती के दौरान। आध्यात्मिक मार्गदर्शन और शांतिपूर्ण वातावरण।',
+              },
+              address: 'Dashashwamedh Ghat, Varanasi',
+              priceRange: 'budget',
+              rating: 4.6,
+            },
+          ],
+          academicInstitutions: [
+            {
+              name: 'Banaras Hindu University',
+              type: 'university',
+              description: {
+                en: 'One of India\'s largest residential universities. Founded by Madan Mohan Malaviya, known for its vast campus and diverse academic programs.',
+                hi: 'भारत की सबसे बड़ी आवासीय विश्वविद्यालयों में से एक। मदन मोहन मालवीय द्वारा स्थापित, अपने विशाल परिसर और विविध शैक्षणिक कार्यक्रमों के लिए जाना जाता है।',
+              },
+              address: 'BHU Campus, Varanasi',
+              website: 'https://bhu.ac.in',
+              campusTour: true,
+              notableFeatures: {
+                en: 'Massive 1,300-acre campus, historic buildings, diverse faculties, cultural heritage.',
+                hi: '1,300 एकड़ का विशाल परिसर, ऐतिहासिक इमारतें, विविध संकाय, सांस्कृतिक विरासत।',
+              },
+            },
+            {
+              name: 'Sampurnanand Sanskrit University',
+              type: 'university',
+              description: {
+                en: 'Premier Sanskrit university preserving and promoting ancient Indian knowledge systems. Offers courses in Sanskrit, philosophy, and traditional studies.',
+                hi: 'प्राचीन भारतीय ज्ञान प्रणालियों को संरक्षित और बढ़ावा देने वाला प्रमुख संस्कृत विश्वविद्यालय। संस्कृत, दर्शन और पारंपरिक अध्ययन में पाठ्यक्रम प्रदान करता है।',
+              },
+              address: 'Varanasi',
+              campusTour: false,
+              notableFeatures: {
+                en: 'Dedicated to Sanskrit studies, traditional knowledge preservation, ancient manuscripts library.',
+                hi: 'संस्कृत अध्ययन के लिए समर्पित, पारंपरिक ज्ञान संरक्षण, प्राचीन पांडुलिपि पुस्तकालय।',
+              },
+            },
+          ],
         };
       }
 

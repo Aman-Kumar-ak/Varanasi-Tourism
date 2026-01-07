@@ -67,23 +67,23 @@ export default function PlaceCard({ place, language }: PlaceCardProps) {
           />
         </div>
       )}
-      <div className="p-6 sm:p-8 flex-grow flex flex-col relative z-10">
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-4">
+      <div className="p-5 sm:p-6 md:p-8 flex-grow flex flex-col relative z-10">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 mb-3 sm:mb-4">
           <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-lg sm:text-xl md:text-2xl shadow-temple">
             {icon}
           </div>
-          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-dark flex-1 min-w-0 leading-tight break-words">
+          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary-dark flex-1 min-w-0 leading-tight break-words">
             {getLocalizedContent(place.name, language)}
           </h3>
         </div>
         {place.category && (
-          <div className="mb-4">
-            <span className="inline-block text-xs px-3 py-1.5 bg-primary-gold/10 text-primary-gold rounded-lg capitalize font-bold border border-primary-gold/20">
+          <div className="mb-3 sm:mb-4">
+            <span className="inline-block text-xs px-2 sm:px-3 py-1 sm:py-1.5 bg-primary-gold/10 text-primary-gold rounded-lg capitalize font-bold border border-primary-gold/20">
               {place.category}
             </span>
           </div>
         )}
-        <p className="text-primary-dark/80 text-sm sm:text-base leading-relaxed mb-4 flex-grow">
+        <p className="text-primary-dark/80 text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4 flex-grow">
           {getLocalizedContent(place.description, language)}
         </p>
         {place.spiritualImportance && (
@@ -109,7 +109,7 @@ export default function PlaceCard({ place, language }: PlaceCardProps) {
           {place.location && (
             <button
               onClick={() => openGoogleMapsDirections(place.location!, getLocalizedContent(place.name, language))}
-              className="flex items-center gap-2 bg-primary-blue/10 hover:bg-primary-blue/20 px-3 py-1.5 rounded-lg font-medium transition-colors text-primary-blue"
+              className="flex items-center justify-center gap-2 bg-primary-blue/10 hover:bg-primary-blue/20 active:bg-primary-blue/30 px-3 py-2 sm:py-1.5 rounded-lg font-medium transition-colors text-primary-blue text-xs sm:text-sm min-h-[44px] sm:min-h-0 touch-manipulation"
               aria-label={t('get.directions', language)}
               title={t('get.directions', language)}
             >

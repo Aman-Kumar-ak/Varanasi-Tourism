@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/providers/Providers";
 import Header from "@/components/common/Header";
 import Footer from "@/components/common/Footer";
+import ScrollToTopButton from "@/components/common/ScrollToTopButton";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -31,6 +32,7 @@ export default function RootLayout({
           <main className="flex-grow">
             {children}
           </main>
+          <ScrollToTopButton />
           <Footer />
         </Providers>
       </body>

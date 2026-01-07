@@ -91,6 +91,76 @@ export interface IRitual {
   timing?: string;
 }
 
+export interface IEvent {
+  name: string;
+  date: string;
+  endDate?: string;
+  type: 'festival' | 'cultural' | 'sports' | 'academic' | 'exhibition' | 'performance';
+  description: IMultiLanguageContent;
+  venue?: string;
+  website?: string;
+  contact?: string;
+}
+
+export interface IKashiRopeway {
+  name: IMultiLanguageContent;
+  description: IMultiLanguageContent;
+  route: IMultiLanguageContent;
+  stations: Array<{
+    name: string;
+    description?: IMultiLanguageContent;
+    confirmed?: boolean;
+  }>;
+  openingDate?: string;
+  capacity?: string;
+  ticketPrice?: {
+    min: number;
+    max: number;
+    currency: string;
+  };
+  features?: IMultiLanguageContent;
+  location?: {
+    lat: number;
+    lng: number;
+  };
+}
+
+export interface ICricketStadium {
+  name: IMultiLanguageContent;
+  description: IMultiLanguageContent;
+  capacity: string;
+  openingDate?: string;
+  features?: IMultiLanguageContent;
+  location?: {
+    lat: number;
+    lng: number;
+  };
+  tourInfo?: IMultiLanguageContent;
+  contact?: string;
+}
+
+export interface IWellnessCenter {
+  name: string;
+  type: 'yoga' | 'meditation' | 'ayurveda' | 'spa' | 'retreat';
+  description: IMultiLanguageContent;
+  address: string;
+  contact?: string;
+  website?: string;
+  priceRange?: 'budget' | 'mid-range' | 'luxury';
+  rating?: number;
+}
+
+export interface IAcademicInstitution {
+  name: string;
+  type: 'university' | 'college' | 'institute' | 'research';
+  description: IMultiLanguageContent;
+  address: string;
+  contact?: string;
+  website?: string;
+  campusTour?: boolean;
+  notableFeatures?: IMultiLanguageContent;
+}
+
 export interface ICity extends Document {
   name: IMultiLanguageContent;
   jyotirlingaId: mongoose.Types.ObjectId;
@@ -123,6 +193,12 @@ export interface ICity extends Document {
   transportOptions?: ITransportOption[];
   routes?: IRoute[];
   transportTips?: IMultiLanguageContent;
+  // New features
+  events?: IEvent[];
+  kashiRopeway?: IKashiRopeway;
+  cricketStadium?: ICricketStadium;
+  wellnessCenters?: IWellnessCenter[];
+  academicInstitutions?: IAcademicInstitution[];
 }
 
 const MultiLanguageSchema = new Schema<IMultiLanguageContent>(
@@ -240,6 +316,91 @@ const RitualSchema = new Schema<IRitual>({
   timing: String,
 });
 
+const EventSchema = new Schema<IEvent>({
+  name: { type: String, required: true },
+  date: { type: String, required: true },
+  endDate: String,
+  type: {
+    type: String,
+    enum: ['festival', 'cultural', 'sports', 'academic', 'exhibition', 'performance'],
+    required: true,
+  },
+  description: { type: MultiLanguageSchema, required: true },
+  venue: String,
+  website: String,
+  contact: String,
+});
+
+const KashiRopewaySchema = new Schema<IKashiRopeway>({
+  name: { type: MultiLanguageSchema, required: true },
+  description: { type: MultiLanguageSchema, required: true },
+  route: { type: MultiLanguageSchema, required: true },
+  stations: [{
+    name: { type: String, required: true },
+    description: MultiLanguageSchema,
+    confirmed: { type: Boolean, default: true },
+  }],
+  openingDate: String,
+  capacity: String,
+  ticketPrice: {
+    min: Number,
+    max: Number,
+    currency: { type: String, default: 'INR' },
+  },
+  features: MultiLanguageSchema,
+  location: {
+    lat: Number,
+    lng: Number,
+  },
+});
+
+const CricketStadiumSchema = new Schema<ICricketStadium>({
+  name: { type: MultiLanguageSchema, required: true },
+  description: { type: MultiLanguageSchema, required: true },
+  capacity: { type: String, required: true },
+  openingDate: String,
+  features: MultiLanguageSchema,
+  location: {
+    lat: Number,
+    lng: Number,
+  },
+  tourInfo: MultiLanguageSchema,
+  contact: String,
+});
+
+const WellnessCenterSchema = new Schema<IWellnessCenter>({
+  name: { type: String, required: true },
+  type: {
+    type: String,
+    enum: ['yoga', 'meditation', 'ayurveda', 'spa', 'retreat'],
+    required: true,
+  },
+  description: { type: MultiLanguageSchema, required: true },
+  address: { type: String, required: true },
+  contact: String,
+  website: String,
+  priceRange: {
+    type: String,
+    enum: ['budget', 'mid-range', 'luxury'],
+  },
+  rating: Number,
+});
+
+const AcademicInstitutionSchema = new Schema<IAcademicInstitution>({
+  name: { type: String, required: true },
+  type: {
+    type: String,
+    enum: ['university', 'college', 'institute', 'research'],
+    required: true,
+  },
+  description: { type: MultiLanguageSchema, required: true },
+  address: { type: String, required: true },
+  contact: String,
+  website: String,
+  campusTour: Boolean,
+  notableFeatures: MultiLanguageSchema,
+});
+
 const CitySchema: Schema = new Schema<ICity>(
   {
     name: {
@@ -295,6 +456,12 @@ const CitySchema: Schema = new Schema<ICity>(
     transportOptions: [TransportOptionSchema],
     routes: [RouteSchema],
     transportTips: MultiLanguageSchema,
+    // New features
+    events: [EventSchema],
+    kashiRopeway: KashiRopewaySchema,
+    cricketStadium: CricketStadiumSchema,
+    wellnessCenters: [WellnessCenterSchema],
+    academicInstitutions: [AcademicInstitutionSchema],
   },
   {
     timestamps: true,

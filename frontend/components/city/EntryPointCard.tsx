@@ -29,7 +29,7 @@ export default function EntryPointCard({ entryPoint, language }: EntryPointCardP
   const icon = entryPointIcons[entryPoint.type] || '📍';
 
   return (
-    <div className="card-modern rounded-2xl p-6 shadow-card border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden">
+    <div className="card-modern rounded-2xl p-5 sm:p-6 shadow-card border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden">
       {/* Decorative gradient background */}
       <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
       
@@ -38,17 +38,17 @@ export default function EntryPointCard({ entryPoint, language }: EntryPointCardP
           {icon}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg sm:text-xl font-bold text-primary-dark mb-2 break-words leading-tight">
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary-dark mb-2 break-words leading-tight">
             {entryPoint.name}
           </h3>
           {entryPoint.code && (
-            <div className="bg-primary-gold/10 rounded-lg px-3 py-1.5 mb-2 inline-block">
-              <p className="text-sm font-semibold text-primary-dark">
+            <div className="bg-primary-gold/10 rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 mb-2 inline-block">
+              <p className="text-xs sm:text-sm font-semibold text-primary-dark">
                 {t('code', language)}: <span className="font-mono font-bold text-primary-gold">{entryPoint.code}</span>
               </p>
             </div>
           )}
-          <p className="text-sm text-primary-dark/70 capitalize font-medium mb-3">
+          <p className="text-xs sm:text-sm text-primary-dark/70 capitalize font-medium mb-3">
             {entryPoint.type} {t('station', language)}
           </p>
           {entryPoint.location && (
@@ -57,7 +57,7 @@ export default function EntryPointCard({ entryPoint, language }: EntryPointCardP
                 e.stopPropagation(); // Prevent triggering parent div's onClick
                 openGoogleMapsDirections(entryPoint.location, entryPoint.name);
               }}
-              className="flex items-center gap-2 bg-primary-blue/10 hover:bg-primary-blue/20 px-3 py-1.5 rounded-lg font-medium transition-colors text-primary-blue text-sm w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 bg-primary-blue/10 hover:bg-primary-blue/20 active:bg-primary-blue/30 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg font-medium transition-colors text-primary-blue text-xs sm:text-sm w-full sm:w-auto min-h-[44px] touch-manipulation"
               aria-label={t('get.directions', language)}
               title={t('get.directions', language)}
             >

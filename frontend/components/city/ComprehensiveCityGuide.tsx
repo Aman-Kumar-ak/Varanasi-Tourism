@@ -10,6 +10,11 @@ import SectionHeader from './SectionHeader';
 import PlacesCarousel from './PlacesCarousel';
 import TransportationGuide from './TransportationGuide';
 import RoutePlanner from './RoutePlanner';
+import EventsCalendar from './EventsCalendar';
+import KashiRopeway from './KashiRopeway';
+import CricketStadium from './CricketStadium';
+import WellnessRetreats from './WellnessRetreats';
+import AcademicTourism from './AcademicTourism';
 
 interface City {
   _id: string;
@@ -95,6 +100,123 @@ interface City {
     hi: string;
     [key: string]: string;
   };
+  // New features
+  events?: Array<{
+    name: string;
+    date: string;
+    endDate?: string;
+    type: 'festival' | 'cultural' | 'sports' | 'academic' | 'exhibition' | 'performance';
+    description: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    venue?: string;
+    website?: string;
+    contact?: string;
+  }>;
+  kashiRopeway?: {
+    name: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    description: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    route: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    stations: Array<{
+      name: string;
+      description?: {
+        en: string;
+        hi: string;
+        [key: string]: string;
+      };
+    }>;
+    openingDate?: string;
+    capacity?: string;
+    ticketPrice?: {
+      min: number;
+      max: number;
+      currency: string;
+    };
+    features?: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    location?: {
+      lat: number;
+      lng: number;
+    };
+  };
+  cricketStadium?: {
+    name: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    description: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    capacity: string;
+    openingDate?: string;
+    features?: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    location?: {
+      lat: number;
+      lng: number;
+    };
+    tourInfo?: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    contact?: string;
+  };
+  wellnessCenters?: Array<{
+    name: string;
+    type: 'yoga' | 'meditation' | 'ayurveda' | 'spa' | 'retreat';
+    description: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    address: string;
+    contact?: string;
+    website?: string;
+    priceRange?: 'budget' | 'mid-range' | 'luxury';
+    rating?: number;
+  }>;
+  academicInstitutions?: Array<{
+    name: string;
+    type: 'university' | 'college' | 'institute' | 'research';
+    description: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    address: string;
+    contact?: string;
+    website?: string;
+    campusTour?: boolean;
+    notableFeatures?: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+  }>;
 }
 
 interface ComprehensiveCityGuideProps {
@@ -135,7 +257,7 @@ export default function ComprehensiveCityGuide({
   return (
     <div className="min-h-screen bg-gradient-sacred">
       {/* Hero Section with Video Background */}
-      <section className="relative h-64 sm:h-80 md:h-96 lg:h-[500px] overflow-hidden">
+      <section className="relative h-[50vh] min-h-[280px] sm:h-[55vh] sm:min-h-[320px] md:h-96 lg:h-[500px] overflow-hidden">
         {/* Video Background */}
         {city.videos && city.videos.length > 0 ? (
           <video
@@ -171,20 +293,20 @@ export default function ComprehensiveCityGuide({
         {/* Decorative golden border at bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-temple"></div>
         {/* Text Content */}
-        <div className="container mx-auto px-4 relative z-10 h-full flex items-end pb-12">
-          <div className="animate-fade-in-up">
-            <div className="inline-block mb-3 px-4 py-1 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
-              <span className="text-primary-gold text-sm font-semibold">✨ {city.state}</span>
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 h-full flex items-end pb-8 sm:pb-12">
+          <div className="animate-fade-in-up w-full">
+            <div className="inline-block mb-2 sm:mb-3 px-3 sm:px-4 py-1.5 sm:py-1 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
+              <span className="text-primary-gold text-xs sm:text-sm font-semibold">✨ {city.state}</span>
             </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-3 drop-shadow-2xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 sm:mb-3 drop-shadow-2xl leading-tight break-words">
               {getLocalizedContent(city.name, language)}
             </h1>
-            <div className="w-24 h-1 bg-gradient-temple rounded-full"></div>
+            <div className="w-16 sm:w-20 md:w-24 h-0.5 sm:h-1 bg-gradient-temple rounded-full"></div>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Spiritual Significance */}
         {city.spiritualSignificance && (
           <section className="mb-12">
@@ -193,10 +315,10 @@ export default function ComprehensiveCityGuide({
               icon="🕉️"
               subtitle={t('why.city.sacred', language)}
             />
-            <div className="card-modern rounded-2xl p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden">
+            <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden">
               {/* Decorative gradient background */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-              <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-lg relative z-10">
+              <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg relative z-10">
                 {getLocalizedContent(city.spiritualSignificance, language)}
               </p>
             </div>
@@ -207,11 +329,11 @@ export default function ComprehensiveCityGuide({
         {city.history && (
           <section className="mb-16 animate-fade-in-up">
             <SectionHeader title={t('history', language)} icon="📜" subtitle={t('historical.background', language)} />
-            <div className="card-modern rounded-2xl p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden">
+            <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden">
               {/* Decorative gradient background */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-              <div className="flex items-start gap-5 relative z-10">
-                <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-lg flex-1">
+              <div className="flex items-start gap-4 sm:gap-5 relative z-10">
+                <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg flex-1">
                   {getLocalizedContent(city.history, language)}
                 </p>
               </div>
@@ -239,29 +361,29 @@ export default function ComprehensiveCityGuide({
               icon="🕯️"
               subtitle={t('sacred.rituals.significance', language)}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
               {city.rituals.map((ritual, index) => (
-                <div key={index} className="card-modern rounded-2xl p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden h-full flex flex-col">
+                <div key={index} className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden h-full flex flex-col">
                   {/* Decorative gradient background */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-                  <div className="flex items-start gap-5 mb-5 relative z-10">
-                    <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-3xl shadow-temple">
+                  <div className="flex items-start gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-5 relative z-10">
+                    <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-2xl sm:text-3xl shadow-temple">
                       🕯️
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-primary-dark mb-3 leading-tight">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-dark mb-2 sm:mb-3 leading-tight">
                         {getLocalizedContent(ritual.name, language)}
                       </h3>
                       {ritual.timing && (
-                        <div className="bg-primary-saffron/10 rounded-lg px-3 py-2 mb-4 inline-block">
-                          <p className="text-sm text-primary-saffron font-bold flex items-center gap-2">
+                        <div className="bg-primary-saffron/10 rounded-lg px-3 py-2 sm:py-2.5 mb-3 sm:mb-4 inline-block">
+                          <p className="text-xs sm:text-sm text-primary-saffron font-bold flex items-center gap-2">
                             <span>⏰</span> {ritual.timing}
                           </p>
                         </div>
                       )}
                     </div>
                   </div>
-                  <p className="text-primary-dark/90 leading-relaxed text-base relative z-10 flex-grow">
+                  <p className="text-primary-dark/90 leading-relaxed text-sm sm:text-base relative z-10 flex-grow">
                     {getLocalizedContent(ritual.description, language)}
                   </p>
                 </div>
@@ -278,29 +400,54 @@ export default function ComprehensiveCityGuide({
               icon="🎉"
               subtitle={t('important.festivals', language)}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
               {city.festivals.map((festival, index) => (
-                <div key={index} className="card-modern rounded-2xl p-6 shadow-temple border-l-4 border-primary-gold relative overflow-hidden h-full flex flex-col">
+                <div key={index} className="card-modern rounded-2xl p-5 sm:p-6 shadow-temple border-l-4 border-primary-gold relative overflow-hidden h-full flex flex-col">
                   {/* Decorative gradient background */}
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
-                  <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-3xl shadow-temple mb-4 relative z-10">
+                  <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-2xl sm:text-3xl shadow-temple mb-3 sm:mb-4 relative z-10">
                     🎉
                   </div>
-                  <h3 className="text-xl font-bold text-primary-dark mb-4 leading-tight relative z-10">
+                  <h3 className="text-lg sm:text-xl font-bold text-primary-dark mb-3 sm:mb-4 leading-tight relative z-10">
                     {festival.name}
                   </h3>
-                  <div className="bg-primary-gold/10 rounded-lg px-3 py-2 mb-4 relative z-10">
-                    <p className="text-sm text-primary-gold font-bold flex items-center gap-2">
+                  <div className="bg-primary-gold/10 rounded-lg px-3 py-2 sm:py-2.5 mb-3 sm:mb-4 relative z-10">
+                    <p className="text-xs sm:text-sm text-primary-gold font-bold flex items-center gap-2">
                       <span>📅</span> {festival.date}
                     </p>
                   </div>
-                  <p className="text-primary-dark/90 text-sm leading-relaxed relative z-10 flex-grow">
+                  <p className="text-primary-dark/90 text-xs sm:text-sm leading-relaxed relative z-10 flex-grow">
                     {getLocalizedContent(festival.description, language)}
                   </p>
                 </div>
               ))}
             </div>
           </section>
+        )}
+
+        {/* Events Calendar - Enhanced */}
+        {city.events && city.events.length > 0 && (
+          <EventsCalendar events={city.events} language={language} />
+        )}
+
+        {/* Kashi Ropeway */}
+        {city.kashiRopeway && (
+          <KashiRopeway ropeway={city.kashiRopeway} language={language} />
+        )}
+
+        {/* Cricket Stadium */}
+        {city.cricketStadium && (
+          <CricketStadium stadium={city.cricketStadium} language={language} />
+        )}
+
+        {/* Wellness & Spiritual Retreats */}
+        {city.wellnessCenters && city.wellnessCenters.length > 0 && (
+          <WellnessRetreats centers={city.wellnessCenters} language={language} />
+        )}
+
+        {/* Academic Tourism */}
+        {city.academicInstitutions && city.academicInstitutions.length > 0 && (
+          <AcademicTourism institutions={city.academicInstitutions} language={language} />
         )}
 
         {/* Darshan Information */}
@@ -320,15 +467,15 @@ export default function ComprehensiveCityGuide({
                 </p>
               </div>
               {city.officialBookingUrl && (
-                <div className="relative z-10">
+                <div className="relative z-10 mt-4">
                   <a
                     href={city.officialBookingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-temple text-white rounded-xl font-semibold shadow-md"
+                    className="inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-gradient-temple text-white rounded-xl font-semibold shadow-md text-sm sm:text-base min-h-[44px] touch-manipulation w-full sm:w-auto"
                   >
                     {t('visit.official.website', language)}
-                    <span className="text-xl">→</span>
+                    <span className="text-lg sm:text-xl">→</span>
                   </a>
                 </div>
               )}
@@ -362,11 +509,11 @@ export default function ComprehensiveCityGuide({
               icon="🏨"
               subtitle={t('where.to.stay', language)}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
               {city.hotels.map((hotel, index) => (
                 <div
                   key={index}
-                  className="card-modern rounded-2xl p-6 shadow-card border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden"
+                  className="card-modern rounded-2xl p-5 sm:p-6 shadow-card border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden"
                 >
                   {/* Decorative gradient background */}
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
@@ -413,7 +560,7 @@ export default function ComprehensiveCityGuide({
                         href={hotel.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-primary-gold font-semibold break-all flex items-center gap-1"
+                        className="text-sm text-primary-gold font-semibold break-all flex items-center gap-1 py-2 px-2 -mx-2 rounded-lg hover:bg-primary-gold/5 transition-colors touch-manipulation min-h-[44px]"
                       >
                         Visit Website <span>→</span>
                       </a>
@@ -433,11 +580,11 @@ export default function ComprehensiveCityGuide({
               icon="🍽️"
               subtitle={t('where.to.eat', language)}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
               {city.restaurants.map((restaurant, index) => (
                 <div
                   key={index}
-                  className="card-modern rounded-2xl p-6 shadow-card border-l-4 border-primary-saffron h-full flex flex-col relative overflow-hidden"
+                  className="card-modern rounded-2xl p-5 sm:p-6 shadow-card border-l-4 border-primary-saffron h-full flex flex-col relative overflow-hidden"
                 >
                   {/* Decorative gradient background */}
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
@@ -485,9 +632,9 @@ export default function ComprehensiveCityGuide({
         )}
 
         {/* Transport & Info Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 lg:gap-8 mb-10 sm:mb-12">
           {/* Transport Info */}
-          <div className="card-modern rounded-2xl p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden h-full">
+          <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden h-full">
             {/* Decorative gradient background */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
             <div className="flex items-center gap-5 mb-6 relative z-10">
@@ -505,7 +652,7 @@ export default function ComprehensiveCityGuide({
 
           {/* Weather & Best Time */}
           {city.weatherInfo && (
-            <div className="card-modern rounded-2xl p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden h-full">
+            <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden h-full">
               {/* Decorative gradient background */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
               <div className="flex items-center gap-5 mb-6 relative z-10">
@@ -540,7 +687,7 @@ export default function ComprehensiveCityGuide({
 
         {/* Emergency Contacts */}
         {city.emergencyContacts && city.emergencyContacts.length > 0 && (
-          <section className="card-modern rounded-2xl p-8 shadow-temple border-l-4 border-primary-maroon relative overflow-hidden mb-12">
+          <section className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-maroon relative overflow-hidden mb-10 sm:mb-12">
             {/* Decorative gradient background */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
             <div className="flex items-center gap-5 mb-6 relative z-10">
@@ -551,20 +698,20 @@ export default function ComprehensiveCityGuide({
                 Emergency Contacts
               </h3>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 relative z-10">
               {city.emergencyContacts.map((contact, index) => (
                 <div
                   key={index}
-                  className="bg-gradient-to-br from-primary-gold/10 to-primary-saffron/5 rounded-xl p-4 border border-primary-gold/20"
+                  className="bg-gradient-to-br from-primary-gold/10 to-primary-saffron/5 rounded-xl p-4 sm:p-5 border border-primary-gold/20"
                 >
-                  <p className="font-bold text-primary-dark mb-2 text-sm sm:text-base">
+                  <p className="font-bold text-primary-dark mb-2 sm:mb-3 text-sm sm:text-base">
                     {contact.name}
                   </p>
                   <a
                     href={`tel:${contact.phone}`}
-                    className="text-primary-gold font-semibold text-xs sm:text-sm break-all flex items-center gap-1"
+                    className="text-primary-gold font-semibold text-sm sm:text-base break-all flex items-center gap-2 py-2 px-2 -mx-2 rounded-lg hover:bg-primary-gold/10 transition-colors touch-manipulation min-h-[44px]"
                   >
-                    <span>📞</span> {contact.phone}
+                    <span className="text-lg">📞</span> {contact.phone}
                   </a>
                 </div>
               ))}
