@@ -1,130 +1,180 @@
-# Jyotirlinga Booking Platform
+# Varanasi Tourism Guide
 
-A complete multi-language religious tourism platform for booking Darshan at all 12 Jyotirlingas.
+A comprehensive, multi-language tourism platform providing detailed information about Varanasi - the spiritual heart of India. Discover ghats, temples, cultural experiences, and practical travel information in your preferred language.
 
-## Project Structure
+## 🌟 Features
+
+- 🏛️ **Comprehensive City Guide** - Detailed information about Varanasi's ghats, temples, and cultural sites
+- 🌐 **Multi-Language Support** - Available in all major Indian languages with natural translations
+- 📱 **Mobile-First Design** - Optimized for seamless mobile experience
+- 🎨 **Modern UI/UX** - Beautiful, accessible interface with smooth scrolling
+- 🔍 **Rich Content** - Historical significance, cultural insights, and practical travel tips
+- 📸 **Media Integration** - High-quality images and videos via Cloudinary CDN
+- ♿ **Accessibility** - Font size controls and responsive design for all users
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **State Management**: React Context API
+- **Authentication**: Firebase Phone Auth
+- **Internationalization**: Custom i18n implementation
+
+### Backend
+- **Runtime**: Node.js with Express.js
+- **Language**: TypeScript
+- **Database**: MongoDB with Mongoose
+- **Security**: Helmet.js, Rate Limiting, Input Sanitization
+- **File Storage**: Cloudinary CDN
+- **Authentication**: JWT + Firebase Admin SDK
+
+## 📁 Project Structure
 
 ```
-├── frontend/          # Next.js frontend application
-├── backend/           # Express.js backend API
+├── frontend/              # Next.js frontend application
+│   ├── app/              # Next.js app router pages
+│   ├── components/       # React components
+│   ├── contexts/         # React context providers
+│   └── lib/              # Utility functions
+├── backend/              # Express.js backend API
+│   ├── src/
+│   │   ├── routes/       # API route handlers
+│   │   ├── models/       # MongoDB models
+│   │   ├── middleware/  # Express middleware
+│   │   └── lib/          # Utility libraries
+│   └── dist/             # Compiled JavaScript (generated)
 └── README.md
 ```
 
-## Features
-
-- 📱 Phone-based OTP authentication
-- 🏛️ All 12 Jyotirlingas listing with state/city filtering
-- 📅 Online booking with time slots
-- 💳 Razorpay payment integration
-- 🎫 PDF receipt generation
-- 🗺️ City tourism information
-- 🌐 Multi-language support (All Indian languages)
-- 📱 Mobile-first responsive design
-- 👨‍💼 Admin panel
-
-## Tech Stack
-
-- **Frontend**: Next.js 14, React, TypeScript, Tailwind CSS
-- **Backend**: Express.js, Node.js, TypeScript
-- **Database**: MongoDB (Mongoose)
-- **Authentication**: Firebase Phone Auth
-- **Payment**: Razorpay
-- **Caching**: Redis (for slot locking)
-
-## Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ and npm
-- MongoDB (local or Atlas)
-- Firebase project (for OTP)
-- Razorpay account (for payments)
+- MongoDB (local or MongoDB Atlas)
+- Firebase project (for authentication)
+- Cloudinary account (for media storage)
 
-### Frontend Setup
+### Installation
 
-1. Navigate to frontend directory:
-```bash
-cd frontend
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd "Varanasi Tourism"
+   ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+2. **Install Frontend Dependencies**
+   ```bash
+   cd frontend
+   npm install
+   ```
 
-3. Create `.env.local` file:
-```env
-NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_FIREBASE_API_KEY=your_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_domain
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_bucket
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-```
+3. **Install Backend Dependencies**
+   ```bash
+   cd ../backend
+   npm install
+   ```
 
-4. Run development server:
-```bash
-npm run dev
-```
+### Running the Application
 
-Frontend will be available at `http://localhost:3000`
-
-### Backend Setup
-
-1. Navigate to backend directory:
-```bash
-cd backend
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create `.env` file:
-```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-RAZORPAY_KEY_ID=your_razorpay_key
-RAZORPAY_KEY_SECRET=your_razorpay_secret
-FRONTEND_URL=http://localhost:3000
-```
-
-4. Run development server:
-```bash
-npm run dev
-```
-
-Backend will be available at `http://localhost:5000`
-
-## Color Palette
-
-- **Primary Blue**: #00ABE7 (Fresh Sky) - Login/Register, primary buttons
-- **Primary Orange**: #FE9000 (Deep Saffron) - Main body accents, CTAs
-- **Primary Teal**: #5B9279 (Jungle Teal) - Success states, secondary actions
-- **Primary Dark**: #183446 (Deep Space Blue) - Headers, text, dark elements
-- **Background Parchment**: #EDE6E3 - Main body background, cards
-
-## Development
-
-### Running Both Servers
-
-Open two terminal windows:
-
-**Terminal 1 (Backend):**
+**Terminal 1 - Backend:**
 ```bash
 cd backend
 npm run dev
 ```
 
-**Terminal 2 (Frontend):**
+**Terminal 2 - Frontend:**
 ```bash
 cd frontend
 npm run dev
 ```
 
-## License
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:5000
 
-MIT
+## 🔒 Security Features
+
+- ✅ Security headers (Helmet.js)
+- ✅ Rate limiting (API protection)
+- ✅ Input validation & sanitization
+- ✅ JWT authentication
+- ✅ Firebase token verification
+- ✅ File upload validation (magic number checking)
+- ✅ CORS configuration
+- ✅ Error message sanitization
+
+## 🎨 Design System
+
+### Color Palette
+- **Primary Blue**: #00ABE7 - Primary actions, links
+- **Primary Orange**: #FE9000 - Accents, CTAs
+- **Primary Teal**: #5B9279 - Success states
+- **Primary Dark**: #183446 - Headers, text
+- **Background**: #EDE6E3 - Main background
+
+## 📝 Available Scripts
+
+### Frontend
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+
+### Backend
+- `npm run dev` - Start development server with hot reload
+- `npm run build` - Compile TypeScript
+- `npm start` - Start production server
+- `npm run seed` - Seed database with initial data
+
+## 🌍 Supported Languages
+
+The platform supports multiple Indian languages with natural, contextually appropriate translations:
+- English
+- Hindi
+- Bengali
+- Tamil
+- Telugu
+- Marathi
+- Gujarati
+- Kannada
+- Malayalam
+- Punjabi
+- Odia
+- Assamese
+- And more...
+
+## 📦 Dependencies
+
+### Frontend
+- Next.js 14
+- React 18
+- TypeScript
+- Tailwind CSS
+- Firebase SDK
+
+### Backend
+- Express.js
+- MongoDB (Mongoose)
+- TypeScript
+- Firebase Admin SDK
+- Helmet.js
+- Express Rate Limit
+- Cloudinary SDK
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+MIT License
+
+## 🙏 Acknowledgments
+
+Built with ❤️ for the spiritual seekers and travelers exploring Varanasi.
+
+---
+
+**Note**: This project is focused on providing comprehensive tourism information.

@@ -3,6 +3,7 @@ import connectDB from '../lib/db.js';
 import User from '../models/User.js';
 import { generateToken } from '../lib/jwt.js';
 import { verifyAuth, AuthRequest } from '../middleware/auth.js';
+import { verifyFirebaseToken } from '../lib/firebase-admin.js';
 import { z } from 'zod';
 
 const router = express.Router();
@@ -27,9 +28,28 @@ router.post('/login', async (req: Request, res: Response) => {
     const validatedData = loginSchema.parse(req.body);
     const { phone, firebaseToken } = validatedData;
 
-    // In production, verify firebaseToken with Firebase Admin SDK
-    // For now, we'll trust the frontend verification
-    // TODO: Add Firebase Admin SDK verification
+    // Verify Firebase token with Firebase Admin SDK
+    const decodedToken = await verifyFirebaseToken(firebaseToken);
+    
+    // In production, require Firebase token verification
+    if (process.env.NODE_ENV === 'production' && !decodedToken) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid or expired Firebase token',
+      });
+    }
+
+    // If token is verified, check phone number matches
+    if (decodedToken) {
+      // Firebase phone number format is +91XXXXXXXXXX, our format is XXXXXXXXXX
+      const firebasePhone = decodedToken.phone_number?.replace(/^\+91/, '') || '';
+      if (firebasePhone !== phone) {
+        return res.status(401).json({
+          success: false,
+          error: 'Phone number mismatch. Token phone does not match provided phone.',
+        });
+      }
+    }
 
     // Find user
     const user = await User.findOne({ phone });
@@ -89,9 +109,28 @@ router.post('/register', async (req: Request, res: Response) => {
     const validatedData = registerSchema.parse(req.body);
     const { phone, name, firebaseToken } = validatedData;
 
-    // In production, verify firebaseToken with Firebase Admin SDK
-    // For now, we'll trust the frontend verification
-    // TODO: Add Firebase Admin SDK verification
+    // Verify Firebase token with Firebase Admin SDK
+    const decodedToken = await verifyFirebaseToken(firebaseToken);
+    
+    // In production, require Firebase token verification
+    if (process.env.NODE_ENV === 'production' && !decodedToken) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid or expired Firebase token',
+      });
+    }
+
+    // If token is verified, check phone number matches
+    if (decodedToken) {
+      // Firebase phone number format is +91XXXXXXXXXX, our format is XXXXXXXXXX
+      const firebasePhone = decodedToken.phone_number?.replace(/^\+91/, '') || '';
+      if (firebasePhone !== phone) {
+        return res.status(401).json({
+          success: false,
+          error: 'Phone number mismatch. Token phone does not match provided phone.',
+        });
+      }
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ phone });

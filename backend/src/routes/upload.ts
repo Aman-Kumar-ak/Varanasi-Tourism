@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import cloudinary from '../lib/cloudinary.js';
 import { verifyAuth } from '../middleware/auth.js';
+import { validateFileSignature, validateFileExtension } from '../lib/fileValidation.js';
 
 const router = express.Router();
 
@@ -67,6 +68,27 @@ router.post(
         });
       }
 
+      // Enhanced security: Validate file signature (magic numbers)
+      const mimeType = req.file.mimetype;
+      if (!validateFileSignature(req.file.path, mimeType)) {
+        // Clean up temp file
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid file type. File signature does not match declared type.',
+        });
+      }
+
+      // Validate file extension matches MIME type
+      if (!validateFileExtension(req.file.originalname, mimeType)) {
+        // Clean up temp file
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({
+          success: false,
+          error: 'File extension does not match file type.',
+        });
+      }
+
       // Get folder from request body (e.g., 'cities/varanasi', 'jyotirlingas/kashi-vishwanath')
       const folder = req.body.folder || 'general';
       const resourceType = 'image';
@@ -124,6 +146,27 @@ router.post(
         return res.status(400).json({
           success: false,
           error: 'No file uploaded',
+        });
+      }
+
+      // Enhanced security: Validate file signature (magic numbers)
+      const mimeType = req.file.mimetype;
+      if (!validateFileSignature(req.file.path, mimeType)) {
+        // Clean up temp file
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid file type. File signature does not match declared type.',
+        });
+      }
+
+      // Validate file extension matches MIME type
+      if (!validateFileExtension(req.file.originalname, mimeType)) {
+        // Clean up temp file
+        fs.unlinkSync(req.file.path);
+        return res.status(400).json({
+          success: false,
+          error: 'File extension does not match file type.',
         });
       }
 

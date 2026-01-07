@@ -108,22 +108,6 @@ export default function Home() {
                    </p>
                 </div>
               </div>
-
-              {/* Small reassurance strip */}
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-slate-200/90">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-950/80 border border-emerald-400/40 px-3 py-1 shadow-sm">
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/30 text-[10px]" aria-hidden="true">
-                    ✓
-                  </span>
-                  <span>Conversational &amp; easy to read</span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-950/80 border border-emerald-400/40 px-3 py-1 shadow-sm">
-                  <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500/30 text-[10px]" aria-hidden="true">
-                    ✓
-                  </span>
-                  <span>Optimized for slow networks</span>
-                </span>
-              </div>
             </div>
           </div>
         </div>

@@ -15,7 +15,7 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/city/varanasi" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center gap-3 group">
             <div className="w-12 h-12 bg-gradient-temple rounded-xl flex items-center justify-center shadow-temple">
               <span className="text-white font-bold text-xl drop-shadow-lg">🕉️</span>
             </div>

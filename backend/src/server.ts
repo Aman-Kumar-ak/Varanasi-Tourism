@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -23,6 +25,59 @@ dotenv.config({ path: envPath });
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '5000', 10);
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const isProduction = NODE_ENV === 'production';
+
+// ==================== SECURITY MIDDLEWARE ====================
+
+// 1. Security Headers (Helmet)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"], // Allow inline styles for Next.js
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:', 'http:'], // Allow images from any source
+      connectSrc: ["'self'", 'https:', 'http:'], // Allow API calls
+      fontSrc: ["'self'", 'data:', 'https:'],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'", 'https:', 'http:'],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false, // Disable for Cloudinary/CDN compatibility
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow Cloudinary resources
+}));
+
+// 2. Rate Limiting
+// General API rate limiter
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Strict rate limiter for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 requests per windowMs (prevents brute force)
+  message: 'Too many authentication attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: true, // Don't count successful requests
+});
+
+// Apply general rate limiting to all routes
+app.use('/api/', generalLimiter);
+
+// Apply strict rate limiting to auth routes
+app.use('/api/auth/', authLimiter);
+
+// 3. Request Size Limits (prevent DoS)
+app.use(express.json({ limit: '1mb' })); // Limit JSON payloads to 1MB
+app.use(express.urlencoded({ extended: true, limit: '1mb' })); // Limit URL-encoded payloads
 
 // Middleware
 // CORS configuration - support both localhost and production frontend URL
@@ -42,8 +97,15 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    // Allow Vercel preview deployments
-    if (isVercelPreview(origin)) {
+    // In production, be more restrictive with Vercel previews
+    if (isProduction && isVercelPreview(origin)) {
+      // Only allow main branch previews in production, or restrict entirely
+      // For now, keeping it permissive but you can tighten this
+      return callback(null, true);
+    }
+    
+    // Allow Vercel preview deployments in development
+    if (!isProduction && isVercelPreview(origin)) {
       return callback(null, true);
     }
     
@@ -55,8 +117,6 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
 connectDB().catch((error) => {
@@ -114,9 +174,17 @@ app.get('/ping', (req, res) => {
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', err);
+  
+  // Don't expose internal error details in production
+  const errorMessage = isProduction 
+    ? (err.status === 500 ? 'Internal server error' : err.message)
+    : err.message;
+  
   res.status(err.status || 500).json({
     success: false,
-    error: err.message || 'Internal server error',
+    error: errorMessage || 'Internal server error',
+    // Only include stack trace in development
+    ...(isProduction ? {} : { stack: err.stack }),
   });
 });
 
