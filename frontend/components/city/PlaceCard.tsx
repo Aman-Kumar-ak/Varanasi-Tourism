@@ -77,7 +77,7 @@ export default function PlaceCard({ place, language }: PlaceCardProps) {
           <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-lg sm:text-xl md:text-2xl shadow-temple">
             {icon}
           </div>
-          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-primary-dark flex-1 min-w-0 leading-tight break-words">
+          <h3 className="text-sm sm:text-base md:text-lg lg:text-xl font-bold text-primary-dark flex-1 min-w-0 break-words" style={{ lineHeight: '1.5' }}>
             {getLocalizedContent(place.name, language)}
           </h3>
         </div>
@@ -88,7 +88,7 @@ export default function PlaceCard({ place, language }: PlaceCardProps) {
             </span>
           </div>
         )}
-        <p className="text-primary-dark/80 text-xs sm:text-sm md:text-base leading-relaxed mb-3 sm:mb-4 flex-grow">
+        <p className="text-primary-dark/80 text-sm sm:text-base md:text-lg leading-relaxed mb-3 sm:mb-4 flex-grow">
           {getLocalizedContent(place.description, language)}
         </p>
         {place.spiritualImportance && (

@@ -13,7 +13,21 @@ export default function FloatingButtonGroup() {
   const searchParams = useSearchParams();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const settingsPanelRef = useRef<HTMLDivElement>(null);
+
+  // Check if loading screen is active
+  useEffect(() => {
+    const checkLoading = () => {
+      setIsLoading(document.body.classList.contains('loading-active'));
+    };
+    
+    checkLoading();
+    const observer = new MutationObserver(checkLoading);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    
+    return () => observer.disconnect();
+  }, []);
 
   // Open login modal if redirected from /login
   useEffect(() => {
@@ -51,6 +65,11 @@ export default function FloatingButtonGroup() {
       };
     }
   }, [isSettingsOpen]);
+
+  // Don't render when loading
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <>

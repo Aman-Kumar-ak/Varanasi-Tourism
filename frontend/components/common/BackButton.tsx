@@ -1,13 +1,28 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 export default function BackButton() {
   const router = useRouter();
   const pathname = usePathname();
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Don't show on home page
-  if (pathname === '/') {
+  // Check if loading screen is active
+  useEffect(() => {
+    const checkLoading = () => {
+      setIsLoading(document.body.classList.contains('loading-active'));
+    };
+    
+    checkLoading();
+    const observer = new MutationObserver(checkLoading);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    
+    return () => observer.disconnect();
+  }, []);
+
+  // Don't show on home page or when loading
+  if (pathname === '/' || isLoading) {
     return null;
   }
 

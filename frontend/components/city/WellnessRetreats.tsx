@@ -92,7 +92,7 @@ export default function WellnessRetreats({ centers, language }: WellnessRetreats
 
             {/* Name and Price Range */}
             <div className="flex items-start justify-between mb-3 sm:mb-4 relative z-10">
-              <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary-dark flex-1 leading-tight">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary-dark flex-1" style={{ lineHeight: '1.5' }}>
                 {center.name}
               </h3>
               {center.priceRange && (

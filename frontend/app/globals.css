@@ -271,3 +271,37 @@ a:focus-visible {
   animation: fade-in 0.8s ease-out 0.3s both;
 }
 
+/* Hide components when loading screen is active */
+body.loading-active ~ * [data-hide-on-loading],
+body.loading-active [data-hide-on-loading] {
+  display: none !important;
+}
+
+/* Prevent scrolling when loading */
+body.loading-active,
+html.loading-active {
+  overflow: hidden !important;
+}
+
+/* Ensure headings with multilingual content have adequate line-height for diacritics */
+h1, h2, h3, h4, h5, h6 {
+  overflow: visible;
+}
+
+/* Additional support for multilingual text in headings */
+.multilingual-text {
+  line-height: 1.5 !important;
+  overflow: visible;
+}
+
+/* Ensure text with diacritics is not clipped */
+h1.multilingual-text,
+h2.multilingual-text,
+h3.multilingual-text,
+h4.multilingual-text,
+h5.multilingual-text,
+h6.multilingual-text {
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+}
+

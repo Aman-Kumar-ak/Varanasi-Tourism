@@ -91,7 +91,7 @@ export default function DarshanInfoSection({
                 </svg>
               </div>
               <div className="flex-grow min-w-0">
-                <h3 className="font-bold text-lg sm:text-xl mb-2 break-words leading-tight">
+                <h3 className="font-bold text-lg sm:text-xl mb-2 break-words" style={{ lineHeight: '1.5' }}>
                   {getLocalizedContent(type.name, language)}
                 </h3>
                 {type.description && (

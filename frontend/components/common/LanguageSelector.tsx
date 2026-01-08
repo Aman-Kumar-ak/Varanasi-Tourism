@@ -37,17 +37,17 @@ export default function LanguageSelector({ disableHover = false, variant = 'defa
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center justify-center gap-1.5 px-2.5 sm:px-3 h-8 sm:h-9 rounded-lg w-full ${
+        className={`flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 h-8 sm:h-9 rounded-lg ${
           variant === 'footer' 
-            ? 'bg-white/10 text-white' 
-            : 'bg-background-parchment/90 backdrop-blur-sm text-primary-dark border border-primary-gold/20'
-        } ${disableHover ? '' : variant === 'footer' ? 'hover:bg-white/20' : 'hover:bg-primary-gold/20 hover:border-primary-gold/40'} transition-all duration-200 font-medium text-sm sm:text-base shadow-sm hover:shadow-md transform hover:-translate-y-0.5 active:translate-y-0`}
+            ? 'bg-white/90 backdrop-blur-sm text-primary-dark border border-primary-blue/20 hover:bg-white/95 hover:border-primary-blue/30 w-auto' 
+            : 'bg-background-parchment/90 backdrop-blur-sm text-primary-dark border border-primary-gold/20 w-full'
+        } ${disableHover ? '' : variant === 'footer' ? '' : 'hover:bg-primary-gold/20 hover:border-primary-gold/40'} transition-all duration-200 font-medium text-sm sm:text-base shadow-sm hover:shadow-md transform hover:-translate-y-0.5 active:translate-y-0`}
         aria-label="Select language"
       >
-        <span className="text-base">🌐</span>
+        <span className="text-sm sm:text-base">🌐</span>
         <span className="font-semibold text-sm sm:text-base">{language.toUpperCase()}</span>
         <svg
-          className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-3 h-3 transition-transform duration-200 ${isOpen ? (variant === 'footer' ? 'rotate-90' : 'rotate-180') : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -57,7 +57,11 @@ export default function LanguageSelector({ disableHover = false, variant = 'defa
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-36 sm:w-40 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-primary-gold/30 z-50 max-h-[240px] sm:max-h-[280px] overflow-y-auto">
+        <div className={`absolute ${
+          variant === 'footer' 
+            ? 'bottom-full mb-2 left-0 sm:bottom-0 sm:left-auto sm:right-full sm:mr-2' 
+            : 'right-0 mt-2 top-full'
+        } w-36 sm:w-40 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-primary-gold/30 z-50 max-h-[240px] sm:max-h-[280px] overflow-y-auto`}>
           <div className="py-1">
             {SUPPORTED_LANGUAGES.map((lang) => (
               <button

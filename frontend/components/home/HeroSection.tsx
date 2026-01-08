@@ -18,7 +18,7 @@ export default function HeroSection() {
       <div className="container mx-auto px-4 py-20 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           {/* Main Headline */}
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6" style={{ lineHeight: '1.4' }}>
             Experience Divine Darshan at All 12 Jyotirlingas
           </h1>
           

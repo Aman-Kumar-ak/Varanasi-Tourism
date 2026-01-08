@@ -1,10 +1,30 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import LanguageSelector from './LanguageSelector';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Check if loading screen is active
+  useEffect(() => {
+    const checkLoading = () => {
+      setIsLoading(document.body.classList.contains('loading-active'));
+    };
+    
+    checkLoading();
+    const observer = new MutationObserver(checkLoading);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    
+    return () => observer.disconnect();
+  }, []);
+
+  // Don't render when loading
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <footer className="bg-gradient-to-b from-primary-dark to-primary-dark/95 text-white mt-auto border-t-4 border-primary-gold">

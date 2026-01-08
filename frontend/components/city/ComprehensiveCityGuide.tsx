@@ -302,7 +302,7 @@ export default function ComprehensiveCityGuide({
             <div className="inline-block mb-2 sm:mb-3 px-3 sm:px-4 py-1.5 sm:py-1 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
               <span className="text-primary-gold text-xs sm:text-sm font-semibold">✨ {city.state}</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 sm:mb-3 drop-shadow-2xl leading-tight break-words">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 sm:mb-3 drop-shadow-2xl break-words" style={{ lineHeight: '1.5' }}>
               {getLocalizedContent(city.name, language)}
             </h1>
             <div className="w-16 sm:w-20 md:w-24 h-0.5 sm:h-1 bg-gradient-temple rounded-full"></div>
@@ -375,7 +375,7 @@ export default function ComprehensiveCityGuide({
                       🕯️
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-primary-dark mb-2 sm:mb-3 leading-tight">
+                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary-dark mb-2 sm:mb-3" style={{ lineHeight: '1.5' }}>
                         {getLocalizedContent(ritual.name, language)}
                       </h3>
                       {ritual.timing && (
@@ -387,7 +387,7 @@ export default function ComprehensiveCityGuide({
                       )}
                     </div>
                   </div>
-                  <p className="text-primary-dark/90 leading-relaxed text-sm sm:text-base relative z-10 flex-grow">
+                  <p className="text-primary-dark/90 leading-relaxed text-base sm:text-lg relative z-10 flex-grow">
                     {getLocalizedContent(ritual.description, language)}
                   </p>
                 </div>
@@ -412,7 +412,7 @@ export default function ComprehensiveCityGuide({
                   <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-2xl sm:text-3xl shadow-temple mb-3 sm:mb-4 relative z-10">
                     🎉
                   </div>
-                  <h3 className="text-lg sm:text-xl font-bold text-primary-dark mb-3 sm:mb-4 leading-tight relative z-10">
+                  <h3 className="text-base sm:text-lg font-bold text-primary-dark mb-3 sm:mb-4 relative z-10" style={{ lineHeight: '1.5' }}>
                     {festival.name}
                   </h3>
                   <div className="bg-primary-gold/10 rounded-lg px-3 py-2 sm:py-2.5 mb-3 sm:mb-4 relative z-10">
@@ -420,7 +420,7 @@ export default function ComprehensiveCityGuide({
                       <span>📅</span> {festival.date}
                     </p>
                   </div>
-                  <p className="text-primary-dark/90 text-xs sm:text-sm leading-relaxed relative z-10 flex-grow">
+                  <p className="text-primary-dark/90 text-sm sm:text-base leading-relaxed relative z-10 flex-grow">
                     {getLocalizedContent(festival.description, language)}
                   </p>
                 </div>
@@ -562,7 +562,7 @@ export default function ComprehensiveCityGuide({
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
                   
                   <div className="flex items-start justify-between mb-4 relative z-10">
-                    <h3 className="text-lg sm:text-xl font-bold text-primary-dark flex-1 leading-tight">
+                    <h3 className="text-base sm:text-lg font-bold text-primary-dark flex-1" style={{ lineHeight: '1.5' }}>
                       {hotel.name}
                     </h3>
                     <span
@@ -575,7 +575,7 @@ export default function ComprehensiveCityGuide({
                   </div>
                   
                   <div className="mb-4 relative z-10">
-                    <p className="text-sm text-primary-dark/70 flex items-start gap-2 leading-relaxed">
+                    <p className="text-base sm:text-lg text-primary-dark/70 flex items-start gap-2 leading-relaxed">
                       <span className="flex-shrink-0 text-lg">📍</span>
                       <span>{hotel.address}</span>
                     </p>
@@ -633,7 +633,7 @@ export default function ComprehensiveCityGuide({
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
                   
                   <div className="flex items-start justify-between mb-4 relative z-10">
-                    <h3 className="text-lg sm:text-xl font-bold text-primary-dark flex-1 leading-tight">
+                    <h3 className="text-base sm:text-lg font-bold text-primary-dark flex-1" style={{ lineHeight: '1.5' }}>
                       {restaurant.name}
                     </h3>
                     <span
@@ -654,7 +654,7 @@ export default function ComprehensiveCityGuide({
                   )}
                   
                   <div className="mb-4 relative z-10">
-                    <p className="text-sm text-primary-dark/70 flex items-start gap-2 leading-relaxed">
+                    <p className="text-base sm:text-lg text-primary-dark/70 flex items-start gap-2 leading-relaxed">
                       <span className="flex-shrink-0 text-lg">📍</span>
                       <span>{restaurant.address}</span>
                     </p>

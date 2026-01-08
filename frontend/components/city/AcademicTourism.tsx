@@ -67,7 +67,7 @@ export default function AcademicTourism({ institutions, language }: AcademicTour
             </div>
 
             {/* Name */}
-            <h3 className="text-lg sm:text-xl font-bold text-primary-dark mb-2 sm:mb-3 leading-tight relative z-10">
+            <h3 className="text-lg sm:text-xl font-bold text-primary-dark mb-2 sm:mb-3 relative z-10" style={{ lineHeight: '1.5' }}>
               {institution.name}
             </h3>
 

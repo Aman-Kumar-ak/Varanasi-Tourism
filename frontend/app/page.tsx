@@ -60,7 +60,7 @@ export default function Home() {
               <span className="text-lg">●</span>
                {t("home.hero.badge", language)}
             </p>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold leading-tight tracking-tight multilingual-text">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold tracking-tight multilingual-text" style={{ lineHeight: '1.4' }}>
                {t("home.hero.title.main", language)}
               <span className="block mt-1 text-sky-100">
                  <span className="multilingual-text">
@@ -160,7 +160,7 @@ export default function Home() {
               <p className="text-xs font-semibold tracking-[0.25em] uppercase text-slate-500 multilingual-text">
                 {t("home.overview.badge", language)}
               </p>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 leading-tight multilingual-text">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 multilingual-text" style={{ lineHeight: '1.5' }}>
                 {t("home.overview.title", language)}
               </h2>
               <p className="text-sm sm:text-base text-slate-600 max-w-3xl multilingual-text">

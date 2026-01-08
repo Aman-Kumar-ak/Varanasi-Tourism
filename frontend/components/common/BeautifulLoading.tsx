@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
 
@@ -17,8 +18,24 @@ export default function BeautifulLoading({
   const defaultMessage = message || t('loading.city.information', language) || 'Loading city information...';
   const defaultSubMessage = subMessage || t('loading.please.wait', language) || 'Please wait while we prepare your journey...';
 
+  // Add class to body and html when loading and remove when unmounting
+  // Also prevent scrolling
+  useEffect(() => {
+    document.body.classList.add('loading-active');
+    document.documentElement.classList.add('loading-active');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.classList.remove('loading-active');
+      document.documentElement.classList.remove('loading-active');
+      document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 flex items-center justify-center relative overflow-hidden">
+    <div className="fixed inset-0 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 flex items-center justify-center overflow-hidden z-[9999]">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating temple silhouette */}
@@ -29,19 +46,6 @@ export default function BeautifulLoading({
         {/* Floating circles */}
         <div className="absolute top-1/3 right-1/4 w-24 h-24 sm:w-32 sm:h-32 bg-primary-gold/20 rounded-full animate-bounce" style={{ animationDuration: '3s', animationDelay: '0.5s' }}></div>
         <div className="absolute bottom-1/4 left-1/3 w-20 h-20 sm:w-28 sm:h-28 bg-primary-orange/20 rounded-full animate-bounce" style={{ animationDuration: '4s', animationDelay: '1s' }}></div>
-        
-        {/* Wave pattern at bottom */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-primary-blue/10 to-transparent overflow-hidden">
-          <div className="absolute bottom-0 w-full h-full">
-            <svg className="w-full h-full" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path
-                d="M0,60 C300,20 600,100 900,50 C1050,30 1150,70 1200,50 L1200,120 L0,120 Z"
-                fill="rgba(0, 171, 231, 0.1)"
-                className="animate-wave"
-              />
-            </svg>
-          </div>
-        </div>
       </div>
 
       {/* Main content */}
@@ -79,11 +83,9 @@ export default function BeautifulLoading({
         {/* Progress dots */}
         <div className="flex items-center justify-center gap-2 mt-8">
           <div className="w-2 h-2 bg-primary-gold rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-          <div className="w-2 h-2 bg-primary-orange rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-2 h-2 bg-primary-blue rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+          <div className="w-2 h-2 bg-primary-blue rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
         </div>
       </div>
-
     </div>
   );
 }
