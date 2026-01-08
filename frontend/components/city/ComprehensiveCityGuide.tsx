@@ -552,63 +552,61 @@ export default function ComprehensiveCityGuide({
               icon="🏨"
               subtitle={t('where.to.stay', language)}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4 md:gap-6">
               {city.hotels.map((hotel, index) => (
                 <div
                   key={index}
-                  className="card-modern rounded-2xl p-5 sm:p-6 shadow-card border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden"
+                  className="card-modern rounded-xl sm:rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-none sm:shadow-card border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden"
                 >
                   {/* Decorative gradient background */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-temple opacity-5 rounded-full -mr-10 -mt-10 sm:-mr-12 sm:-mt-12"></div>
                   
-                  <div className="flex items-start justify-between mb-4 relative z-10">
-                    <h3 className="text-base sm:text-lg font-bold text-primary-dark flex-1" style={{ lineHeight: '1.5' }}>
+                  {/* Header: Name only */}
+                  <div className="mb-2 sm:mb-2.5 relative z-10">
+                    <h3 className="text-sm sm:text-base md:text-lg font-bold text-primary-dark" style={{ lineHeight: '1.4' }}>
                       {hotel.name}
                     </h3>
-                    <span
-                      className={`${getPriceRangeColor(
-                        hotel.priceRange
-                      )} text-white px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 ml-2 shadow-md`}
-                    >
-                      {getPriceRangeLabel(hotel.priceRange)}
-                    </span>
                   </div>
                   
-                  <div className="mb-4 relative z-10">
-                    <p className="text-base sm:text-lg text-primary-dark/70 flex items-start gap-2 leading-relaxed">
-                      <span className="flex-shrink-0 text-lg">📍</span>
-                      <span>{hotel.address}</span>
+                  {/* Address - Compact with reduced gap */}
+                  <div className="mb-1 sm:mb-1.5 relative z-10">
+                    <p className="text-xs sm:text-sm md:text-base text-primary-dark/70 flex items-start gap-1.5 sm:gap-2 leading-relaxed">
+                      <span className="flex-shrink-0 text-sm sm:text-base md:text-lg">📍</span>
+                      <span className="break-words">{hotel.address}</span>
                     </p>
                   </div>
                   
-                  {hotel.rating && (
-                    <div className="flex items-center gap-2 mb-4 relative z-10">
-                      <div className="bg-primary-gold/10 rounded-lg px-3 py-1.5">
-                        <span className="text-primary-gold font-bold text-base">
-                          ⭐ {hotel.rating}
+                  {/* Rating and Contact - Compact symmetric layout */}
+                  <div className="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-3 relative z-10 flex-wrap">
+                    {hotel.rating && (
+                      <div className="bg-primary-gold/10 rounded-md sm:rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 inline-flex items-center gap-1">
+                        <span className="text-primary-gold text-xs sm:text-sm md:text-base">⭐</span>
+                        <span className="text-primary-gold font-bold text-xs sm:text-sm md:text-base">
+                          {hotel.rating}
                         </span>
                       </div>
-                    </div>
-                  )}
-                  
-                  <div className="mt-auto space-y-2 relative z-10">
+                    )}
                     {hotel.contact && (
-                      <p className="text-sm text-primary-dark/80 break-all flex items-center gap-2">
-                        <span className="text-primary-gold">📞</span>
-                        <span>{hotel.contact}</span>
+                      <p className="text-xs sm:text-sm text-primary-dark/80 break-all flex items-center gap-1.5 sm:gap-2">
+                        <span className="text-primary-gold text-sm sm:text-base">📞</span>
+                        <span className="truncate sm:break-all">{hotel.contact}</span>
                       </p>
                     )}
-                    {hotel.website && (
+                  </div>
+                  
+                  {/* Website link - Bottom aligned */}
+                  {hotel.website && (
+                    <div className="mt-auto relative z-10">
                       <a
                         href={hotel.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-primary-gold font-semibold break-all flex items-center gap-1 py-2 px-2 -mx-2 rounded-lg hover:bg-primary-gold/5 transition-colors touch-manipulation min-h-[44px]"
+                        className="text-xs sm:text-sm text-primary-gold font-semibold break-all flex items-center justify-center gap-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg hover:bg-primary-gold/5 transition-colors touch-manipulation min-h-[36px] sm:min-h-[44px] border border-primary-gold/20"
                       >
                         Visit Website <span>→</span>
                       </a>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -623,51 +621,48 @@ export default function ComprehensiveCityGuide({
               icon="🍽️"
               subtitle={t('where.to.eat', language)}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4 md:gap-6">
               {city.restaurants.map((restaurant, index) => (
                 <div
                   key={index}
-                  className="card-modern rounded-2xl p-5 sm:p-6 shadow-card border-l-4 border-primary-saffron h-full flex flex-col relative overflow-hidden"
+                  className="card-modern rounded-xl sm:rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-none sm:shadow-card border-l-4 border-primary-saffron h-full flex flex-col relative overflow-hidden"
                 >
                   {/* Decorative gradient background */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
+                  <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-temple opacity-5 rounded-full -mr-10 -mt-10 sm:-mr-12 sm:-mt-12"></div>
                   
-                  <div className="flex items-start justify-between mb-4 relative z-10">
-                    <h3 className="text-base sm:text-lg font-bold text-primary-dark flex-1" style={{ lineHeight: '1.5' }}>
+                  {/* Header: Name only */}
+                  <div className="mb-2 sm:mb-2.5 relative z-10">
+                    <h3 className="text-sm sm:text-base md:text-lg font-bold text-primary-dark" style={{ lineHeight: '1.4' }}>
                       {restaurant.name}
                     </h3>
-                    <span
-                      className={`${getPriceRangeColor(
-                        restaurant.priceRange
-                      )} text-white px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 ml-2 shadow-md`}
-                    >
-                      {getPriceRangeLabel(restaurant.priceRange)}
-                    </span>
                   </div>
                   
+                  {/* Cuisine - Compact badge */}
                   {restaurant.cuisine && (
-                    <div className="mb-3 relative z-10">
-                      <p className="text-sm text-primary-saffron font-bold bg-primary-saffron/10 rounded-lg px-3 py-1.5 inline-block">
+                    <div className="mb-2 sm:mb-2.5 relative z-10">
+                      <p className="text-xs sm:text-sm text-primary-saffron font-bold bg-primary-saffron/10 rounded-md sm:rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 inline-block">
                         {restaurant.cuisine}
                       </p>
                     </div>
                   )}
                   
-                  <div className="mb-4 relative z-10">
-                    <p className="text-base sm:text-lg text-primary-dark/70 flex items-start gap-2 leading-relaxed">
-                      <span className="flex-shrink-0 text-lg">📍</span>
-                      <span>{restaurant.address}</span>
+                  {/* Address - Compact with reduced gap */}
+                  <div className="mb-1 sm:mb-1.5 relative z-10">
+                    <p className="text-xs sm:text-sm md:text-base text-primary-dark/70 flex items-start gap-1.5 sm:gap-2 leading-relaxed">
+                      <span className="flex-shrink-0 text-sm sm:text-base md:text-lg">📍</span>
+                      <span className="break-words">{restaurant.address}</span>
                     </p>
                   </div>
                   
-                  <div className="mt-auto space-y-2 relative z-10">
-                    {restaurant.contact && (
-                      <p className="text-sm text-primary-dark/80 break-all flex items-center gap-2">
-                        <span className="text-primary-saffron">📞</span>
-                        <span>{restaurant.contact}</span>
+                  {/* Contact - Reduced gap from address */}
+                  {restaurant.contact && (
+                    <div className="relative z-10">
+                      <p className="text-xs sm:text-sm text-primary-dark/80 break-all flex items-center gap-1.5 sm:gap-2">
+                        <span className="text-primary-saffron text-sm sm:text-base">📞</span>
+                        <span className="truncate sm:break-all">{restaurant.contact}</span>
                       </p>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

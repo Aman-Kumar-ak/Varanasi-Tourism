@@ -13,6 +13,7 @@ export default function LanguageSelector({ disableHover = false, variant = 'defa
   const { language, setLanguage, getNativeLanguageName } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef<number | null>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -28,7 +29,26 @@ export default function LanguageSelector({ disableHover = false, variant = 'defa
     };
   }, []);
 
+  // Restore scroll position after language change
+  useEffect(() => {
+    if (scrollPositionRef.current !== null) {
+      // Use requestAnimationFrame to ensure DOM has updated
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: scrollPositionRef.current!,
+            behavior: 'instant' as ScrollBehavior
+          });
+          scrollPositionRef.current = null;
+        });
+      });
+    }
+  }, [language]);
+
   const handleLanguageChange = (langCode: LanguageCode) => {
+    // Save current scroll position before changing language
+    scrollPositionRef.current = window.scrollY || document.documentElement.scrollTop;
+    
     setLanguage(langCode);
     setIsOpen(false);
   };

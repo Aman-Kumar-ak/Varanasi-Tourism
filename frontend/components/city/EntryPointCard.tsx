@@ -44,32 +44,35 @@ export default function EntryPointCard({ entryPoint, language }: EntryPointCardP
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm sm:text-base md:text-lg font-bold text-primary-dark mb-1 sm:mb-2 break-words" style={{ lineHeight: '1.4' }}>
+          <h3 className="text-sm sm:text-base md:text-lg font-bold text-primary-dark mb-1.5 sm:mb-2 break-words" style={{ lineHeight: '1.4' }}>
             {entryPoint.name}
           </h3>
-          {entryPoint.code && (
-            <div className="bg-primary-gold/10 rounded-md sm:rounded-lg px-1.5 sm:px-2 md:px-3 py-0.5 sm:py-1 md:py-1.5 mb-1 sm:mb-2 inline-block">
-              <p className="text-[10px] sm:text-xs md:text-sm font-semibold text-primary-dark">
-                {t('code', language)}: <span className="font-mono font-bold text-primary-gold">{entryPoint.code}</span>
-              </p>
-            </div>
-          )}
           <p className="text-[10px] sm:text-xs md:text-sm text-primary-dark/70 capitalize font-medium mb-2 sm:mb-3">
             {entryPoint.type} {t('station', language)}
           </p>
+          {/* Code and Get Directions in one row */}
           {entryPoint.location && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering parent div's onClick
-                openGoogleMapsDirections(entryPoint.location, entryPoint.name);
-              }}
-              className="flex items-center justify-center gap-1.5 sm:gap-2 bg-primary-blue/10 hover:bg-primary-blue/20 active:bg-primary-blue/30 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-md sm:rounded-lg font-medium transition-colors text-primary-blue text-[10px] sm:text-xs md:text-sm w-full sm:w-auto min-h-[36px] sm:min-h-[44px] touch-manipulation"
-              aria-label={t('get.directions', language)}
-              title={t('get.directions', language)}
-            >
-              <span className="text-xs sm:text-sm">🗺️</span>
-              <span>{t('get.directions', language)}</span>
-            </button>
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              {entryPoint.code && (
+                <div className="bg-primary-gold/10 rounded-md sm:rounded-lg px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 inline-flex items-center">
+              <p className="text-xs sm:text-sm md:text-base font-semibold text-primary-dark">
+                {t('code', language)}: <span className="font-mono font-bold text-primary-gold text-sm sm:text-base md:text-lg">{entryPoint.code}</span>
+              </p>
+            </div>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent triggering parent div's onClick
+                  openGoogleMapsDirections(entryPoint.location, entryPoint.name);
+                }}
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 bg-primary-blue/10 hover:bg-primary-blue/20 active:bg-primary-blue/30 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-md sm:rounded-lg font-medium transition-colors text-primary-blue text-[10px] sm:text-xs md:text-sm min-h-[36px] sm:min-h-[44px] touch-manipulation ${entryPoint.code ? 'flex-1 sm:flex-initial' : 'w-full sm:w-auto'}`}
+                aria-label={t('get.directions', language)}
+                title={t('get.directions', language)}
+              >
+                <span className="text-xs sm:text-sm">🗺️</span>
+                <span>{t('get.directions', language)}</span>
+              </button>
+            </div>
           )}
         </div>
       </div>
