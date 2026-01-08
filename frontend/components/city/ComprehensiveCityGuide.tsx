@@ -498,13 +498,9 @@ export default function ComprehensiveCityGuide({
                       href={city.officialBookingUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group relative inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-4 sm:py-5 bg-primary-gold text-white rounded-2xl font-bold text-base sm:text-lg shadow-xl hover:shadow-2xl hover:bg-primary-orange transform hover:-translate-y-1 transition-all duration-300 min-h-[56px] touch-manipulation whitespace-nowrap"
+                      className="group relative inline-flex items-center justify-center px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 md:py-4 bg-primary-gold text-white rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm md:text-base lg:text-lg shadow-xl hover:shadow-2xl hover:bg-primary-orange transform hover:-translate-y-1 transition-all duration-300 min-h-[44px] sm:min-h-[48px] md:min-h-[52px] touch-manipulation whitespace-nowrap max-w-full overflow-hidden"
                     >
-                      {/* Button content */}
-                      <span className="flex items-center gap-3">
-                        <span className="whitespace-nowrap">{t('visit.official.website', language).replace(' →', '')}</span>
-                        <span className="text-xl sm:text-2xl">→</span>
-                      </span>
+                      {t('visit.official.website', language).replace(' →', '')}
                     </a>
                     
                     {/* Official website indicator - Right aligned */}

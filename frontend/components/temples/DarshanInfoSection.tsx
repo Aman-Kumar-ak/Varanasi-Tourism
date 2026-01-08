@@ -141,9 +141,10 @@ export default function DarshanInfoSection({
             href={officialBookingUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block px-6 py-3 bg-primary-gold text-white rounded-lg font-medium"
+            className="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-primary-gold text-white rounded-lg font-medium text-sm sm:text-base break-words w-full sm:w-auto min-h-[44px] touch-manipulation"
           >
-            Visit Official Booking Site →
+            <span className="text-center">Visit Official Booking Site</span>
+            <span className="flex-shrink-0">→</span>
           </a>
         </div>
       )}
