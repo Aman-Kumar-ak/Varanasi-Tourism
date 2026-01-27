@@ -78,6 +78,37 @@ h1, h2, h3, h4, h5, h6,
   font-size: inherit;
 }
 
+/* ================== QUOTES SLIDER ANIMATIONS ================== */
+@keyframes quote-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes quote-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.quote-slide-right {
+  animation: quote-slide-right 250ms ease-out;
+}
+
+.quote-slide-left {
+  animation: quote-slide-left 250ms ease-out;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

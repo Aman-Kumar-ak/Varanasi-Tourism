@@ -15,6 +15,7 @@ import timeSlotRoutes from './routes/time-slots.js';
 import receiptRoutes from './routes/receipts.js';
 import uploadRoutes from './routes/upload.js';
 import configRoutes from './routes/config.js';
+import quoteRoutes from './routes/quotes.js';
 
 // Load environment variables
 // Render provides environment variables directly, but we load .env for local development
@@ -134,6 +135,7 @@ app.use('/api/jyotirlingas', jyotirlingaRoutes);
 // Booking routes disabled for guide-first phase - will be re-enabled when temple trusts are onboarded
 // app.use('/api/bookings', bookingRoutes);
 app.use('/api/cities', cityRoutes);
+app.use('/api/quotes', quoteRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/config', configRoutes);
 // Payment routes disabled for guide-first phase

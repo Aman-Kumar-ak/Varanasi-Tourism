@@ -15,6 +15,11 @@ import KashiRopeway from './KashiRopeway';
 import CricketStadium from './CricketStadium';
 import WellnessRetreats from './WellnessRetreats';
 import AcademicTourism from './AcademicTourism';
+import QuotesSection from './QuotesSection';
+import WeatherWidget from '@/components/common/WeatherWidget';
+import ThemesSection from './ThemesSection';
+import CuisineSection from './CuisineSection';
+import PlacesToStay from './PlacesToStay';
 
 interface City {
   _id: string;
@@ -222,6 +227,22 @@ interface City {
 interface ComprehensiveCityGuideProps {
   city: City;
   language: LanguageCode;
+  quotes?: Array<{
+    _id: string;
+    quote: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    author: string;
+    source?: {
+      en: string;
+      hi: string;
+      [key: string]: string;
+    };
+    image: string;
+    order: number;
+  }>;
 }
 
 function getPriceRangeLabel(range: string) {
@@ -253,6 +274,7 @@ function getPriceRangeColor(range: string) {
 export default function ComprehensiveCityGuide({
   city,
   language,
+  quotes = [],
 }: ComprehensiveCityGuideProps) {
   return (
     <div className="min-h-screen bg-gradient-sacred">
@@ -311,6 +333,13 @@ export default function ComprehensiveCityGuide({
       </section>
 
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Weather Widget */}
+        <section className="mb-8 sm:mb-10">
+          <div className="flex justify-center">
+            <WeatherWidget />
+          </div>
+        </section>
+
         {/* Spiritual Significance */}
         {city.spiritualSignificance && (
           <section className="mb-12">
@@ -344,6 +373,14 @@ export default function ComprehensiveCityGuide({
             </div>
           </section>
         )}
+
+        {/* Quotes Section */}
+        {quotes && quotes.length > 0 && (
+          <QuotesSection quotes={quotes} language={language} />
+        )}
+
+        {/* Themes Section */}
+        <ThemesSection />
 
         {/* Places to Visit */}
         {city.places && city.places.length > 0 && (
@@ -540,129 +577,14 @@ export default function ComprehensiveCityGuide({
           />
         )}
 
-        {/* Hotels & Accommodation */}
+        {/* Hotels & Accommodation - Enhanced with Filters */}
         {city.hotels && city.hotels.length > 0 && (
-          <section className="mb-12">
-            <SectionHeader
-              title={t('hotels.accommodation', language)}
-              icon="🏨"
-              subtitle={t('where.to.stay', language)}
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4 md:gap-6">
-              {city.hotels.map((hotel, index) => (
-                <div
-                  key={index}
-                  className="card-modern rounded-xl sm:rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-none sm:shadow-card border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden"
-                >
-                  {/* Decorative gradient background */}
-                  <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-temple opacity-5 rounded-full -mr-10 -mt-10 sm:-mr-12 sm:-mt-12"></div>
-                  
-                  {/* Header: Name only */}
-                  <div className="mb-2 sm:mb-2.5 relative z-10">
-                    <h3 className="text-sm sm:text-base md:text-lg font-bold text-primary-dark" style={{ lineHeight: '1.4' }}>
-                      {hotel.name}
-                    </h3>
-                  </div>
-                  
-                  {/* Address - Compact with reduced gap */}
-                  <div className="mb-1 sm:mb-1.5 relative z-10">
-                    <p className="text-xs sm:text-sm md:text-base text-primary-dark/70 flex items-start gap-1.5 sm:gap-2 leading-relaxed">
-                      <span className="flex-shrink-0 text-sm sm:text-base md:text-lg">📍</span>
-                      <span className="break-words">{hotel.address}</span>
-                    </p>
-                  </div>
-                  
-                  {/* Rating and Contact - Compact symmetric layout */}
-                  <div className="flex items-center gap-3 sm:gap-4 mb-2 sm:mb-3 relative z-10 flex-wrap">
-                    {hotel.rating && (
-                      <div className="bg-primary-gold/10 rounded-md sm:rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 inline-flex items-center gap-1">
-                        <span className="text-primary-gold text-xs sm:text-sm md:text-base">⭐</span>
-                        <span className="text-primary-gold font-bold text-xs sm:text-sm md:text-base">
-                          {hotel.rating}
-                        </span>
-                      </div>
-                    )}
-                    {hotel.contact && (
-                      <p className="text-xs sm:text-sm text-primary-dark/80 break-all flex items-center gap-1.5 sm:gap-2">
-                        <span className="text-primary-gold text-sm sm:text-base">📞</span>
-                        <span className="truncate sm:break-all">{hotel.contact}</span>
-                      </p>
-                    )}
-                  </div>
-                  
-                  {/* Website link - Bottom aligned */}
-                  {hotel.website && (
-                    <div className="mt-auto relative z-10">
-                      <a
-                        href={hotel.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs sm:text-sm text-primary-gold font-semibold break-all flex items-center justify-center gap-1 py-1.5 sm:py-2 px-2 sm:px-3 rounded-md sm:rounded-lg hover:bg-primary-gold/5 transition-colors touch-manipulation min-h-[36px] sm:min-h-[44px] border border-primary-gold/20"
-                      >
-                        Visit Website <span>→</span>
-                      </a>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+          <PlacesToStay hotels={city.hotels} language={language} />
         )}
 
-        {/* Restaurants & Food */}
+        {/* Cuisine Section */}
         {city.restaurants && city.restaurants.length > 0 && (
-          <section className="mb-12">
-            <SectionHeader
-              title={t('restaurants.food', language)}
-              icon="🍽️"
-              subtitle={t('where.to.eat', language)}
-            />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4 md:gap-6">
-              {city.restaurants.map((restaurant, index) => (
-                <div
-                  key={index}
-                  className="card-modern rounded-xl sm:rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-none sm:shadow-card border-l-4 border-primary-saffron h-full flex flex-col relative overflow-hidden"
-                >
-                  {/* Decorative gradient background */}
-                  <div className="absolute top-0 right-0 w-20 h-20 sm:w-24 sm:h-24 bg-gradient-temple opacity-5 rounded-full -mr-10 -mt-10 sm:-mr-12 sm:-mt-12"></div>
-                  
-                  {/* Header: Name only */}
-                  <div className="mb-2 sm:mb-2.5 relative z-10">
-                    <h3 className="text-sm sm:text-base md:text-lg font-bold text-primary-dark" style={{ lineHeight: '1.4' }}>
-                      {restaurant.name}
-                    </h3>
-                  </div>
-                  
-                  {/* Cuisine - Compact badge */}
-                  {restaurant.cuisine && (
-                    <div className="mb-2 sm:mb-2.5 relative z-10">
-                      <p className="text-xs sm:text-sm text-primary-saffron font-bold bg-primary-saffron/10 rounded-md sm:rounded-lg px-2 sm:px-3 py-1 sm:py-1.5 inline-block">
-                        {restaurant.cuisine}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Address - Compact with reduced gap */}
-                  <div className="mb-1 sm:mb-1.5 relative z-10">
-                    <p className="text-xs sm:text-sm md:text-base text-primary-dark/70 flex items-start gap-1.5 sm:gap-2 leading-relaxed">
-                      <span className="flex-shrink-0 text-sm sm:text-base md:text-lg">📍</span>
-                      <span className="break-words">{restaurant.address}</span>
-                    </p>
-                  </div>
-                  
-                  {/* Contact - Reduced gap from address */}
-                  {restaurant.contact && (
-                    <div className="relative z-10">
-                      <p className="text-xs sm:text-sm text-primary-dark/80 break-all flex items-center gap-1.5 sm:gap-2">
-                        <span className="text-primary-saffron text-sm sm:text-base">📞</span>
-                        <span className="truncate sm:break-all">{restaurant.contact}</span>
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
+          <CuisineSection restaurants={city.restaurants} language={language} />
         )}
 
         {/* Transport & Info Section */}

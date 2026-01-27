@@ -205,77 +205,10 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
     };
   }, [isAutoPlaying, places.length]);
 
-  // Arrow icon component
-  const ArrowIcon = ({ direction }: { direction: 'left' | 'right' }) => (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5"
-    >
-      {direction === 'left' ? (
-        <path
-          d="M15 18L9 12L15 6"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      ) : (
-        <path
-          d="M9 18L15 12L9 6"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      )}
-    </svg>
-  );
-
   return (
     <div className="relative">
       {/* Mobile: Horizontal Scrollable Carousel */}
       <div className="sm:hidden">
-        {/* Navigation Buttons */}
-        {places.length > 1 && (
-          <>
-            {/* Left Button */}
-            <button
-              onClick={goToPrevious}
-              className="absolute left-2 bottom-4 z-20 bg-gradient-to-br from-white to-primary-gold/10 backdrop-blur-md rounded-full p-1.5 shadow-lg hover:shadow-xl active:scale-90 transition-all duration-300 flex items-center justify-center border border-primary-gold/30 hover:border-primary-gold/50 group"
-              aria-label="Previous slide"
-              style={{ 
-                boxShadow: '0 4px 12px rgba(255, 184, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.08)',
-                WebkitTapHighlightColor: 'transparent',
-                touchAction: 'manipulation'
-              }}
-            >
-              <div className="text-primary-gold group-active:text-primary-saffron transition-colors">
-                <ArrowIcon direction="left" />
-              </div>
-            </button>
-
-            {/* Right Button */}
-            <button
-              onClick={goToNext}
-              className="absolute right-2 bottom-4 z-20 bg-gradient-to-br from-white to-primary-gold/10 backdrop-blur-md rounded-full p-1.5 shadow-lg hover:shadow-xl active:scale-90 transition-all duration-300 flex items-center justify-center border border-primary-gold/30 hover:border-primary-gold/50 group"
-              aria-label="Next slide"
-              style={{ 
-                boxShadow: '0 4px 12px rgba(255, 184, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.08)',
-                WebkitTapHighlightColor: 'transparent',
-                touchAction: 'manipulation'
-              }}
-            >
-              <div className="text-primary-gold group-active:text-primary-saffron transition-colors">
-                <ArrowIcon direction="right" />
-              </div>
-            </button>
-          </>
-        )}
-
         {/* Carousel Container */}
         <div className="relative overflow-hidden">
           <div
@@ -318,6 +251,53 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
             )}
           </div>
         </div>
+
+        {/* Bottom Navigation Buttons - Similar to Quotes Section */}
+        {places.length > 1 && (
+          <div className="mt-6 sm:mt-8 flex items-center justify-between max-w-xs mx-auto">
+            <button
+              onClick={goToPrevious}
+              className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-primary-saffron/40 bg-white shadow-md text-primary-saffron hover:bg-primary-saffron/10 active:scale-95 transition-all duration-300 outline-none focus:outline-none focus-visible:outline-none"
+              style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+              aria-label="Previous slide"
+            >
+              <svg
+                className="w-5 h-5 sm:w-6 sm:h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+
+            <button
+              onClick={goToNext}
+              className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-primary-saffron/40 bg-white shadow-md text-primary-saffron hover:bg-primary-saffron/10 active:scale-95 transition-all duration-300 outline-none focus:outline-none focus-visible:outline-none"
+              style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+              aria-label="Next slide"
+            >
+              <svg
+                className="w-5 h-5 sm:w-6 sm:h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Desktop: Grid Layout */}

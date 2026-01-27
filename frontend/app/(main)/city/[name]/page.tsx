@@ -12,6 +12,7 @@ export default function CityPage() {
   const params = useParams();
   const { language } = useLanguage();
   const [city, setCity] = useState<any>(null);
+  const [quotes, setQuotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchCityData = useCallback(async () => {
@@ -28,6 +29,19 @@ export default function CityPage() {
 
       if (data.success) {
         setCity(data.data);
+        
+        // Fetch quotes for this city (or all quotes if no cityId)
+        try {
+          const quotesResponse = await fetch(`${apiUrl}/api/quotes`, {
+            cache: 'no-store',
+          });
+          const quotesData = await quotesResponse.json();
+          if (quotesData.success) {
+            setQuotes(quotesData.data || []);
+          }
+        } catch (error) {
+          console.error('Error fetching quotes:', error);
+        }
       }
     } catch (error) {
       console.error('Error fetching city data:', error);
@@ -57,6 +71,6 @@ export default function CityPage() {
     );
   }
 
-  return <ComprehensiveCityGuide city={city} language={language} />;
+  return <ComprehensiveCityGuide city={city} language={language} quotes={quotes} />;
 }
 

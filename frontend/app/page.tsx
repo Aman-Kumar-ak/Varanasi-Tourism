@@ -3,8 +3,33 @@
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { t } from "@/lib/translations";
+import { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/utils";
+import QuotesSection from "@/components/city/QuotesSection";
+
 export default function Home() {
   const { language } = useLanguage();
+  const [quotes, setQuotes] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetch quotes
+    const fetchQuotes = async () => {
+      try {
+        const apiUrl = getApiUrl();
+        const response = await fetch(`${apiUrl}/api/quotes`, {
+          cache: 'no-store',
+        });
+        const data = await response.json();
+        if (data.success) {
+          setQuotes(data.data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching quotes:', error);
+      }
+    };
+
+    fetchQuotes();
+  }, []);
 
   return (
     <div className="min-h-screen bg-background-parchment">
@@ -150,10 +175,17 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Quotes Section */}
+      {quotes && quotes.length > 0 && (
+        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 lg:pt-16 pb-2 sm:pb-3 lg:pb-4">
+          <QuotesSection quotes={quotes} language={language} />
+        </section>
+      )}
+
       {/* Overview card – history + best time + feel of the city merged */}
       <section
         id="varanasi-overview"
-        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16"
+        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-3 lg:pt-4 pb-10 sm:pb-12 lg:pb-16"
       >
         <div className="rounded-3xl bg-white/80 sm:bg-white shadow-xl shadow-slate-900/5 border border-slate-200/80 p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8">
             <header className="space-y-2 sm:space-y-3">
