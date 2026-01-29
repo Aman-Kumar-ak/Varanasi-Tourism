@@ -1287,7 +1287,7 @@ async function seedDatabase() {
               },
               description: {
                 en: 'The morning aarti at Kashi Vishwanath Temple, performed at dawn. Devotees gather to witness this sacred ritual.',
-                hi: 'काशी विश्वनाथ मंदिर में सुबह की आरती, सुबह-सुबह की जाती है। भक्त इस पवित्र अनुष्ठान को देखने के लिए एकत्र होते हैं।',
+                hi: 'काशी विश्वनाथ मंदिर में सुबह की आरती भोर के समय की जाती है। भक्त इस पवित्र अनुष्ठान को देखने के लिए एकत्र होते हैं।',
                 gu: 'કાશી વિશ્વનાથ મંદિરમાં સવારની આરતી, પ્રભાતે કરવામાં આવે છે. ભક્તો આ પવિત્ર અનુષ્ઠાન જોવા માટે એકઠા થાય છે.',
                 ta: 'காசி விஸ்வநாதர் கோவிலில் காலை ஆரத்தி, விடியற்காலையில் நடத்தப்படுகிறது। பக்தர்கள் இந்த புனித சடங்கைக் காண ஒன்று கூடுகிறார்கள்.',
                 te: 'కాశీ విశ్వనాథ దేవాలయంలో ప్రభాత ఆరతి, వేకువన నిర్వహిస్తారు. భక్తులు ఈ పవిత్రమైన ఆచారాన్ని చూడటానికి సమావేశమవుతారు.',
@@ -1301,6 +1301,39 @@ async function seedDatabase() {
                 ur: 'کاشی وشوناتھ مندر میں صبح کی آرتی، صبح سویرے کی جاتی ہے۔ بھگت اس مقدس رسم کو دیکھنے کے لیے جمع ہوتے ہیں۔',
               },
               timing: '3:00 AM - 4:00 AM',
+            },
+            {
+              name: {
+                en: 'Bhog Aarti',
+                hi: 'भोग आरती',
+              },
+              description: {
+                en: 'Late in the morning, the Bhog Aarti at Kashi Vishwanath Temple is a beautiful expression of gratitude offered through food. Freshly prepared traditional dishes are lovingly presented to Lord Shiva as bhog while priests chant mantras and wave incense and lamps. Afterwards, the offerings are shared as prasadam, reminding everyone that every meal is a gift from the divine.',
+                hi: 'देर सुबह काशी विश्वनाथ मंदिर में होने वाली भोग आरती भोजन के माध्यम से आभार व्यक्त करने का एक सुंदर रूप है। ताज़ा बने पारंपरिक व्यंजन प्रेमपूर्वक भगवान शिव को भोग के रूप में अर्पित किए जाते हैं, जबकि पुजारी मंत्रोच्चार, धूप और दीपकों के साथ आरती करते हैं। इसके बाद यह भोग प्रसाद के रूप में बांटा जाता है, जो हर किसी को याद दिलाता है कि हर भोजन ईश्वर का आशीर्वाद है।',
+              },
+              timing: '11:15 AM – 12:20 PM',
+            },
+            {
+              name: {
+                en: 'Saptarishi / Shringar Aarti',
+                hi: 'सप्तऋषि / श्रृंगार आरती',
+              },
+              description: {
+                en: 'In the evening, the Saptarishi (Shringar) Aarti celebrates the divine beauty of Lord Shiva. The deity is adorned with fresh flowers, rich garments, jewelry and fragrant sandalwood paste while the sanctum fills with incense, soft lamp-light and devotional hymns. This graceful ritual feels like a moment of pure elegance, reminding devotees that offering beauty and care is also a form of deep devotion.',
+                hi: 'शाम के समय होने वाली सप्तऋषि (श्रृंगार) आरती भगवान शिव की दिव्य सुंदरता का उत्सव है। इस अनुष्ठान में शिवलिंग को ताज़े फूलों, सुंदर वस्त्रों, आभूषणों और सुगंधित चंदन से श्रृंगारित किया जाता है। धूप, दीप और भजनों से गर्भगृह महक उठता है। यह आरती भक्तों को याद दिलाती है कि सुंदरता, साज-सज्जा और प्रेम से की गई सेवा भी गहन भक्ति का एक रूप है।',
+              },
+              timing: '7:00 PM – 8:15 PM',
+            },
+            {
+              name: {
+                en: 'Shayan Aarti',
+                hi: 'शयन आरती',
+              },
+              description: {
+                en: 'The day at Kashi Vishwanath Temple gently concludes with the Shayan Aarti, the final ritual before the sanctum is closed for the night. Priests symbolically prepare Lord Shiva for rest with soft, lullaby-like chants and calm waves of lamps. As the lights dim and the chants slow, a deep sense of peace fills the temple, reminding devotees of rest, protection and surrender at the end of each day.',
+                hi: 'दिन का समापन काशी विश्वनाथ मंदिर में शयन आरती के साथ होता है, जो रात में गर्भगृह के बंद होने से पहले अंतिम अनुष्ठान है। इस आरती में पुजारी मधुर, लोरी जैसी स्तुतियों और शांत दीपों की तरंगों के साथ भगवान शिव को प्रतीकात्मक रूप से विश्राम के लिए तैयार करते हैं। जैसे-जैसे प्रकाश मंद होता है और मंत्र धीरे हो जाते हैं, मंदिर में गहरी शांति फैल जाती है, जो विश्राम, संरक्षण और समर्पण की अनुभूति कराती है।',
+              },
+              timing: '10:30 PM – 11:00 PM',
             },
             {
               name: {

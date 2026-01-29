@@ -27,8 +27,8 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-gradient-to-b from-primary-dark to-primary-dark/95 text-white mt-auto border-t-4 border-primary-gold">
-      <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12">
+    <footer className="bg-gradient-to-b from-primary-dark to-primary-dark/95 text-white mt-auto border-t-4 border-primary-gold pt-8 sm:pt-10">
+      <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 md:py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
           {/* Column 1: Logo & Tagline */}
           <div className="space-y-3 sm:space-y-4 col-span-2 md:col-span-1">

@@ -32,7 +32,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background-parchment">
+    <div className="min-h-screen">
       {/* Hero – Focus on Varanasi */}
       <section className="relative overflow-hidden min-h-screen flex items-center">
         {/* Main hero background re-using the Varanasi primary tone */}
@@ -175,19 +175,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Quotes Section */}
+      {/* Quotes Section – wider */}
       {quotes && quotes.length > 0 && (
-        <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 lg:pt-16 pb-2 sm:pb-3 lg:pb-4">
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 lg:pt-16 pb-2 sm:pb-3 lg:pb-4">
           <QuotesSection quotes={quotes} language={language} />
         </section>
       )}
 
-      {/* Overview card – history + best time + feel of the city merged */}
+      {/* Overview card – premium peach section, wider */}
       <section
         id="varanasi-overview"
-        className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-3 lg:pt-4 pb-10 sm:pb-12 lg:pb-16"
+        className="section-premium-peach w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-3 lg:pt-4 pb-10 sm:pb-12 lg:pb-16 rounded-3xl mx-4 sm:mx-6 lg:mx-auto"
       >
-        <div className="rounded-3xl bg-white/80 sm:bg-white shadow-xl shadow-slate-900/5 border border-slate-200/80 p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8">
+        <div className="premium-card rounded-3xl p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8 relative z-10">
             <header className="space-y-2 sm:space-y-3">
               <p className="text-xs font-semibold tracking-[0.25em] uppercase text-slate-500 multilingual-text">
                 {t("home.overview.badge", language)}
@@ -241,57 +241,45 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Highlight experiences – still only about Varanasi */}
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-10 sm:pb-14 lg:pb-16">
-        <div className="grid gap-5 lg:grid-cols-[1.4fr,1fr] items-stretch">
-          {/* Left: combined experiences card */}
-          <div className="rounded-3xl bg-slate-900 text-slate-50 shadow-2xl shadow-slate-900/40 p-6 sm:p-7 lg:p-8 space-y-5 relative overflow-hidden">
-            <div className="pointer-events-none absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_top_left,_#22c55e_0,_transparent_60%),radial-gradient(circle_at_bottom_right,_#f97316_0,_transparent_60%)]" />
-            <div className="relative space-y-3">
-              <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-200 multilingual-text">
+      {/* Highlight experiences – premium teal section, full-width background */}
+      <section className="section-premium-teal w-full py-12 sm:py-14 lg:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-5 lg:grid-cols-[1.4fr,1fr] items-stretch relative z-10">
+          {/* Left: experiences card */}
+          <div className="premium-card rounded-3xl text-slate-900 p-6 sm:p-7 lg:p-8 space-y-5">
+            <div className="space-y-3">
+              <p className="text-xs font-semibold tracking-[0.25em] uppercase text-premium-teal multilingual-text">
                  {t("home.experiences.badge", language)}
               </p>
-              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-snug multilingual-text">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold leading-snug text-slate-900 multilingual-text">
                  {t("home.experiences.title", language)}
               </h2>
-              <p className="text-sm sm:text-base text-emerald-50/90 max-w-xl multilingual-text">
+              <p className="text-sm sm:text-base text-slate-600 max-w-xl multilingual-text">
                  {t("home.hero.description", language)}
               </p>
             </div>
 
-            <div className="relative grid gap-3 sm:grid-cols-3 mt-4 text-xs sm:text-sm">
-              <div className="rounded-2xl bg-slate-950/70 border border-emerald-400/40 px-3 py-3 flex flex-col gap-1">
-                <span className="text-lg" aria-hidden="true">
-                  🚣
-                </span>
-                <p className="font-semibold multilingual-text">{t("home.experiences.river.title", language)}</p>
-                <p className="text-emerald-50/80 multilingual-text">
-                  {t("home.experiences.river.description", language)}
-                </p>
+            <div className="grid gap-3 sm:grid-cols-3 text-xs sm:text-sm">
+              <div className="rounded-2xl bg-premium-peach/80 border border-premium-teal/20 px-3 py-3 flex flex-col gap-1">
+                <span className="text-lg" aria-hidden="true">🚣</span>
+                <p className="font-semibold text-slate-900 multilingual-text">{t("home.experiences.river.title", language)}</p>
+                <p className="text-slate-600 multilingual-text">{t("home.experiences.river.description", language)}</p>
               </div>
-              <div className="rounded-2xl bg-slate-950/70 border border-emerald-400/40 px-3 py-3 flex flex-col gap-1">
-                <span className="text-lg" aria-hidden="true">
-                  🛕
-                </span>
-                <p className="font-semibold multilingual-text">{t("home.experiences.spiritual.title", language)}</p>
-                <p className="text-emerald-50/80 multilingual-text">
-                  {t("home.experiences.spiritual.description", language)}
-                </p>
+              <div className="rounded-2xl bg-premium-peach/80 border border-premium-teal/20 px-3 py-3 flex flex-col gap-1">
+                <span className="text-lg" aria-hidden="true">🛕</span>
+                <p className="font-semibold text-slate-900 multilingual-text">{t("home.experiences.spiritual.title", language)}</p>
+                <p className="text-slate-600 multilingual-text">{t("home.experiences.spiritual.description", language)}</p>
               </div>
-              <div className="rounded-2xl bg-slate-950/70 border border-emerald-400/40 px-3 py-3 flex flex-col gap-1">
-                <span className="text-lg" aria-hidden="true">
-                  🍛
-                </span>
-                <p className="font-semibold multilingual-text">{t("home.experiences.food.title", language)}</p>
-                <p className="text-emerald-50/80 multilingual-text">
-                  {t("home.experiences.food.description", language)}
-                </p>
+              <div className="rounded-2xl bg-premium-peach/80 border border-premium-teal/20 px-3 py-3 flex flex-col gap-1">
+                <span className="text-lg" aria-hidden="true">🍛</span>
+                <p className="font-semibold text-slate-900 multilingual-text">{t("home.experiences.food.title", language)}</p>
+                <p className="text-slate-600 multilingual-text">{t("home.experiences.food.description", language)}</p>
               </div>
             </div>
           </div>
 
           {/* Right: simple “how to use this guide” card */}
-          <div className="rounded-3xl bg-white shadow-lg shadow-slate-900/5 border border-slate-200 p-6 sm:p-7 flex flex-col justify-between gap-5">
+          <div className="premium-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between gap-5">
             <div className="space-y-3">
               <h3 className="text-lg sm:text-xl font-semibold text-slate-900 multilingual-text">
                  {t("home.howto.title", language)}
@@ -321,36 +309,32 @@ export default function Home() {
             <div>
               <Link
                 href="/city/varanasi"
-                className="inline-flex w-full items-center justify-center rounded-xl bg-slate-900 text-slate-50 text-sm sm:text-base font-semibold py-3.5 px-4 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-colors"
+                className="inline-flex w-full items-center justify-center rounded-xl bg-premium-teal text-white text-sm sm:text-base font-semibold py-3.5 px-4 hover:bg-premium-teal-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-premium-teal focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-colors shadow-premium"
               >
-                <span className="multilingual-text">
-                  {t("home.howto.cta", language)}
-                </span>
+                <span className="multilingual-text">{t("home.howto.cta", language)}</span>
               </Link>
             </div>
           </div>
         </div>
+        </div>
       </section>
 
-      {/* Final CTA – only about viewing the Varanasi guide, no booking */}
-      <section className="border-t border-slate-200/80 bg-white/80">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 flex flex-col md:flex-row items-center justify-between gap-5 md:gap-8">
+      {/* Final CTA – premium orange accent, more space above footer */}
+      <section className="section-premium-orange w-full pt-10 sm:pt-12 pb-14 sm:pb-20 md:pb-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-5 md:gap-8 relative z-10">
           <div className="space-y-2 max-w-xl">
-            <h2 className="text-xl sm:text-2xl font-semibold text-slate-900 multilingual-text">
+            <h2 className="text-xl sm:text-2xl font-semibold text-white multilingual-text">
                {t("home.final.title", language)}
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 multilingual-text">
+            <p className="text-sm sm:text-base text-white/90 multilingual-text">
                {t("home.final.description", language)}
             </p>
           </div>
-
           <Link
             href="/city/varanasi"
-            className="inline-flex items-center justify-center rounded-full px-8 py-3 text-sm sm:text-base font-semibold bg-primary-blue text-white shadow-md hover:bg-primary-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-blue focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-colors"
+            className="inline-flex items-center justify-center rounded-full px-8 py-3.5 text-sm sm:text-base font-semibold bg-white text-premium-orange shadow-premium hover:shadow-premium-hover hover:bg-white/95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-premium-orange transition-all"
           >
-            <span className="multilingual-text">
-              {t("home.final.cta", language)}
-            </span>
+            <span className="multilingual-text">{t("home.final.cta", language)}</span>
           </Link>
         </div>
       </section>

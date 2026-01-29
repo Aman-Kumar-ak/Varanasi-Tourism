@@ -16,6 +16,45 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Lock background scroll while modal is open
+  useEffect(() => {
+    if (!isOpen) return;
+    if (typeof window === 'undefined') return;
+
+    const body = document.body;
+    const html = document.documentElement;
+
+    // Simple reference counting so multiple overlays can coexist safely
+    const currentCount = Number.parseInt(body.dataset.scrollLockCount || '0', 10) || 0;
+    body.dataset.scrollLockCount = String(currentCount + 1);
+
+    // Save original inline styles so we can restore precisely
+    const prevBodyOverflow = body.style.overflow;
+    const prevBodyPaddingRight = body.style.paddingRight;
+    const prevHtmlOverflow = html.style.overflow;
+
+    // Prevent layout shift when scrollbar disappears
+    const scrollbarWidth = window.innerWidth - html.clientWidth;
+
+    body.style.overflow = 'hidden';
+    html.style.overflow = 'hidden';
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      const nextCount = Number.parseInt(body.dataset.scrollLockCount || '1', 10) - 1;
+      if (nextCount <= 0) {
+        delete body.dataset.scrollLockCount;
+        body.style.overflow = prevBodyOverflow;
+        body.style.paddingRight = prevBodyPaddingRight;
+        html.style.overflow = prevHtmlOverflow;
+      } else {
+        body.dataset.scrollLockCount = String(nextCount);
+      }
+    };
+  }, [isOpen]);
+
   useEffect(() => {
     if (authIsAuthenticated && isOpen) {
       setIsAuthenticated(true);

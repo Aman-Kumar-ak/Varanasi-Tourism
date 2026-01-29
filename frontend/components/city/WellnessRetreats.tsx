@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { getLocalizedContent } from '@/lib/i18n';
 import { t } from '@/lib/translations';
 import type { LanguageCode } from '@/lib/constants';
@@ -18,6 +20,7 @@ interface WellnessCenter {
   website?: string;
   priceRange?: 'budget' | 'mid-range' | 'luxury';
   rating?: number;
+  image?: string;
 }
 
 interface WellnessRetreatsProps {
@@ -68,96 +71,139 @@ function getPriceRangeColor(range: string) {
   }
 }
 
+const HIGHLIGHT_INTERVAL_MS = 1900;
+
 export default function WellnessRetreats({ centers, language }: WellnessRetreatsProps) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [highlightStep, setHighlightStep] = useState(0);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const closedIndices = centers.map((_, i) => i).filter((i) => expandedIndex !== i);
+  const highlightedIndex = closedIndices.length > 0 ? closedIndices[highlightStep % closedIndices.length] : -1;
+  useEffect(() => {
+    if (closedIndices.length <= 1) return;
+    const t = setInterval(() => setHighlightStep((s) => s + 1), HIGHLIGHT_INTERVAL_MS);
+    return () => clearInterval(t);
+  }, [closedIndices.length]);
+
+  useEffect(() => {
+    if (expandedIndex == null) return;
+    const el = cardRefs.current[expandedIndex];
+    if (el) {
+      const timeoutId = window.setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 150);
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [expandedIndex]);
+
+  const featuredCenter = centers[selectedIndex];
+
   return (
     <section className="mb-12">
-      <SectionHeader
-        title={t('wellness.spiritual.retreats', language)}
-        icon="🧘"
-        subtitle={t('yoga.meditation.ayurveda', language)}
-      />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-        {centers.map((center, index) => (
-          <div
-            key={index}
-            className="card-modern rounded-2xl p-5 sm:p-6 shadow-temple border-l-4 border-primary-gold h-full flex flex-col relative overflow-hidden group hover:shadow-xl transition-all duration-300"
-          >
-            {/* Decorative gradient background */}
-            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12 group-hover:opacity-10 transition-opacity"></div>
-            
-            {/* Type Icon */}
-            <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-2xl sm:text-3xl shadow-temple mb-3 sm:mb-4 relative z-10">
-              {getTypeIcon(center.type)}
-            </div>
-
-            {/* Name and Price Range */}
-            <div className="flex items-start justify-between mb-3 sm:mb-4 relative z-10">
-              <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary-dark flex-1" style={{ lineHeight: '1.5' }}>
-                {center.name}
-              </h3>
-              {center.priceRange && (
-                <span
-                  className={`${getPriceRangeColor(
-                    center.priceRange
-                  )} text-white px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 ml-2 shadow-md`}
-                >
-                  {getPriceRangeLabel(center.priceRange)}
+      <SectionHeader title={t('wellness.spiritual.retreats', language)} icon="🧘" subtitle={t('yoga.meditation.ayurveda', language)} />
+      {/* Mobile: accordion (teal accent) – clear division */}
+      <div className="sm:hidden rounded-2xl overflow-hidden border-2 border-teal-200/90 bg-white shadow-sm divide-y divide-teal-200/80">
+        {centers.map((center, index) => {
+          const isExpanded = expandedIndex === index;
+          return (
+            <div
+              key={index}
+              ref={(el) => { cardRefs.current[index] = el; }}
+              className="bg-white first:rounded-t-2xl last:rounded-b-2xl scroll-mt-20 sm:scroll-mt-24"
+            >
+              <button
+                type="button"
+                onClick={() => setExpandedIndex((prev) => (prev === index ? null : index))}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 text-left bg-white hover:bg-teal-50/50 active:bg-teal-50 transition-colors touch-manipulation ${!isExpanded && index === highlightedIndex ? 'accordion-highlight-wellness' : ''}`}
+              >
+                <div className="w-12 h-12 rounded-xl bg-premium-teal/10 flex items-center justify-center text-xl flex-shrink-0">{getTypeIcon(center.type)}</div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-bold text-primary-dark text-sm break-words text-left block">{center.name}</span>
+                  <span className="text-xs text-premium-teal font-semibold capitalize block mt-0.5">{center.type}</span>
+                </div>
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-premium-teal/10 flex items-center justify-center text-premium-teal">
+                  {isExpanded ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>}
                 </span>
+              </button>
+              {isExpanded && (
+                <div className="px-4 pb-4 pt-0 space-y-3 bg-teal-50/30 border-t border-teal-100">
+                  <p className="text-primary-dark/90 text-sm leading-relaxed">{getLocalizedContent(center.description, language)}</p>
+                  <p className="text-xs text-primary-dark/70 flex items-start gap-2">📍 {center.address}</p>
+                  {center.priceRange && <span className={`inline-block ${getPriceRangeColor(center.priceRange)} text-white px-2 py-1 rounded text-xs font-bold`}>{getPriceRangeLabel(center.priceRange)}</span>}
+                  {center.contact && <p className="text-xs text-primary-dark/80">📞 {center.contact}</p>}
+                  {center.website && <a href={center.website} target="_blank" rel="noopener noreferrer" className="text-xs text-premium-teal font-semibold hover:underline">Visit website →</a>}
+                </div>
               )}
             </div>
-
-            {/* Type Badge */}
-            <div className="mb-3 relative z-10">
-              <p className="text-sm text-primary-gold font-bold bg-primary-gold/10 rounded-lg px-3 py-1.5 inline-block capitalize">
-                {center.type}
-              </p>
-            </div>
-
-            {/* Description */}
-            <p className="text-primary-dark/90 text-sm leading-relaxed mb-4 relative z-10 flex-grow">
-              {getLocalizedContent(center.description, language)}
-            </p>
-
-            {/* Address */}
-            <div className="mb-4 relative z-10">
-              <p className="text-sm text-primary-dark/70 flex items-start gap-2 leading-relaxed">
-                <span className="flex-shrink-0 text-lg">📍</span>
-                <span>{center.address}</span>
-              </p>
-            </div>
-
-            {/* Rating */}
-            {center.rating && (
-              <div className="flex items-center gap-2 mb-4 relative z-10">
-                <div className="bg-primary-gold/10 rounded-lg px-3 py-1.5">
-                  <span className="text-primary-gold font-bold text-base">
-                    ⭐ {center.rating}
-                  </span>
+          );
+        })}
+      </div>
+      {/* Desktop: featured center (left) + Quick View sidebar (right) – like Places to Visit */}
+      <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <div className="sm:col-span-7 lg:col-span-8">
+          {featuredCenter && (
+            <div className="rounded-2xl overflow-hidden border border-premium-teal/20 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+              <div className="h-1 w-full bg-gradient-to-r from-premium-teal via-teal-400 to-premium-teal flex-shrink-0" aria-hidden />
+              {featuredCenter.image ? (
+                <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
+                  <Image src={featuredCenter.image} alt={featuredCenter.name} fill sizes="(min-width: 1024px) 66vw, (min-width: 640px) 58vw, 100vw" className="object-cover" />
+                  <h3 className="absolute top-4 left-4 right-4 text-lg sm:text-xl md:text-2xl font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] break-words z-10">{featuredCenter.name}</h3>
+                </div>
+              ) : (
+                <div className="relative w-full h-72 sm:h-80 lg:h-96 bg-gradient-to-br from-premium-teal/15 via-teal-100/30 to-premium-teal/15 flex items-center justify-center">
+                  <span className="text-6xl sm:text-7xl opacity-40 absolute" aria-hidden>{getTypeIcon(featuredCenter.type)}</span>
+                  <h3 className="absolute top-4 left-4 right-4 text-lg sm:text-xl md:text-2xl font-bold text-primary-dark drop-shadow-[0_1px_2px_rgba(255,255,255,0.9)] break-words z-10">{featuredCenter.name}</h3>
+                </div>
+              )}
+              <div className="rounded-t-none border-t-0 p-5 sm:p-6 md:p-8 bg-white/98 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+                <p className="text-primary-dark/90 text-sm leading-relaxed mb-4">{getLocalizedContent(featuredCenter.description, language)}</p>
+                {featuredCenter.priceRange && <span className={`inline-block ${getPriceRangeColor(featuredCenter.priceRange)} text-white px-2.5 py-1.5 rounded-lg text-xs font-bold mb-4`}>{getPriceRangeLabel(featuredCenter.priceRange)}</span>}
+                <p className="text-sm text-primary-dark/70 flex items-start gap-2 mb-4">📍 {featuredCenter.address}</p>
+                {featuredCenter.rating != null && <p className="text-sm text-primary-gold font-semibold mb-4">⭐ {featuredCenter.rating}</p>}
+                <div className="space-y-2">
+                  {featuredCenter.contact && <p className="text-sm text-primary-dark/80 break-all">📞 {featuredCenter.contact}</p>}
+                  {featuredCenter.website && <a href={featuredCenter.website} target="_blank" rel="noopener noreferrer" className="text-sm text-premium-teal font-semibold hover:underline">Visit website →</a>}
                 </div>
               </div>
-            )}
-
-            {/* Contact and Website */}
-            <div className="mt-auto space-y-2 relative z-10">
-              {center.contact && (
-                <p className="text-sm text-primary-dark/80 break-all flex items-center gap-2">
-                  <span className="text-primary-gold">📞</span>
-                  <span>{center.contact}</span>
-                </p>
-              )}
-              {center.website && (
-                <a
-                  href={center.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-primary-gold font-semibold break-all flex items-center gap-1 hover:underline py-2 px-2 -mx-2 rounded-lg hover:bg-primary-gold/5 transition-colors touch-manipulation min-h-[44px]"
-                >
-                  Visit Website <span>→</span>
-                </a>
-              )}
+            </div>
+          )}
+        </div>
+        <aside className="sm:col-span-5 lg:col-span-4">
+          <div className="sticky top-4 rounded-2xl overflow-hidden border-2 border-premium-teal/20 bg-white shadow-sm flex flex-col">
+            <div className="h-1 w-full bg-gradient-to-r from-premium-teal via-teal-400 to-premium-teal flex-shrink-0" aria-hidden />
+            <div className="p-4 sm:p-5">
+              <header className="mb-4">
+                <p className="text-[10px] sm:text-xs uppercase tracking-wider text-premium-teal font-semibold">{language === 'hi' ? 'त्वरित दृश्य' : 'Quick view'}</p>
+                <h3 className="text-base sm:text-lg font-bold text-primary-dark mt-0.5">{language === 'hi' ? 'अन्य केंद्र' : 'More centers'}</h3>
+              </header>
+              <div className="space-y-2">
+                {centers.map((center, index) => {
+                  const isSelected = index === selectedIndex;
+                  return (
+                    <button
+                      key={index}
+                      type="button"
+                      onClick={() => setSelectedIndex(index)}
+                      className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors ${
+                        isSelected ? 'border-premium-teal/60 bg-premium-peach/80 text-primary-dark shadow-sm' : 'border-slate-200/80 bg-white hover:border-premium-teal/30 hover:bg-premium-peach/40'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1 flex flex-col items-start gap-0.5">
+                        <span className="font-semibold text-sm sm:text-base text-primary-dark break-words text-left">{center.name}</span>
+                        <span className="text-xs text-premium-teal font-semibold capitalize">{center.type}{(center.rating != null || center.priceRange) && ` · ${[center.rating != null && `⭐ ${center.rating}`, center.priceRange && getPriceRangeLabel(center.priceRange)].filter(Boolean).join(' ')}`}</span>
+                      </div>
+                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                        {isSelected ? <svg className="w-3.5 h-3.5 text-premium-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg> : <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        ))}
+        </aside>
       </div>
     </section>
   );

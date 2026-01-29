@@ -29,8 +29,14 @@ const PORT = parseInt(process.env.PORT || '5000', 10);
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const isProduction = NODE_ENV === 'production';
 
-// Trust proxy (required for rate limiting behind reverse proxy like Render)
-app.set('trust proxy', true);
+// Trust proxy:
+// - In production, trust only the first proxy (typical for Render/NGINX)
+// - In development, don't trust any proxy (avoids express-rate-limit warning)
+if (isProduction) {
+  app.set('trust proxy', 1);
+} else {
+  app.set('trust proxy', false);
+}
 
 // ==================== SECURITY MIDDLEWARE ====================
 

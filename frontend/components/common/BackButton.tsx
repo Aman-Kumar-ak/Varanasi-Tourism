@@ -27,7 +27,12 @@ export default function BackButton() {
   }
 
   const handleBack = () => {
-    router.back();
+    // Use browser history directly for instant back (avoids Next.js router delay)
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back();
+    } else {
+      router.push('/');
+    }
   };
 
   return (

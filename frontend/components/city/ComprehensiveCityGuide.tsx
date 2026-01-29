@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getLocalizedContent } from '@/lib/i18n';
@@ -10,14 +11,11 @@ import SectionHeader from './SectionHeader';
 import PlacesCarousel from './PlacesCarousel';
 import TransportationGuide from './TransportationGuide';
 import RoutePlanner from './RoutePlanner';
-import EventsCalendar from './EventsCalendar';
 import KashiRopeway from './KashiRopeway';
 import CricketStadium from './CricketStadium';
 import WellnessRetreats from './WellnessRetreats';
 import AcademicTourism from './AcademicTourism';
 import QuotesSection from './QuotesSection';
-import WeatherWidget from '@/components/common/WeatherWidget';
-import ThemesSection from './ThemesSection';
 import CuisineSection from './CuisineSection';
 import PlacesToStay from './PlacesToStay';
 
@@ -78,6 +76,7 @@ interface City {
       hi: string;
       [key: string]: string;
     };
+    image?: string;
   }>;
   rituals?: Array<{
     name: {
@@ -91,6 +90,7 @@ interface City {
       [key: string]: string;
     };
     timing?: string;
+    image?: string;
   }>;
   darshanInfo?: {
     en: string;
@@ -276,19 +276,91 @@ export default function ComprehensiveCityGuide({
   language,
   quotes = [],
 }: ComprehensiveCityGuideProps) {
+  const [ritualExpandedIndex, setRitualExpandedIndex] = useState<number | null>(0);
+  const [ritualSelectedIndex, setRitualSelectedIndex] = useState(0);
+  const [ritualHighlightStep, setRitualHighlightStep] = useState(0);
+  const [festivalExpandedIndex, setFestivalExpandedIndex] = useState<number | null>(0);
+  const [festivalSelectedIndex, setFestivalSelectedIndex] = useState(0);
+  const [festivalHighlightStep, setFestivalHighlightStep] = useState(0);
+  const [spiritualExpanded, setSpiritualExpanded] = useState(true);
+  const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [heroTextSmall, setHeroTextSmall] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const videoDurationRef = useRef<number>(0);
+  const ritualCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const festivalCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const ritualClosedIndices = city.rituals ? city.rituals.map((_, i) => i).filter((i) => ritualExpandedIndex !== i) : [];
+  const ritualHighlightedIndex = ritualClosedIndices.length > 0 ? ritualClosedIndices[ritualHighlightStep % ritualClosedIndices.length] : -1;
+  useEffect(() => {
+    if (ritualClosedIndices.length <= 1) return;
+    const t = setInterval(() => setRitualHighlightStep((s) => s + 1), 1900);
+    return () => clearInterval(t);
+  }, [ritualClosedIndices.length]);
+
+  const festivalClosedIndices = city.festivals ? city.festivals.map((_, i) => i).filter((i) => festivalExpandedIndex !== i) : [];
+  const festivalHighlightedIndex = festivalClosedIndices.length > 0 ? festivalClosedIndices[festivalHighlightStep % festivalClosedIndices.length] : -1;
+  useEffect(() => {
+    if (festivalClosedIndices.length <= 1) return;
+    const t = setInterval(() => setFestivalHighlightStep((s) => s + 1), 1900);
+    return () => clearInterval(t);
+  }, [festivalClosedIndices.length]);
+
+  // Scroll expanded ritual card into view (below floating buttons)
+  useEffect(() => {
+    if (ritualExpandedIndex == null || !city.rituals?.length) return;
+    const el = ritualCardRefs.current[ritualExpandedIndex];
+    if (el) {
+      const timeoutId = window.setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 150);
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [ritualExpandedIndex, city.rituals?.length]);
+
+  // Scroll expanded festival card into view (below floating buttons)
+  useEffect(() => {
+    if (festivalExpandedIndex == null || !city.festivals?.length) return;
+    const el = festivalCardRefs.current[festivalExpandedIndex];
+    if (el) {
+      const timeoutId = window.setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 150);
+      return () => window.clearTimeout(timeoutId);
+    }
+  }, [festivalExpandedIndex, city.festivals?.length]);
+
   return (
-    <div className="min-h-screen bg-gradient-sacred">
+    <div className="min-h-screen">
       {/* Hero Section with Video Background */}
       <section className="relative h-[50vh] min-h-[280px] sm:h-[55vh] sm:min-h-[320px] md:h-96 lg:h-[500px] overflow-hidden">
         {/* Video Background */}
         {city.videos && city.videos.length > 0 ? (
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
             className="absolute inset-0 w-full h-full object-cover scale-105"
             poster={getVideoThumbnail(city.videos[0], 1920, 1080)}
+            onLoadedMetadata={(e) => {
+              const v = e.currentTarget;
+              if (v.duration && Number.isFinite(v.duration)) videoDurationRef.current = v.duration;
+            }}
+            onTimeUpdate={(e) => {
+              const v = e.currentTarget;
+              const duration = v.duration && Number.isFinite(v.duration) ? v.duration : videoDurationRef.current;
+              const t = v.currentTime;
+              if (duration <= 0) return;
+              const shrinkAfter = 3;
+              const returnBeforeEnd = 1.5;
+              if (t >= shrinkAfter && t < duration - returnBeforeEnd) {
+                setHeroTextSmall(true);
+              } else {
+                setHeroTextSmall(false);
+              }
+            }}
           >
             <source 
               src={getOptimizedVideoUrl(city.videos[0], { 
@@ -318,9 +390,12 @@ export default function ComprehensiveCityGuide({
         <div className="absolute inset-0 bg-gradient-overlay"></div>
         {/* Decorative golden border at bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-temple"></div>
-        {/* Text Content */}
+        {/* Text Content – scales down after a few seconds of video, returns to original near end */}
         <div className="container mx-auto px-4 sm:px-6 relative z-10 h-full flex items-end pb-8 sm:pb-12">
-          <div className="animate-fade-in-up w-full">
+          <div
+            className="animate-fade-in-up w-full origin-bottom-left transition-transform duration-1000 ease-out"
+            style={{ transform: heroTextSmall ? 'scale(0.72)' : 'scale(1)' }}
+          >
             <div className="inline-block mb-2 sm:mb-3 px-3 sm:px-4 py-1.5 sm:py-1 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
               <span className="text-primary-gold text-xs sm:text-sm font-semibold">✨ {city.state}</span>
             </div>
@@ -333,58 +408,100 @@ export default function ComprehensiveCityGuide({
       </section>
 
       <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Weather Widget */}
-        <section className="mb-8 sm:mb-10">
-          <div className="flex justify-center">
-            <WeatherWidget />
-          </div>
-        </section>
-
-        {/* Spiritual Significance */}
-        {city.spiritualSignificance && (
-          <section className="mb-12">
-            <SectionHeader
-              title={t('spiritual.significance', language)}
-              icon="🕉️"
-              subtitle={t('why.city.sacred', language)}
-            />
-            <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden">
-              {/* Decorative gradient background */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-              <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg relative z-10">
-                {getLocalizedContent(city.spiritualSignificance, language)}
-              </p>
-            </div>
-          </section>
+        {/* Quotes Section */}
+        {quotes && quotes.length > 0 && (
+          <QuotesSection quotes={quotes} language={language} />
         )}
 
-        {/* History */}
-        {city.history && (
-          <section className="mb-16 animate-fade-in-up">
-            <SectionHeader title={t('history', language)} icon="📜" subtitle={t('historical.background', language)} />
-            <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden">
-              {/* Decorative gradient background */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-              <div className="flex items-start gap-4 sm:gap-5 relative z-10">
-                <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg flex-1">
-                  {getLocalizedContent(city.history, language)}
+        {/* Spiritual Significance – collapsible on mobile */}
+        {city.spiritualSignificance && (
+          <section className="mb-12">
+            <div className="sm:hidden rounded-2xl overflow-hidden border border-primary-gold/20 bg-white/90 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setSpiritualExpanded((e) => !e)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 text-left bg-transparent hover:bg-amber-50/50 active:bg-amber-50 transition-colors touch-manipulation"
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary-gold/10 flex items-center justify-center text-xl flex-shrink-0">🕉️</div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-bold text-primary-dark text-sm block">{t('spiritual.significance', language)}</span>
+                  <span className="text-xs text-primary-dark/70">{t('why.city.sacred', language)}</span>
+                </div>
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-gold/10 flex items-center justify-center text-primary-gold">
+                  {spiritualExpanded ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                  )}
+                </span>
+              </button>
+              {spiritualExpanded && (
+                <div className="px-4 pb-4 pt-0 border-t border-amber-100">
+                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-sm pt-3">
+                    {getLocalizedContent(city.spiritualSignificance, language)}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="hidden sm:block">
+              <SectionHeader title={t('spiritual.significance', language)} icon="🕉️" subtitle={t('why.city.sacred', language)} />
+              <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
+                <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg relative z-10">
+                  {getLocalizedContent(city.spiritualSignificance, language)}
                 </p>
               </div>
             </div>
           </section>
         )}
 
-        {/* Quotes Section */}
-        {quotes && quotes.length > 0 && (
-          <QuotesSection quotes={quotes} language={language} />
+        {/* History – collapsible on mobile */}
+        {city.history && (
+          <section className="mb-16 animate-fade-in-up">
+            <div className="sm:hidden rounded-2xl overflow-hidden border border-primary-saffron/20 bg-white/90 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setHistoryExpanded((e) => !e)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 text-left bg-transparent hover:bg-orange-50/50 active:bg-orange-50 transition-colors touch-manipulation"
+              >
+                <div className="w-12 h-12 rounded-xl bg-primary-saffron/10 flex items-center justify-center text-xl flex-shrink-0">📜</div>
+                <div className="flex-1 min-w-0">
+                  <span className="font-bold text-primary-dark text-sm block">{t('history', language)}</span>
+                  <span className="text-xs text-primary-dark/70">{t('historical.background', language)}</span>
+                </div>
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-saffron/10 flex items-center justify-center text-primary-saffron">
+                  {historyExpanded ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                  )}
+                </span>
+              </button>
+              {historyExpanded && (
+                <div className="px-4 pb-4 pt-0 border-t border-orange-100">
+                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-sm pt-3">
+                    {getLocalizedContent(city.history, language)}
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="hidden sm:block">
+              <SectionHeader title={t('history', language)} icon="📜" subtitle={t('historical.background', language)} />
+              <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
+                <div className="flex items-start gap-4 sm:gap-5 relative z-10">
+                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg flex-1">
+                    {getLocalizedContent(city.history, language)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
         )}
 
-        {/* Themes Section */}
-        <ThemesSection />
-
-        {/* Places to Visit */}
+        {/* Places to Visit – premium section; minimal side padding on phone so cards use full width */}
         {city.places && city.places.length > 0 && (
-          <section className="mb-12">
+          <section className="section-premium-peach rounded-2xl -mx-1 px-2 py-6 sm:mx-0 sm:p-8 mb-12 relative z-10">
             <SectionHeader
               title={t('places.to.visit', language)}
               icon="📍"
@@ -394,81 +511,248 @@ export default function ComprehensiveCityGuide({
           </section>
         )}
 
-        {/* Rituals & Practices */}
+        {/* Rituals & Practices – accordion on mobile, grid on desktop */}
         {city.rituals && city.rituals.length > 0 && (
           <section className="mb-12">
-            <SectionHeader
-              title={t('rituals.practices', language)}
-              icon="🕯️"
-              subtitle={t('sacred.rituals.significance', language)}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6">
-              {city.rituals.map((ritual, index) => (
-                <div key={index} className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden h-full flex flex-col">
-                  {/* Decorative gradient background */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-                  <div className="flex items-start gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-5 relative z-10">
-                    <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-2xl sm:text-3xl shadow-temple">
-                      🕯️
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-primary-dark mb-2 sm:mb-3" style={{ lineHeight: '1.5' }}>
-                        {getLocalizedContent(ritual.name, language)}
-                      </h3>
-                      {ritual.timing && (
-                        <div className="bg-primary-saffron/10 rounded-lg px-3 py-2 sm:py-2.5 mb-3 sm:mb-4 inline-block">
-                          <p className="text-xs sm:text-sm text-primary-saffron font-bold flex items-center gap-2">
-                            <span>⏰</span> {ritual.timing}
-                          </p>
+            <SectionHeader title={t('rituals.practices', language)} icon="🕯️" subtitle={t('sacred.rituals.significance', language)} />
+            {/* Mobile: accordion list (saffron accent) – time visible when closed; no repeat inside */}
+            <div className="sm:hidden rounded-2xl overflow-hidden border-2 border-orange-200/90 bg-white shadow-sm divide-y divide-orange-200/80">
+              {city.rituals.map((ritual, index) => {
+                const isExpanded = ritualExpandedIndex === index;
+                return (
+                  <div
+                    key={index}
+                    ref={(el) => { ritualCardRefs.current[index] = el; }}
+                    className="bg-white first:rounded-t-2xl last:rounded-b-2xl scroll-mt-20 sm:scroll-mt-24"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setRitualExpandedIndex((prev) => (prev === index ? null : index))}
+                      className={`w-full flex items-center gap-3 px-4 py-3.5 text-left bg-white hover:bg-orange-50/50 active:bg-orange-50 transition-colors touch-manipulation ${!isExpanded && index === ritualHighlightedIndex ? 'accordion-highlight-rituals' : ''}`}
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-primary-saffron/10 flex items-center justify-center text-xl flex-shrink-0 border border-orange-200/60">🕯️</div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-primary-dark text-sm break-words text-left block">{getLocalizedContent(ritual.name, language)}</span>
+                        {ritual.timing && <span className="text-xs text-primary-saffron font-semibold block mt-0.5">⏰ {ritual.timing}</span>}
+                      </div>
+                      <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-saffron/10 flex items-center justify-center text-primary-saffron border border-orange-200/60">
+                        {isExpanded ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>}
+                      </span>
+                    </button>
+                    {isExpanded && (
+                      <div className="px-4 pb-4 pt-0 bg-orange-50/40 border-t border-orange-200/80">
+                        <p className="text-primary-dark/90 text-sm leading-relaxed">{getLocalizedContent(ritual.description, language)}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            {/* Desktop: featured ritual (left) + Quick View sidebar (right) – like Places to Visit */}
+            <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="sm:col-span-7 lg:col-span-8">
+                {city.rituals[ritualSelectedIndex] && (() => {
+                  const ritual = city.rituals[ritualSelectedIndex];
+                  return (
+                    <div className="rounded-2xl overflow-hidden border border-primary-saffron/20 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+                      <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron flex-shrink-0" aria-hidden />
+                      {/* Hero image or placeholder – name on image top-left, no top blur, bigger height (like Places to Visit) */}
+                      {ritual.image ? (
+                        <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
+                          <Image
+                            src={ritual.image}
+                            alt={getLocalizedContent(ritual.name, language)}
+                            fill
+                            sizes="(min-width: 1024px) 66vw, (min-width: 640px) 58vw, 100vw"
+                            className="object-cover"
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-white/95 to-transparent pointer-events-none" aria-hidden />
+                          <div className="absolute top-0 left-0 right-0 p-4 sm:p-5 lg:p-6 pointer-events-none">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white break-words max-w-full [text-shadow:0_1px_2px_rgba(0,0,0,0.8),0_2px_8px_rgba(0,0,0,0.5)]" style={{ lineHeight: 1.25 }}>
+                              {getLocalizedContent(ritual.name, language)}
+                            </h2>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative w-full h-72 sm:h-80 lg:h-96 bg-gradient-to-br from-primary-saffron/15 via-primary-gold/10 to-primary-saffron/15 flex items-center justify-center" aria-hidden>
+                          <span className="text-6xl sm:text-7xl opacity-40" aria-hidden>🕯️</span>
+                          <div className="absolute top-0 left-0 right-0 p-4 sm:p-5 lg:p-6 pointer-events-none">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary-dark/90 break-words max-w-full" style={{ lineHeight: 1.25 }}>
+                              {getLocalizedContent(ritual.name, language)}
+                            </h2>
+                          </div>
                         </div>
                       )}
+                      {/* Detail card – no logo/title row (name on image); description only */}
+                      <div className="rounded-t-none border-t-0 p-5 sm:p-6 md:p-8 bg-white/98 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+                        <p className="text-primary-dark/90 leading-relaxed text-base sm:text-lg">{getLocalizedContent(ritual.description, language)}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+              <aside className="sm:col-span-5 lg:col-span-4">
+                <div className="sticky top-4 rounded-2xl overflow-hidden border-2 border-primary-saffron/20 bg-white shadow-sm flex flex-col">
+                  <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron flex-shrink-0" aria-hidden />
+                  <div className="p-4 sm:p-5">
+                    <header className="mb-4">
+                      <p className="text-[10px] sm:text-xs uppercase tracking-wider text-primary-saffron font-semibold">
+                        {language === 'hi' ? 'त्वरित दृश्य' : 'Quick view'}
+                      </p>
+                      <h3 className="text-base sm:text-lg font-bold text-primary-dark mt-0.5">
+                        {language === 'hi' ? 'अन्य अनुष्ठान' : 'More rituals'}
+                      </h3>
+                    </header>
+                    <div className="space-y-2">
+                      {city.rituals.map((ritual, index) => {
+                        const isSelected = index === ritualSelectedIndex;
+                        return (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => setRitualSelectedIndex(index)}
+                            className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors ${
+                              isSelected ? 'border-primary-saffron/60 bg-amber-50/80 text-primary-dark shadow-sm' : 'border-slate-200/80 bg-white hover:border-primary-saffron/30 hover:bg-amber-50/40'
+                            }`}
+                          >
+                            <div className="min-w-0 flex-1 flex flex-col items-start gap-0.5">
+                              <span className="font-semibold text-sm sm:text-base text-primary-dark break-words text-left">{getLocalizedContent(ritual.name, language)}</span>
+                              {ritual.timing && <span className="text-xs text-primary-saffron font-semibold">⏰ {ritual.timing}</span>}
+                            </div>
+                            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                              {isSelected ? <svg className="w-3.5 h-3.5 text-primary-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg> : <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
-                  <p className="text-primary-dark/90 leading-relaxed text-base sm:text-lg relative z-10 flex-grow">
-                    {getLocalizedContent(ritual.description, language)}
-                  </p>
                 </div>
-              ))}
+              </aside>
             </div>
           </section>
         )}
 
-        {/* Festivals Calendar */}
+        {/* Festivals Calendar – accordion on mobile, featured + Quick View on desktop */}
         {city.festivals && city.festivals.length > 0 && (
           <section className="mb-12">
-            <SectionHeader
-              title={t('festivals.calendar', language)}
-              icon="🎉"
-              subtitle={t('important.festivals', language)}
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-              {city.festivals.map((festival, index) => (
-                <div key={index} className="card-modern rounded-2xl p-5 sm:p-6 shadow-temple border-l-4 border-primary-gold relative overflow-hidden h-full flex flex-col">
-                  {/* Decorative gradient background */}
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-temple opacity-5 rounded-full -mr-12 -mt-12"></div>
-                  <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-2xl sm:text-3xl shadow-temple mb-3 sm:mb-4 relative z-10">
-                    🎉
+            <SectionHeader title={t('festivals.calendar', language)} icon="🎉" subtitle={t('important.festivals', language)} />
+            {/* Mobile: accordion list (gold accent) – date visible when closed; no repeat inside */}
+            <div className="sm:hidden rounded-2xl overflow-hidden border-2 border-amber-200/90 bg-white shadow-sm divide-y divide-amber-200/80">
+              {city.festivals.map((festival, index) => {
+                const isExpanded = festivalExpandedIndex === index;
+                return (
+                  <div
+                    key={index}
+                    ref={(el) => { festivalCardRefs.current[index] = el; }}
+                    className="bg-white first:rounded-t-2xl last:rounded-b-2xl scroll-mt-20 sm:scroll-mt-24"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setFestivalExpandedIndex((prev) => (prev === index ? null : index))}
+                      className={`w-full flex items-center gap-3 px-4 py-3.5 text-left bg-white hover:bg-amber-50/50 active:bg-amber-50 transition-colors touch-manipulation ${!isExpanded && index === festivalHighlightedIndex ? 'accordion-highlight-festivals' : ''}`}
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-primary-gold/10 flex items-center justify-center text-xl flex-shrink-0 border border-amber-200/60">🎉</div>
+                      <div className="flex-1 min-w-0">
+                        <span className="font-bold text-primary-dark text-sm break-words text-left block">{festival.name}</span>
+                        {festival.date && <span className="text-xs text-primary-gold font-semibold block mt-0.5">📅 {festival.date}</span>}
+                      </div>
+                      <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-gold/10 flex items-center justify-center text-primary-gold border border-amber-200/60">
+                        {isExpanded ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>}
+                      </span>
+                    </button>
+                    {isExpanded && (
+                      <div className="px-4 pb-4 pt-0 bg-amber-50/40 border-t border-amber-200/80">
+                        <p className="text-primary-dark/90 text-sm leading-relaxed">{getLocalizedContent(festival.description, language)}</p>
+                      </div>
+                    )}
                   </div>
-                  <h3 className="text-base sm:text-lg font-bold text-primary-dark mb-3 sm:mb-4 relative z-10" style={{ lineHeight: '1.5' }}>
-                    {festival.name}
-                  </h3>
-                  <div className="bg-primary-gold/10 rounded-lg px-3 py-2 sm:py-2.5 mb-3 sm:mb-4 relative z-10">
-                    <p className="text-xs sm:text-sm text-primary-gold font-bold flex items-center gap-2">
-                      <span>📅</span> {festival.date}
-                    </p>
+                );
+              })}
+            </div>
+            {/* Desktop: featured festival (left) + Quick View sidebar (right) – like Places to Visit */}
+            <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="sm:col-span-7 lg:col-span-8">
+                {city.festivals[festivalSelectedIndex] && (() => {
+                  const festival = city.festivals[festivalSelectedIndex];
+                  return (
+                    <div className="rounded-2xl overflow-hidden border border-primary-gold/20 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+                      <div className="h-1 w-full bg-gradient-to-r from-primary-gold via-primary-orange to-primary-gold flex-shrink-0" aria-hidden />
+                      {/* Hero image or placeholder – name on image top-left, no top blur, bigger height (like Places to Visit) */}
+                      {festival.image ? (
+                        <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
+                          <Image
+                            src={festival.image}
+                            alt={festival.name}
+                            fill
+                            sizes="(min-width: 1024px) 66vw, (min-width: 640px) 58vw, 100vw"
+                            className="object-cover"
+                          />
+                          <div className="absolute bottom-0 left-0 right-0 h-2/5 bg-gradient-to-t from-white/95 to-transparent pointer-events-none" aria-hidden />
+                          <div className="absolute top-0 left-0 right-0 p-4 sm:p-5 lg:p-6 pointer-events-none">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white break-words max-w-full [text-shadow:0_1px_2px_rgba(0,0,0,0.8),0_2px_8px_rgba(0,0,0,0.5)]" style={{ lineHeight: 1.25 }}>
+                              {festival.name}
+                            </h2>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative w-full h-72 sm:h-80 lg:h-96 bg-gradient-to-br from-primary-gold/15 via-primary-orange/10 to-primary-gold/15 flex items-center justify-center" aria-hidden>
+                          <span className="text-6xl sm:text-7xl opacity-40" aria-hidden>🎉</span>
+                          <div className="absolute top-0 left-0 right-0 p-4 sm:p-5 lg:p-6 pointer-events-none">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary-dark/90 break-words max-w-full" style={{ lineHeight: 1.25 }}>
+                              {festival.name}
+                            </h2>
+                          </div>
+                        </div>
+                      )}
+                      {/* Detail card – no logo/title row (name on image); description only */}
+                      <div className="rounded-t-none border-t-0 p-5 sm:p-6 md:p-8 bg-white/98 shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+                        <p className="text-primary-dark/90 leading-relaxed text-base sm:text-lg">{getLocalizedContent(festival.description, language)}</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+              <aside className="sm:col-span-5 lg:col-span-4">
+                <div className="sticky top-4 rounded-2xl overflow-hidden border-2 border-primary-gold/20 bg-white shadow-sm flex flex-col">
+                  <div className="h-1 w-full bg-gradient-to-r from-primary-gold via-primary-orange to-primary-gold flex-shrink-0" aria-hidden />
+                  <div className="p-4 sm:p-5">
+                    <header className="mb-4">
+                      <p className="text-[10px] sm:text-xs uppercase tracking-wider text-primary-gold font-semibold">
+                        {language === 'hi' ? 'त्वरित दृश्य' : 'Quick view'}
+                      </p>
+                      <h3 className="text-base sm:text-lg font-bold text-primary-dark mt-0.5">
+                        {language === 'hi' ? 'अन्य त्योहार' : 'More festivals'}
+                      </h3>
+                    </header>
+                    <div className="space-y-2">
+                      {city.festivals.map((festival, index) => {
+                        const isSelected = index === festivalSelectedIndex;
+                        return (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => setFestivalSelectedIndex(index)}
+                            className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors ${
+                              isSelected ? 'border-primary-gold/60 bg-amber-50/80 text-primary-dark shadow-sm' : 'border-slate-200/80 bg-white hover:border-primary-gold/30 hover:bg-amber-50/40'
+                            }`}
+                          >
+                            <div className="min-w-0 flex-1 flex flex-col items-start gap-0.5">
+                              <span className="font-semibold text-sm sm:text-base text-primary-dark break-words text-left">{festival.name}</span>
+                              {festival.date && <span className="text-xs text-primary-gold font-semibold">📅 {festival.date}</span>}
+                            </div>
+                            <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
+                              {isSelected ? <svg className="w-3.5 h-3.5 text-primary-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg> : <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <p className="text-primary-dark/90 text-sm sm:text-base leading-relaxed relative z-10 flex-grow">
-                    {getLocalizedContent(festival.description, language)}
-                  </p>
                 </div>
-              ))}
+              </aside>
             </div>
           </section>
-        )}
-
-        {/* Events Calendar - Enhanced */}
-        {city.events && city.events.length > 0 && (
-          <EventsCalendar events={city.events} language={language} />
         )}
 
         {/* Kashi Ropeway */}
@@ -493,63 +777,46 @@ export default function ComprehensiveCityGuide({
 
         {/* Darshan Information */}
         {city.darshanInfo && (
-          <section className="mb-12">
+          <section className="mb-8 sm:mb-12">
             <SectionHeader
               title={t('darshan.information', language)}
               icon="📿"
               subtitle={t('how.to.book.darshan', language)}
             />
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-primary-gold/20 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50">
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-gold/10 to-primary-orange/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-primary-blue/5 to-primary-teal/5 rounded-full -ml-24 -mb-24 blur-2xl"></div>
-              
-              {/* Content */}
-              <div className="relative z-10 p-6 sm:p-8 md:p-10">
-                {/* Icon and Title */}
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-primary-gold to-primary-orange flex items-center justify-center shadow-lg">
-                    <span className="text-2xl sm:text-3xl">🕉️</span>
-                  </div>
-                  <div>
-                    <h3 className="text-xl sm:text-2xl font-bold text-primary-dark mb-1">
-                      {t('darshan.information', language)}
-                    </h3>
-                    <p className="text-sm sm:text-base text-primary-dark/70">
-                      {t('how.to.book.darshan', language)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Information Text */}
-                <div className="mb-8">
-                  <p className="text-base sm:text-lg text-primary-dark/90 leading-relaxed whitespace-pre-line">
+            <div className="rounded-2xl overflow-hidden bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-slate-200/60">
+              <div className="h-1.5 w-full bg-gradient-to-r from-primary-gold via-primary-orange to-primary-saffron" aria-hidden />
+              <div className="px-4 py-5 sm:p-6 md:p-8">
+                {/* Content: readable on phone – line-height and spacing */}
+                <div className="mb-5 sm:mb-6">
+                  <p className="text-[15px] sm:text-base md:text-lg text-primary-dark/90 leading-[1.65] sm:leading-relaxed whitespace-pre-line max-w-none">
                     {getLocalizedContent(city.darshanInfo, language)}
                   </p>
                 </div>
 
-                {/* Call to Action Button */}
+                {/* CTA: full-width button on phone, badge below */}
                 {city.officialBookingUrl && (
-                  <div className="flex flex-col gap-3">
-                    <a
-                      href={city.officialBookingUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group relative inline-flex items-center justify-center px-3 sm:px-6 md:px-8 py-2.5 sm:py-3.5 md:py-4 bg-primary-gold text-white rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm md:text-base lg:text-lg shadow-xl hover:shadow-2xl hover:bg-primary-orange transform hover:-translate-y-1 transition-all duration-300 min-h-[44px] sm:min-h-[48px] md:min-h-[52px] touch-manipulation whitespace-nowrap max-w-full overflow-hidden"
-                    >
-                      {t('visit.official.website', language).replace(' →', '')}
-                    </a>
-                    
-                    {/* Official website indicator - Right aligned */}
-                    <div className="flex items-center justify-end gap-2 text-sm sm:text-base text-primary-dark/80">
-                      <span className="font-medium">
-                        {language === 'hi' ? 'आधिकारिक वेबसाइट' : 
-                         language === 'en' ? 'Official website' : 'Official website'}
-                      </span>
-                      <div className="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                        <svg className="w-3 h-3 sm:w-4 sm:h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  <div className="pt-4 sm:pt-5 border-t border-slate-200/80">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                      <a
+                        href={city.officialBookingUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-3.5 sm:py-3.5 bg-primary-gold text-white rounded-xl font-semibold text-sm sm:text-base shadow-md hover:shadow-lg hover:bg-primary-orange active:bg-primary-orange transition-all min-h-[52px] touch-manipulation"
+                      >
+                        <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                         </svg>
+                        {t('visit.official.website', language).replace(' →', '')}
+                      </a>
+                      <div className="flex items-center justify-center sm:justify-end gap-2 text-xs sm:text-sm text-primary-dark/70">
+                        <span className="font-medium">
+                          {language === 'hi' ? 'आधिकारिक वेबसाइट' : language === 'en' ? 'Official website' : 'Official website'}
+                        </span>
+                        <span className="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center" aria-label="Verified">
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </span>
                       </div>
                     </div>
                   </div>
