@@ -1,3 +1,9 @@
+/* SN Pro – site-wide font (weights 400, 500, 600, 700) */
+@import "@fontsource/sn-pro/400.css";
+@import "@fontsource/sn-pro/500.css";
+@import "@fontsource/sn-pro/600.css";
+@import "@fontsource/sn-pro/700.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,6 +14,8 @@
   --background-end-rgb: 255, 248, 230;
   --font-size-multiplier: 1;
   --body-font-size-base: 1.125rem; /* 18px base, increased from default 16px */
+  /* SN Pro – one font family site-wide */
+  --font-sans: "SN Pro", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   
   /* Temple-inspired gradients */
   /* Adjust percentages to control color visibility: 0% = top, 100% = bottom */
@@ -27,10 +35,15 @@
 }
 
 body {
+  font-family: var(--font-sans);
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(160deg, var(--premium-peach) 0%, var(--premium-peach-deep) 35%, #FFF8E7 100%);
   min-height: 100vh;
   font-size: var(--body-font-size-base);
+  letter-spacing: 0.01em;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* A+ / A- scales whole page (text + cards + spacing); zoom applied to main content */

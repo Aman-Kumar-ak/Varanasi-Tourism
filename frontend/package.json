@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource/sn-pro": "^5.2.5",
     "clsx": "^2.1.1",
     "firebase": "^10.12.2",
     "lottie-react": "^2.4.1",

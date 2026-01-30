@@ -59,7 +59,7 @@ const config: Config = {
         'gradient-premium-orange': 'linear-gradient(165deg, #C2410C 0%, #EA580C 40%, #B45309 100%)',
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
     },
   },

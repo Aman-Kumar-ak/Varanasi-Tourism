@@ -98,38 +98,42 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
               <div
                 key={index}
                 ref={(el) => { cardRefs.current[index] = el; }}
-                className="bg-white first:rounded-t-2xl last:rounded-b-2xl scroll-mt-20 sm:scroll-mt-24"
+                className="relative bg-white first:rounded-t-2xl last:rounded-b-2xl scroll-mt-20 sm:scroll-mt-24"
               >
-                {/* Accordion header – always visible */}
+                {/* Accordion header – when expanded: minus button floats above image; when collapsed: thumbnail + title + plus */}
                 <button
                   type="button"
                   onClick={() => toggleExpand(index)}
-                  className={`w-full flex items-center gap-3 px-4 py-3.5 text-left bg-white hover:bg-teal-50/50 active:bg-teal-50 transition-colors touch-manipulation ${!isExpanded && index === highlightedIndex ? 'accordion-highlight-places' : ''}`}
+                  className={`flex items-center text-left transition-colors touch-manipulation ${isExpanded ? 'absolute top-2 right-2 z-20 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white shadow-sm border border-slate-200/80 justify-center items-center p-0 text-primary-dark hover:bg-white active:bg-white hover:scale-100 active:scale-100 cursor-default' : 'w-full gap-3 px-4 py-3.5 bg-white hover:bg-teal-50/50 active:bg-teal-50'} ${!isExpanded && index === highlightedIndex ? 'accordion-highlight-places' : ''}`}
                   aria-expanded={isExpanded}
                   aria-controls={`place-accordion-${index}`}
                   id={`place-accordion-heading-${index}`}
                 >
-                  {/* Thumbnail or icon */}
-                  {place.image ? (
-                    <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
-                      <Image
-                        src={place.image}
-                        alt=""
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-12 h-12 rounded-xl bg-premium-teal/10 flex items-center justify-center text-lg flex-shrink-0 border border-teal-200/60">
-                      {icon}
-                    </div>
+                  {!isExpanded && (
+                    <>
+                      {/* Thumbnail or icon – hidden when expanded */}
+                      {place.image ? (
+                        <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
+                          <Image
+                            src={place.image}
+                            alt=""
+                            fill
+                            sizes="48px"
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-premium-teal/10 flex items-center justify-center text-lg flex-shrink-0 border border-teal-200/60">
+                          {icon}
+                        </div>
+                      )}
+                      <span className="flex-1 min-w-0 font-bold text-primary-dark text-sm sm:text-base break-words text-left">
+                        {getLocalizedContent(place.name, language)}
+                      </span>
+                    </>
                   )}
-                  <span className="flex-1 min-w-0 font-bold text-primary-dark text-sm sm:text-base break-words text-left">
-                    {getLocalizedContent(place.name, language)}
-                  </span>
                   <span
-                    className="flex-shrink-0 w-8 h-8 rounded-full bg-premium-teal/10 flex items-center justify-center text-premium-teal border border-teal-200/60"
+                    className={`flex-shrink-0 rounded-full flex items-center justify-center border ${isExpanded ? 'bg-transparent w-8 h-8 text-primary-dark border-transparent' : 'w-8 h-8 bg-premium-teal/10 text-premium-teal border-teal-200/60'} ${!isExpanded ? '' : ''}`}
                     aria-hidden
                   >
                     {isExpanded ? (
@@ -154,9 +158,9 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                   }`}
                 >
                   <div className="px-4 pb-4 pt-0 space-y-3 bg-gradient-to-b from-premium-peach/20 to-white/80">
-                    {/* Hero image when expanded */}
+                    {/* Hero image when expanded – full-bleed from top (no white strip); title at bottom-left; minus button floats above */}
                     {place.image && (
-                      <div className="relative -mx-4 h-36 rounded-none overflow-hidden">
+                      <div className={`relative -mx-4 h-52 overflow-hidden ${index === 0 ? 'rounded-t-2xl' : ''}`}>
                         <Image
                           src={place.image}
                           alt={getLocalizedContent(place.name, language)}
@@ -164,8 +168,17 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                           sizes="100vw"
                           className="object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+                        <h3 className="absolute bottom-0 left-0 right-0 p-4 text-lg font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] break-words text-left">
+                          {getLocalizedContent(place.name, language)}
+                        </h3>
                       </div>
+                    )}
+                    {/* When no image: still show title at top of content */}
+                    {!place.image && (
+                      <h3 className="font-bold text-primary-dark text-base">
+                        {getLocalizedContent(place.name, language)}
+                      </h3>
                     )}
 
                     {place.category && (

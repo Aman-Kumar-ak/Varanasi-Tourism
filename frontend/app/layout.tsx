@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import Providers from "@/components/providers/Providers";
@@ -7,8 +6,6 @@ import Footer from "@/components/common/Footer";
 import ScrollToTopButton from "@/components/common/ScrollToTopButton";
 import FloatingButtonGroup from "@/components/common/FloatingButtonGroup";
 import BackButton from "@/components/common/BackButton";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Varanasi Tourism Guide",
@@ -28,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} font-sans antialiased flex flex-col min-h-screen`}>
+      <body className="font-sans antialiased flex flex-col min-h-screen">
         <Providers>
           <main className="flex-grow">
             {children}
