@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
 import SectionHeader from './SectionHeader';
 import type { LanguageCode } from '@/lib/constants';
+import { ACCORDION_RESTORE_KEYS, getRestoredAccordionIndex, saveAccordionIndex } from '@/lib/accordionRestore';
 
 interface Hotel {
   name: string;
@@ -49,9 +50,10 @@ const HIGHLIGHT_INTERVAL_MS = 1900;
 export default function PlacesToStay({ hotels, language }: PlacesToStayProps) {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [highlightStep, setHighlightStep] = useState(0);
+  const hasRestoredRef = useRef(false);
 
   const filteredHotels = useMemo(() => {
     return hotels.filter((hotel) => {
@@ -66,6 +68,17 @@ export default function PlacesToStay({ hotels, language }: PlacesToStayProps) {
     setExpandedIndex((prev) => (prev != null && prev >= filteredHotels.length ? 0 : prev));
     setSelectedIndex((prev) => (prev >= filteredHotels.length ? 0 : prev));
   }, [filteredHotels.length]);
+
+  useEffect(() => {
+    if (!filteredHotels.length || hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    const idx = getRestoredAccordionIndex(ACCORDION_RESTORE_KEYS.hotels);
+    if (idx != null && idx >= 0 && idx < filteredHotels.length) setExpandedIndex(idx);
+  }, [filteredHotels.length, filteredHotels]);
+
+  useEffect(() => {
+    saveAccordionIndex(ACCORDION_RESTORE_KEYS.hotels, expandedIndex);
+  }, [expandedIndex]);
 
   const stayClosedIndices = filteredHotels.map((_, i) => i).filter((i) => expandedIndex !== i);
   const stayHighlightedIndex = stayClosedIndices.length > 0 ? stayClosedIndices[highlightStep % stayClosedIndices.length] : -1;

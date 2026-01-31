@@ -1,15 +1,19 @@
 'use client';
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { t } from "@/lib/translations";
 import { useState, useEffect } from "react";
 import { getApiUrl } from "@/lib/utils";
 import QuotesSection from "@/components/city/QuotesSection";
+import BeautifulLoading from "@/components/common/BeautifulLoading";
 
 export default function Home() {
+  const router = useRouter();
   const { language } = useLanguage();
   const [quotes, setQuotes] = useState<any[]>([]);
+  const [navigatingToGuide, setNavigatingToGuide] = useState(false);
 
   useEffect(() => {
     // Fetch quotes
@@ -30,6 +34,10 @@ export default function Home() {
 
     fetchQuotes();
   }, []);
+
+  if (navigatingToGuide) {
+    return <BeautifulLoading />;
+  }
 
   return (
     <div className="min-h-screen">
@@ -98,15 +106,17 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <Link
-                href="/city/varanasi"
-                className="inline-flex items-center justify-center rounded-full px-8 py-3.5 text-base sm:text-lg font-semibold shadow-lg shadow-sky-900/40 bg-white text-slate-900 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-300 focus-visible:ring-offset-primary-blue transition-colors"
-               >
-                 {t("home.hero.cta.primary", language)}
-                <span className="ml-2 text-xl" aria-hidden="true">
-                  ↗
-                </span>
-              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setNavigatingToGuide(true);
+                  router.push('/city/varanasi');
+                }}
+                className="inline-flex items-center justify-center rounded-full px-8 py-3.5 text-base sm:text-lg font-semibold shadow-lg shadow-sky-900/40 bg-white text-slate-900 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-300 focus-visible:ring-offset-primary-blue transition-colors active:scale-[0.98]"
+              >
+                {t("home.hero.cta.primary", language)}
+                <span className="ml-2 text-xl" aria-hidden="true">↗</span>
+              </button>
               <a
                 href="#varanasi-overview"
                 className="inline-flex items-center justify-center rounded-full px-8 py-3.5 text-base sm:text-lg font-medium border border-sky-200/70 text-sky-50/90 hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-sky-200 focus-visible:ring-offset-primary-blue transition-colors"

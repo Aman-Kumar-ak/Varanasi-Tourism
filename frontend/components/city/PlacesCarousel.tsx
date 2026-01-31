@@ -7,6 +7,7 @@ import { getLocalizedContent } from '@/lib/i18n';
 import { openGoogleMapsDirections } from '@/lib/googleMaps';
 import { t } from '@/lib/translations';
 import type { LanguageCode } from '@/lib/constants';
+import { ACCORDION_RESTORE_KEYS, getRestoredAccordionIndex, saveAccordionIndex } from '@/lib/accordionRestore';
 
 interface Place {
   name: {
@@ -51,10 +52,23 @@ const categoryIcons: Record<string, string> = {
 const HIGHLIGHT_INTERVAL_MS = 1900;
 
 export default function PlacesCarousel({ places, language }: PlacesCarouselProps) {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [highlightStep, setHighlightStep] = useState(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const hasRestoredRef = useRef(false);
+
+  // Restore open accordion after language change (cleared on refresh by city page)
+  useEffect(() => {
+    if (!places?.length || hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    const idx = getRestoredAccordionIndex(ACCORDION_RESTORE_KEYS.places);
+    if (idx != null && idx >= 0 && idx < places.length) setExpandedIndex(idx);
+  }, [places?.length, places]);
+
+  useEffect(() => {
+    saveAccordionIndex(ACCORDION_RESTORE_KEYS.places, expandedIndex);
+  }, [expandedIndex]);
 
   const closedIndices = places.map((_, i) => i).filter((i) => expandedIndex !== i);
   const highlightedIndex = closedIndices.length > 0 ? closedIndices[highlightStep % closedIndices.length] : -1;
@@ -104,7 +118,7 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                 <button
                   type="button"
                   onClick={() => toggleExpand(index)}
-                  className={`flex items-center text-left transition-colors touch-manipulation ${isExpanded ? 'absolute top-2 right-2 z-20 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white shadow-sm border border-slate-200/80 justify-center items-center p-0 text-primary-dark hover:bg-white active:bg-white hover:scale-100 active:scale-100 cursor-default' : 'w-full gap-3 px-4 py-3.5 bg-white hover:bg-teal-50/50 active:bg-teal-50'} ${!isExpanded && index === highlightedIndex ? 'accordion-highlight-places' : ''}`}
+                  className={`flex items-center text-left transition-colors touch-manipulation ${isExpanded ? 'absolute right-4 z-20 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white shadow-sm border border-slate-200/80 justify-center items-center p-0 text-primary-dark hover:bg-white active:bg-white hover:scale-100 active:scale-100 cursor-default top-[1.375rem]' : 'w-full gap-3 px-4 py-3.5 bg-white hover:bg-teal-50/50 active:bg-teal-50'} ${!isExpanded && index === highlightedIndex ? 'accordion-highlight-places' : ''}`}
                   aria-expanded={isExpanded}
                   aria-controls={`place-accordion-${index}`}
                   id={`place-accordion-heading-${index}`}
@@ -113,13 +127,13 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                     <>
                       {/* Thumbnail or icon – hidden when expanded */}
                       {place.image ? (
-                        <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
+                        <div className="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100 border-0">
                           <Image
                             src={place.image}
                             alt=""
                             fill
                             sizes="48px"
-                            className="object-cover"
+                            className="object-cover border-0 outline-none"
                           />
                         </div>
                       ) : (
@@ -160,15 +174,20 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                   <div className="px-4 pb-4 pt-0 space-y-3 bg-gradient-to-b from-premium-peach/20 to-white/80">
                     {/* Hero image when expanded – full-bleed from top (no white strip); title at bottom-left; minus button floats above */}
                     {place.image && (
-                      <div className={`relative -mx-4 h-52 overflow-hidden ${index === 0 ? 'rounded-t-2xl' : ''}`}>
+                      <div className={`relative -mx-4 h-52 overflow-hidden border-0 ${index === 0 ? 'rounded-t-2xl' : ''}`}>
                         <Image
                           src={place.image}
                           alt={getLocalizedContent(place.name, language)}
                           fill
                           sizes="100vw"
-                          className="object-cover"
+                          className="object-cover border-0 outline-none"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+                        {/* White/peach blur below the title – matches PC view; starts below the text */}
+                        <div
+                          className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-premium-peach to-transparent pointer-events-none"
+                          aria-hidden
+                        />
                         <h3 className="absolute bottom-0 left-0 right-0 p-4 text-lg font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] break-words text-left">
                           {getLocalizedContent(place.name, language)}
                         </h3>
@@ -219,7 +238,7 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                       )}
                     </div>
 
-                    {/* Know More CTA – opens map when location available */}
+                    {/* Directions CTA – opens map when location available */}
                     <button
                       type="button"
                       onClick={(e) => {
@@ -234,7 +253,7 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       </svg>
-                      {t('know.more', language)}
+                      {t('directions', language)}
                     </button>
                   </div>
                 </div>
@@ -254,13 +273,13 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
               <div className="h-1 w-full bg-gradient-to-r from-premium-teal via-premium-teal-light to-premium-teal flex-shrink-0" aria-hidden />
               {/* Hero image – no gap below */}
               {featuredPlace.image && (
-                <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
+                <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden border-0">
                   <Image
                     src={featuredPlace.image}
                     alt={getLocalizedContent(featuredPlace.name, language)}
                     fill
                     sizes="(min-width: 1024px) 66vw, (min-width: 640px) 58vw, 100vw"
-                    className="object-cover"
+                    className="object-cover border-0 outline-none"
                   />
                   {/* No overlay on upper part – keep image clear; only bottom gradient for card blend */}
                   {/* Bottom gradient so image disperses into the card below */}

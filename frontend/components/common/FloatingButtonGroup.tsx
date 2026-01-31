@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import UserMenu from './UserMenu';
 import LoginModal from '@/components/auth/LoginModal';
 import FontSizeControl from './FontSizeControl';
@@ -10,11 +11,17 @@ import LanguageSelector from './LanguageSelector';
 
 export default function FloatingButtonGroup() {
   const { isAuthenticated } = useAuth();
+  const { language } = useLanguage();
   const searchParams = useSearchParams();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const settingsPanelRef = useRef<HTMLDivElement>(null);
+
+  // Close the settings panel as soon as the user changes language
+  useEffect(() => {
+    setIsSettingsOpen(false);
+  }, [language]);
 
   // Check if loading screen is active
   useEffect(() => {

@@ -6,6 +6,7 @@ import { getLocalizedContent } from '@/lib/i18n';
 import { t } from '@/lib/translations';
 import type { LanguageCode } from '@/lib/constants';
 import SectionHeader from './SectionHeader';
+import { ACCORDION_RESTORE_KEYS, getRestoredAccordionIndex, saveAccordionIndex } from '@/lib/accordionRestore';
 
 interface WellnessCenter {
   name: string;
@@ -74,10 +75,22 @@ function getPriceRangeColor(range: string) {
 const HIGHLIGHT_INTERVAL_MS = 1900;
 
 export default function WellnessRetreats({ centers, language }: WellnessRetreatsProps) {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [highlightStep, setHighlightStep] = useState(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const hasRestoredRef = useRef(false);
+
+  useEffect(() => {
+    if (!centers?.length || hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    const idx = getRestoredAccordionIndex(ACCORDION_RESTORE_KEYS.wellness);
+    if (idx != null && idx >= 0 && idx < centers.length) setExpandedIndex(idx);
+  }, [centers?.length, centers]);
+
+  useEffect(() => {
+    saveAccordionIndex(ACCORDION_RESTORE_KEYS.wellness, expandedIndex);
+  }, [expandedIndex]);
 
   const closedIndices = centers.map((_, i) => i).filter((i) => expandedIndex !== i);
   const highlightedIndex = closedIndices.length > 0 ? closedIndices[highlightStep % closedIndices.length] : -1;

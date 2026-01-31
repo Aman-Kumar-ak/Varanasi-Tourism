@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
 import SectionHeader from './SectionHeader';
 import type { LanguageCode } from '@/lib/constants';
+import { ACCORDION_RESTORE_KEYS, getRestoredAccordionIndex, saveAccordionIndex } from '@/lib/accordionRestore';
 
 interface Restaurant {
   name: string;
@@ -28,10 +29,22 @@ interface CuisineSectionProps {
 const HIGHLIGHT_INTERVAL_MS = 1900;
 
 export default function CuisineSection({ restaurants, language }: CuisineSectionProps) {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [highlightStep, setHighlightStep] = useState(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const hasRestoredRef = useRef(false);
+
+  useEffect(() => {
+    if (!restaurants?.length || hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    const idx = getRestoredAccordionIndex(ACCORDION_RESTORE_KEYS.cuisine);
+    if (idx != null && idx >= 0 && idx < restaurants.length) setExpandedIndex(idx);
+  }, [restaurants?.length, restaurants]);
+
+  useEffect(() => {
+    saveAccordionIndex(ACCORDION_RESTORE_KEYS.cuisine, expandedIndex);
+  }, [expandedIndex]);
 
   const closedIndices = restaurants.map((_, i) => i).filter((i) => expandedIndex !== i);
   const highlightedIndex = closedIndices.length > 0 ? closedIndices[highlightStep % closedIndices.length] : -1;

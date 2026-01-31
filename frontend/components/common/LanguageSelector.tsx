@@ -1,19 +1,26 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SUPPORTED_LANGUAGES, type LanguageCode } from '@/lib/constants';
+
+/** SessionStorage key for restoring scroll after language change (used when a full-page loading screen is shown). */
+export const LANGUAGE_CHANGE_SCROLL_KEY = 'languageChangeScrollRestore';
 
 interface LanguageSelectorProps {
   disableHover?: boolean;
   variant?: 'default' | 'footer';
 }
 
+/** Routes that show full-page loading on language change; only the page component should restore scroll. */
+const ROUTES_WITH_LOADING_ON_LANG_CHANGE = /^\/city\/[^/]+$/;
+
 export default function LanguageSelector({ disableHover = false, variant = 'default' }: LanguageSelectorProps) {
+  const pathname = usePathname();
   const { language, setLanguage, getNativeLanguageName } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const scrollPositionRef = useRef<number | null>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -29,26 +36,29 @@ export default function LanguageSelector({ disableHover = false, variant = 'defa
     };
   }, []);
 
-  // Restore scroll position after language change
+  // Restore scroll after language change. Skip on city page (and similar) — that page restores after its loading finishes.
   useEffect(() => {
-    if (scrollPositionRef.current !== null) {
-      // Use requestAnimationFrame to ensure DOM has updated
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          window.scrollTo({
-            top: scrollPositionRef.current!,
-            behavior: 'instant' as ScrollBehavior
-          });
-          scrollPositionRef.current = null;
-        });
-      });
+    const scrollY = sessionStorage.getItem(LANGUAGE_CHANGE_SCROLL_KEY);
+    if (scrollY === null) return;
+    const path = typeof pathname === 'string' ? pathname : '';
+    if (ROUTES_WITH_LOADING_ON_LANG_CHANGE.test(path)) return;
+
+    const position = parseInt(scrollY, 10);
+    if (!Number.isFinite(position)) {
+      sessionStorage.removeItem(LANGUAGE_CHANGE_SCROLL_KEY);
+      return;
     }
-  }, [language]);
+    sessionStorage.removeItem(LANGUAGE_CHANGE_SCROLL_KEY);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: position, behavior: 'instant' as ScrollBehavior });
+      });
+    });
+  }, [language, pathname]);
 
   const handleLanguageChange = (langCode: LanguageCode) => {
-    // Save current scroll position before changing language
-    scrollPositionRef.current = window.scrollY || document.documentElement.scrollTop;
-    
+    const scrollY = window.scrollY ?? document.documentElement.scrollTop;
+    sessionStorage.setItem(LANGUAGE_CHANGE_SCROLL_KEY, String(scrollY));
     setLanguage(langCode);
     setIsOpen(false);
   };

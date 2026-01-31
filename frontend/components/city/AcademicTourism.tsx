@@ -6,6 +6,7 @@ import { getLocalizedContent } from '@/lib/i18n';
 import { t } from '@/lib/translations';
 import type { LanguageCode } from '@/lib/constants';
 import SectionHeader from './SectionHeader';
+import { ACCORDION_RESTORE_KEYS, getRestoredAccordionIndex, saveAccordionIndex } from '@/lib/accordionRestore';
 
 interface AcademicInstitution {
   name: string;
@@ -50,10 +51,22 @@ function getTypeIcon(type: string) {
 const HIGHLIGHT_INTERVAL_MS = 1900;
 
 export default function AcademicTourism({ institutions, language }: AcademicTourismProps) {
-  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [highlightStep, setHighlightStep] = useState(0);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const hasRestoredRef = useRef(false);
+
+  useEffect(() => {
+    if (!institutions?.length || hasRestoredRef.current) return;
+    hasRestoredRef.current = true;
+    const idx = getRestoredAccordionIndex(ACCORDION_RESTORE_KEYS.academic);
+    if (idx != null && idx >= 0 && idx < institutions.length) setExpandedIndex(idx);
+  }, [institutions?.length, institutions]);
+
+  useEffect(() => {
+    saveAccordionIndex(ACCORDION_RESTORE_KEYS.academic, expandedIndex);
+  }, [expandedIndex]);
 
   const closedIndices = institutions.map((_, i) => i).filter((i) => expandedIndex !== i);
   const highlightedIndex = closedIndices.length > 0 ? closedIndices[highlightStep % closedIndices.length] : -1;
@@ -108,9 +121,11 @@ export default function AcademicTourism({ institutions, language }: AcademicTour
                   <p className="text-primary-dark/90 text-sm leading-relaxed">{getLocalizedContent(institution.description, language)}</p>
                   {institution.notableFeatures && <p className="text-xs text-primary-dark/80">{getLocalizedContent(institution.notableFeatures, language)}</p>}
                   <p className="text-xs text-primary-dark/70">📍 {institution.address}</p>
-                  {institution.campusTour && <span className="inline-block text-xs font-semibold text-primary-gold">👥 {t('campus.tours.available', language)}</span>}
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
+                    {institution.campusTour && <span className="text-xs font-semibold text-primary-gold">👥 {t('campus.tours.available', language)}</span>}
+                    {institution.website && <a href={institution.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-blue font-semibold hover:underline">Visit website →</a>}
+                  </div>
                   {institution.contact && <p className="text-xs text-primary-dark/80">📞 {institution.contact}</p>}
-                  {institution.website && <a href={institution.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-blue font-semibold hover:underline">Visit website →</a>}
                 </div>
               )}
             </div>

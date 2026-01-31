@@ -18,6 +18,20 @@ import AcademicTourism from './AcademicTourism';
 import QuotesSection from './QuotesSection';
 import CuisineSection from './CuisineSection';
 import PlacesToStay from './PlacesToStay';
+import ContentModal from './ContentModal';
+import { ACCORDION_RESTORE_KEYS, getRestoredAccordionIndex, saveAccordionIndex } from '@/lib/accordionRestore';
+
+/** Show more content in the card when space allows; "Know More" only when content is actually truncated. */
+const PREVIEW_CHARS = 480;
+
+function truncateForPreview(text: string, maxChars: number = PREVIEW_CHARS): { text: string; truncated: boolean } {
+  const trimmed = (text || '').trim();
+  if (trimmed.length <= maxChars) return { text: trimmed, truncated: false };
+  const cut = trimmed.slice(0, maxChars);
+  const lastSpace = cut.lastIndexOf(' ');
+  const end = lastSpace > maxChars * 0.6 ? lastSpace : maxChars;
+  return { text: cut.slice(0, end).trim() + '…', truncated: true };
+}
 
 interface City {
   _id: string;
@@ -276,19 +290,37 @@ export default function ComprehensiveCityGuide({
   language,
   quotes = [],
 }: ComprehensiveCityGuideProps) {
-  const [ritualExpandedIndex, setRitualExpandedIndex] = useState<number | null>(0);
+  const [ritualExpandedIndex, setRitualExpandedIndex] = useState<number | null>(null);
   const [ritualSelectedIndex, setRitualSelectedIndex] = useState(0);
   const [ritualHighlightStep, setRitualHighlightStep] = useState(0);
-  const [festivalExpandedIndex, setFestivalExpandedIndex] = useState<number | null>(0);
+  const [festivalExpandedIndex, setFestivalExpandedIndex] = useState<number | null>(null);
   const [festivalSelectedIndex, setFestivalSelectedIndex] = useState(0);
   const [festivalHighlightStep, setFestivalHighlightStep] = useState(0);
-  const [spiritualExpanded, setSpiritualExpanded] = useState(true);
-  const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [contentModal, setContentModal] = useState<'spiritual' | 'history' | 'darshan' | 'transport' | null>(null);
   const [heroTextSmall, setHeroTextSmall] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoDurationRef = useRef<number>(0);
   const ritualCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const festivalCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const accordionRestoredRef = useRef(false);
+
+  // Restore ritual/festival accordion after language change (cleared on refresh by city page)
+  useEffect(() => {
+    if (accordionRestoredRef.current) return;
+    accordionRestoredRef.current = true;
+    const ritualIdx = getRestoredAccordionIndex(ACCORDION_RESTORE_KEYS.rituals);
+    if (ritualIdx != null && city.rituals?.length && ritualIdx >= 0 && ritualIdx < city.rituals.length) setRitualExpandedIndex(ritualIdx);
+    const festivalIdx = getRestoredAccordionIndex(ACCORDION_RESTORE_KEYS.festivals);
+    if (festivalIdx != null && city.festivals?.length && festivalIdx >= 0 && festivalIdx < city.festivals.length) setFestivalExpandedIndex(festivalIdx);
+  }, [city.rituals?.length, city.festivals?.length]);
+
+  useEffect(() => {
+    saveAccordionIndex(ACCORDION_RESTORE_KEYS.rituals, ritualExpandedIndex);
+  }, [ritualExpandedIndex]);
+
+  useEffect(() => {
+    saveAccordionIndex(ACCORDION_RESTORE_KEYS.festivals, festivalExpandedIndex);
+  }, [festivalExpandedIndex]);
 
   const ritualClosedIndices = city.rituals ? city.rituals.map((_, i) => i).filter((i) => ritualExpandedIndex !== i) : [];
   const ritualHighlightedIndex = ritualClosedIndices.length > 0 ? ritualClosedIndices[ritualHighlightStep % ritualClosedIndices.length] : -1;
@@ -306,9 +338,10 @@ export default function ComprehensiveCityGuide({
     return () => clearInterval(t);
   }, [festivalClosedIndices.length]);
 
-  // Scroll expanded ritual card into view (below floating buttons)
+  // Scroll expanded ritual card into view on desktop only; on mobile skip to avoid auto-scroll on open/load
   useEffect(() => {
     if (ritualExpandedIndex == null || !city.rituals?.length) return;
+    if (typeof window !== 'undefined' && window.innerWidth < 640) return;
     const el = ritualCardRefs.current[ritualExpandedIndex];
     if (el) {
       const timeoutId = window.setTimeout(() => {
@@ -318,9 +351,10 @@ export default function ComprehensiveCityGuide({
     }
   }, [ritualExpandedIndex, city.rituals?.length]);
 
-  // Scroll expanded festival card into view (below floating buttons)
+  // Scroll expanded festival card into view on desktop only; on mobile skip to avoid auto-scroll on open/load
   useEffect(() => {
     if (festivalExpandedIndex == null || !city.festivals?.length) return;
+    if (typeof window !== 'undefined' && window.innerWidth < 640) return;
     const el = festivalCardRefs.current[festivalExpandedIndex];
     if (el) {
       const timeoutId = window.setTimeout(() => {
@@ -413,91 +447,131 @@ export default function ComprehensiveCityGuide({
           <QuotesSection quotes={quotes} language={language} />
         )}
 
-        {/* Spiritual Significance – collapsible on mobile */}
-        {city.spiritualSignificance && (
-          <section className="mb-12">
-            <div className="sm:hidden rounded-2xl overflow-hidden border border-primary-gold/20 bg-white/90 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setSpiritualExpanded((e) => !e)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 text-left bg-transparent hover:bg-amber-50/50 active:bg-amber-50 transition-colors touch-manipulation"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary-gold/10 flex items-center justify-center text-xl flex-shrink-0">🕉️</div>
-                <div className="flex-1 min-w-0">
-                  <span className="font-bold text-primary-dark text-sm block">{t('spiritual.significance', language)}</span>
-                  <span className="text-xs text-primary-dark/70">{t('why.city.sacred', language)}</span>
+        {/* Spiritual Significance – summary + Know More popup */}
+        {city.spiritualSignificance && (() => {
+          const full = getLocalizedContent(city.spiritualSignificance, language);
+          const { text: preview, truncated } = truncateForPreview(full);
+          return (
+            <section className="mb-12">
+              <div className="sm:hidden rounded-2xl overflow-hidden border border-primary-gold/20 bg-white/90 shadow-sm">
+                <div className="px-4 py-3.5 flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-primary-gold/10 flex items-center justify-center text-xl flex-shrink-0">🕉️</div>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-bold text-primary-dark text-sm block">{t('spiritual.significance', language)}</span>
+                    <span className="text-xs text-primary-dark/70">{t('why.city.sacred', language)}</span>
+                  </div>
                 </div>
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-gold/10 flex items-center justify-center text-primary-gold">
-                  {spiritualExpanded ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-                  )}
-                </span>
-              </button>
-              {spiritualExpanded && (
-                <div className="px-4 pb-4 pt-0 border-t border-amber-100">
-                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-sm pt-3">
-                    {getLocalizedContent(city.spiritualSignificance, language)}
+                <div className="px-4 pb-4 pt-0">
+                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-sm">
+                    {preview}
                   </p>
+                  {truncated && (
+                    <button
+                      type="button"
+                      onClick={() => setContentModal('spiritual')}
+                      className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-gold/90 text-white py-2.5 px-4 text-sm font-semibold hover:bg-primary-gold active:scale-[0.98] transition-all touch-manipulation"
+                    >
+                      {t('know.more', language)}
+                    </button>
+                  )}
                 </div>
-              )}
-            </div>
-            <div className="hidden sm:block">
-              <SectionHeader title={t('spiritual.significance', language)} icon="🕉️" subtitle={t('why.city.sacred', language)} />
-              <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-                <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg relative z-10">
-                  {getLocalizedContent(city.spiritualSignificance, language)}
+              </div>
+              <div className="hidden sm:block">
+                <SectionHeader title={t('spiritual.significance', language)} icon="🕉️" subtitle={t('why.city.sacred', language)} />
+                <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
+                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg relative z-10">
+                    {preview}
+                  </p>
+                  {truncated && (
+                    <button
+                      type="button"
+                      onClick={() => setContentModal('spiritual')}
+                      className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary-gold/90 text-white py-2.5 px-5 text-sm font-semibold hover:bg-primary-gold active:scale-[0.98] transition-all"
+                    >
+                      {t('know.more', language)}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <ContentModal
+                isOpen={contentModal === 'spiritual'}
+                onClose={() => setContentModal(null)}
+                title={t('spiritual.significance', language)}
+                subtitle={t('why.city.sacred', language)}
+                icon="🕉️"
+              >
+                <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg">
+                  {full}
                 </p>
-              </div>
-            </div>
-          </section>
-        )}
+              </ContentModal>
+            </section>
+          );
+        })()}
 
-        {/* History – collapsible on mobile */}
-        {city.history && (
-          <section className="mb-16 animate-fade-in-up">
-            <div className="sm:hidden rounded-2xl overflow-hidden border border-primary-saffron/20 bg-white/90 shadow-sm">
-              <button
-                type="button"
-                onClick={() => setHistoryExpanded((e) => !e)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 text-left bg-transparent hover:bg-orange-50/50 active:bg-orange-50 transition-colors touch-manipulation"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary-saffron/10 flex items-center justify-center text-xl flex-shrink-0">📜</div>
-                <div className="flex-1 min-w-0">
-                  <span className="font-bold text-primary-dark text-sm block">{t('history', language)}</span>
-                  <span className="text-xs text-primary-dark/70">{t('historical.background', language)}</span>
+        {/* History – summary + Know More only when content is truncated */}
+        {city.history && (() => {
+          const full = getLocalizedContent(city.history, language);
+          const { text: preview, truncated } = truncateForPreview(full);
+          return (
+            <section className="mb-16 animate-fade-in-up">
+              <div className="sm:hidden rounded-2xl overflow-hidden border border-primary-saffron/20 bg-white/90 shadow-sm">
+                <div className="px-4 py-3.5 flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-primary-saffron/10 flex items-center justify-center text-xl flex-shrink-0">📜</div>
+                  <div className="flex-1 min-w-0">
+                    <span className="font-bold text-primary-dark text-sm block">{t('history', language)}</span>
+                    <span className="text-xs text-primary-dark/70">{t('historical.background', language)}</span>
+                  </div>
                 </div>
-                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-primary-saffron/10 flex items-center justify-center text-primary-saffron">
-                  {historyExpanded ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
+                <div className="px-4 pb-4 pt-0">
+                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-sm">
+                    {preview}
+                  </p>
+                  {truncated && (
+                    <button
+                      type="button"
+                      onClick={() => setContentModal('history')}
+                      className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-saffron/90 text-white py-2.5 px-4 text-sm font-semibold hover:bg-primary-saffron active:scale-[0.98] transition-all touch-manipulation"
+                    >
+                      {t('know.more', language)}
+                    </button>
                   )}
-                </span>
-              </button>
-              {historyExpanded && (
-                <div className="px-4 pb-4 pt-0 border-t border-orange-100">
-                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-sm pt-3">
-                    {getLocalizedContent(city.history, language)}
-                  </p>
-                </div>
-              )}
-            </div>
-            <div className="hidden sm:block">
-              <SectionHeader title={t('history', language)} icon="📜" subtitle={t('historical.background', language)} />
-              <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-                <div className="flex items-start gap-4 sm:gap-5 relative z-10">
-                  <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg flex-1">
-                    {getLocalizedContent(city.history, language)}
-                  </p>
                 </div>
               </div>
-            </div>
-          </section>
-        )}
+              <div className="hidden sm:block">
+                <SectionHeader title={t('history', language)} icon="📜" subtitle={t('historical.background', language)} />
+                <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-saffron relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
+                  <div className="flex items-start gap-4 sm:gap-5 relative z-10">
+                    <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg flex-1">
+                      {preview}
+                    </p>
+                  </div>
+                  {truncated && (
+                    <button
+                      type="button"
+                      onClick={() => setContentModal('history')}
+                      className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-primary-saffron/90 text-white py-2.5 px-5 text-sm font-semibold hover:bg-primary-saffron active:scale-[0.98] transition-all"
+                    >
+                      {t('know.more', language)}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <ContentModal
+                isOpen={contentModal === 'history'}
+                onClose={() => setContentModal(null)}
+                title={t('history', language)}
+                subtitle={t('historical.background', language)}
+                icon="📜"
+              >
+                <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-base sm:text-lg">
+                  {full}
+                </p>
+              </ContentModal>
+            </section>
+          );
+        })()}
 
         {/* Places to Visit – premium section; minimal side padding on phone so cards use full width */}
         {city.places && city.places.length > 0 && (
@@ -775,7 +849,7 @@ export default function ComprehensiveCityGuide({
           <AcademicTourism institutions={city.academicInstitutions} language={language} />
         )}
 
-        {/* Darshan Information */}
+        {/* Darshan Information – full content visible, no Know More */}
         {city.darshanInfo && (
           <section className="mb-8 sm:mb-12">
             <SectionHeader
@@ -786,14 +860,12 @@ export default function ComprehensiveCityGuide({
             <div className="rounded-2xl overflow-hidden bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)] border border-slate-200/60">
               <div className="h-1.5 w-full bg-gradient-to-r from-primary-gold via-primary-orange to-primary-saffron" aria-hidden />
               <div className="px-4 py-5 sm:p-6 md:p-8">
-                {/* Content: readable on phone – line-height and spacing */}
                 <div className="mb-5 sm:mb-6">
                   <p className="text-[15px] sm:text-base md:text-lg text-primary-dark/90 leading-[1.65] sm:leading-relaxed whitespace-pre-line max-w-none">
                     {getLocalizedContent(city.darshanInfo, language)}
                   </p>
                 </div>
 
-                {/* CTA: full-width button on phone, badge below */}
                 {city.officialBookingUrl && (
                   <div className="pt-4 sm:pt-5 border-t border-slate-200/80">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
@@ -856,22 +928,23 @@ export default function ComprehensiveCityGuide({
 
         {/* Transport & Info Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 lg:gap-8 mb-10 sm:mb-12">
-          {/* Transport Info */}
-          <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden h-full">
-            {/* Decorative gradient background */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
-            <div className="flex items-center gap-5 mb-6 relative z-10">
-              <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-3xl shadow-temple">
-                🚗
+          {/* Transport Info – full content visible, no Know More */}
+          {city.transportInfo && (
+            <div className="card-modern rounded-2xl p-5 sm:p-6 md:p-8 shadow-temple border-l-4 border-primary-gold relative overflow-hidden h-full">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-temple opacity-5 rounded-full -mr-16 -mt-16"></div>
+              <div className="flex items-center gap-5 mb-6 relative z-10">
+                <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-temple flex items-center justify-center text-3xl shadow-temple">
+                  🚗
+                </div>
+                <h3 className="text-2xl font-bold text-primary-dark">
+                  Transport Information
+                </h3>
               </div>
-              <h3 className="text-2xl font-bold text-primary-dark">
-                Transport Information
-              </h3>
+              <p className="text-sm sm:text-base text-primary-dark/80 leading-relaxed relative z-10 whitespace-pre-line">
+                {getLocalizedContent(city.transportInfo, language)}
+              </p>
             </div>
-            <p className="text-sm sm:text-base text-primary-dark/80 leading-relaxed relative z-10">
-              {getLocalizedContent(city.transportInfo, language)}
-            </p>
-          </div>
+          )}
 
           {/* Weather & Best Time */}
           {city.weatherInfo && (
