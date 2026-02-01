@@ -63,9 +63,23 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
   const [slideOffset, setSlideOffset] = useState(SLIDE_OFFSET_IDLE);
   const [mobileSlideOffset, setMobileSlideOffset] = useState(MOBILE_OFFSET_IDLE);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [touchDragPct, setTouchDragPct] = useState(0);
   const pendingIndexRef = useRef<number>(0);
+  const mobileStripRef = useRef<HTMLDivElement>(null);
+  const mobileViewportRef = useRef<HTMLDivElement>(null);
+  const touchStartXRef = useRef(0);
+  const touchStartYRef = useRef(0);
+  const touchStartTimeRef = useRef(0);
+  const touchDragPctRef = useRef(0);
+  const isSnapBackRef = useRef(false);
 
   const totalItems = quotes?.length ?? 0;
+
+  // Mobile: strip follows finger during drag; combine with slide offset when not dragging
+  const mobileStripTranslate = isDragging
+    ? MOBILE_OFFSET_IDLE + touchDragPct
+    : mobileSlideOffset;
 
   const goTo = useCallback((direction: 'left' | 'right') => {
     if (totalItems <= 1 || isAnimating) return;
@@ -93,15 +107,81 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
 
   const handleTransitionEnd = useCallback(() => {
     if (!isAnimating) return;
+    if (isSnapBackRef.current) {
+      isSnapBackRef.current = false;
+      setIsAnimating(false);
+      return;
+    }
     setCurrentIndex(pendingIndexRef.current);
     setIsAnimating(false);
     if (isMobile) {
       requestAnimationFrame(() => setMobileSlideOffset(MOBILE_OFFSET_IDLE));
     } else {
-      // Reset to idle offset; with 7 cards, new strip's indices 2,3,4 = same content we're showing → no jump
       requestAnimationFrame(() => setSlideOffset(SLIDE_OFFSET_IDLE));
     }
   }, [isAnimating, isMobile]);
+
+  // Swipe: distance threshold (% of card) or velocity (px/ms) – fast flicks change slide even if distance is short
+  const SWIPE_DISTANCE_PCT = 12;
+  const SWIPE_VELOCITY_PX_MS = 0.35;
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (totalItems <= 1) return;
+      touchStartXRef.current = e.touches[0].clientX;
+      touchStartYRef.current = e.touches[0].clientY;
+      touchStartTimeRef.current = Date.now();
+      setIsDragging(true);
+      setTouchDragPct(0);
+      touchDragPctRef.current = 0;
+    },
+    [totalItems]
+  );
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isDragging || totalItems <= 1) return;
+      const viewport = mobileViewportRef.current;
+      if (!viewport) return;
+      const width = viewport.getBoundingClientRect().width;
+      if (width <= 0) return;
+      const deltaX = e.touches[0].clientX - touchStartXRef.current;
+      const deltaY = e.touches[0].clientY - touchStartYRef.current;
+      // Prefer horizontal: only follow if more horizontal than vertical (or already moved a bit horizontally)
+      if (Math.abs(deltaX) < 8 && Math.abs(deltaY) > Math.abs(deltaX)) return;
+      const pct = (-deltaX / width) * 100;
+      const clamped = Math.max(-100 / 3, Math.min(100 / 3, pct));
+      touchDragPctRef.current = clamped;
+      setTouchDragPct(clamped);
+    },
+    [isDragging, totalItems]
+  );
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging || totalItems <= 1) return;
+    const pct = touchDragPctRef.current;
+    const viewport = mobileViewportRef.current;
+    const width = viewport?.getBoundingClientRect().width ?? 0;
+    const deltaTime = Math.max(50, Date.now() - touchStartTimeRef.current);
+    const deltaXpx = -pct * (width / 100);
+    const velocity = deltaXpx / deltaTime;
+
+    setIsDragging(false);
+    setTouchDragPct(0);
+
+    const shouldGoNext = pct > SWIPE_DISTANCE_PCT || velocity < -SWIPE_VELOCITY_PX_MS;
+    const shouldGoPrev = pct < -SWIPE_DISTANCE_PCT || velocity > SWIPE_VELOCITY_PX_MS;
+
+    if (shouldGoNext) {
+      goTo('right');
+    } else if (shouldGoPrev) {
+      goTo('left');
+    } else {
+      isSnapBackRef.current = true;
+      setIsAnimating(true);
+      setMobileSlideOffset(MOBILE_OFFSET_IDLE + pct);
+      requestAnimationFrame(() => {
+        setMobileSlideOffset(MOBILE_OFFSET_IDLE);
+      });
+    }
+  }, [isDragging, totalItems, goTo]);
 
   useEffect(() => {
     if (totalItems <= 1) return;
@@ -152,34 +232,34 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
               : 'scale-90 opacity-55 z-0'
         }`}
       >
-        <div className={`flex flex-row flex-1 min-h-0 ${compact ? 'min-h-[168px]' : 'min-h-[280px]'} sm:min-h-[300px]`}>
+        <div className={`flex flex-row flex-1 min-h-0 ${compact ? 'min-h-[208px]' : 'min-h-[280px]'} sm:min-h-[300px]`}>
           {/* Left: content – text justifies; quote area scrolls when long (desktop strip) */}
-          <div className={`flex flex-1 min-w-0 min-h-0 flex-col ${compact ? 'p-2.5 pr-1.5' : 'py-3 px-4 sm:py-4 sm:px-5 md:px-6 pr-4 sm:pr-5'}`}>
+          <div className={`flex flex-1 min-w-0 min-h-0 flex-col ${compact ? 'p-3 pr-2' : 'py-3 px-4 sm:py-4 sm:px-5 md:px-6 pr-4 sm:pr-5'}`}>
             {/* Author name – top of content block */}
-            <p className={`flex-shrink-0 ${compact ? 'text-sm' : 'text-lg sm:text-xl'} font-bold text-amber-600 multilingual-text mb-0.5`}>
+            <p className={`flex-shrink-0 ${compact ? 'text-base' : 'text-lg sm:text-xl'} font-bold text-amber-600 multilingual-text mb-0.5`}>
               {quote.author}
             </p>
             {quote.source && (
-              <p className={`flex-shrink-0 ${compact ? 'text-[11px]' : 'text-sm'} text-primary-dark/60 multilingual-text ${compact ? 'mb-1' : 'mb-2'}`}>
+              <p className={`flex-shrink-0 ${compact ? 'text-xs' : 'text-sm'} text-primary-dark/60 multilingual-text ${compact ? 'mb-1' : 'mb-2'}`}>
                 {getLocalizedContent(quote.source, language)}
               </p>
             )}
             <div className={`flex-shrink-0 ${compact ? 'w-8' : 'w-10'} h-px bg-slate-200 ${compact ? 'mb-1' : 'mb-2'}`} aria-hidden />
             {/* Quote – justified; scrolls inside card when content overflows (symmetric card height) */}
-            <p className={`flex-1 min-h-0 overflow-y-auto ${compact ? 'text-[11px] leading-snug overflow-hidden' : 'text-sm sm:text-base leading-relaxed'} text-justify multilingual-text break-words`}>
+            <p className={`flex-1 min-h-0 overflow-y-auto ${compact ? 'text-[13px] leading-snug overflow-hidden' : 'text-sm sm:text-base leading-relaxed'} text-justify multilingual-text break-words`}>
               {getLocalizedContent(quote.quote, language)}
             </p>
           </div>
 
           {/* Right: full-height image; on mobile (compact) use smaller width */}
-          <div className={`relative flex-shrink-0 overflow-hidden self-stretch ${compact ? 'w-20 min-h-[168px]' : 'w-40 sm:w-44 md:w-48 min-h-0'} sm:w-44 md:w-48 sm:min-h-0`}>
+          <div className={`relative flex-shrink-0 overflow-hidden self-stretch ${compact ? 'w-24 min-h-[208px]' : 'w-40 sm:w-44 md:w-48 min-h-0'} sm:w-44 md:w-48 sm:min-h-0`}>
             {quote.image ? (
               <Image
                 src={quote.image}
                 alt={quote.author}
                 fill
                 className="object-cover"
-                sizes="(max-width: 639px) 80px, 192px"
+                sizes="(max-width: 639px) 96px, 192px"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.style.display = 'none';
@@ -214,7 +294,7 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                 type="button"
                 onClick={() => goTo('left')}
                 disabled={isAnimating}
-                className="quotes-arrow-btn absolute left-0 top-1/2 -translate-y-1/2 z-20 rounded-full bg-[#B45309] text-white border border-[#92400E] hover:bg-[#92400E] hover:border-[#78350F] active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#92400E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF8F5] disabled:opacity-60 disabled:pointer-events-none flex items-center justify-center flex-shrink-0"
+                className="quotes-arrow-btn absolute left-0 top-1/2 -translate-y-1/2 z-20 rounded-full bg-[#B45309] text-white border border-[#92400E] hover:bg-[#92400E] hover:border-[#78350F] active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#92400E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF8F5] disabled:opacity-60 disabled:pointer-events-none hidden sm:flex items-center justify-center flex-shrink-0"
                 style={{ width: 'var(--quotes-arrow-size)', height: 'var(--quotes-arrow-size)', minWidth: 'var(--quotes-arrow-size)', minHeight: 'var(--quotes-arrow-size)' }}
                 aria-label="Previous quote"
               >
@@ -226,7 +306,7 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                 type="button"
                 onClick={() => goTo('right')}
                 disabled={isAnimating}
-                className="quotes-arrow-btn absolute right-0 top-1/2 -translate-y-1/2 z-20 rounded-full bg-[#B45309] text-white border border-[#92400E] hover:bg-[#92400E] hover:border-[#78350F] active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#92400E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF8F5] disabled:opacity-60 disabled:pointer-events-none flex items-center justify-center flex-shrink-0"
+                className="quotes-arrow-btn absolute right-0 top-1/2 -translate-y-1/2 z-20 rounded-full bg-[#B45309] text-white border border-[#92400E] hidden sm:flex hover:bg-[#92400E] hover:border-[#78350F] active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#92400E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF8F5] disabled:opacity-60 disabled:pointer-events-none flex items-center justify-center flex-shrink-0"
                 style={{ width: 'var(--quotes-arrow-size)', height: 'var(--quotes-arrow-size)', minWidth: 'var(--quotes-arrow-size)', minHeight: 'var(--quotes-arrow-size)' }}
                 aria-label="Next quote"
               >
@@ -237,22 +317,28 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
             </>
           )}
 
-          {/* Viewport: inset so card border never touches arrows (arrow + gap); no horizontal scroll */}
-          <div className="flex items-stretch justify-start w-full min-w-0 overflow-hidden ml-[34px] mr-[34px] sm:ml-[48px] sm:mr-[48px]">
+          {/* Viewport: full width on mobile (no arrows); inset on desktop for arrows */}
+          <div className="flex items-stretch justify-start w-full min-w-0 overflow-hidden ml-0 mr-0 sm:ml-[48px] sm:mr-[48px]">
             {isMobile && totalItems >= 1 ? (
-              <div className="w-full min-w-0 overflow-hidden">
+              <div ref={mobileViewportRef} className="w-full min-w-0 overflow-hidden">
                 {totalItems === 1 ? (
-                  <div className="w-full px-3">
+                  <div className="w-full px-2">
                     <QuoteCard quote={quotes[0]} isActive={true} position="center" allInFocus compact />
                   </div>
                 ) : (
                   <div
+                    ref={mobileStripRef}
                     className="flex flex-shrink-0 gap-0 will-change-transform"
                     style={{
                       width: '300%',
-                      transform: `translateX(${mobileSlideOffset}%)`,
-                      transition: isAnimating ? `transform ${SLIDE_DURATION_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)` : 'none',
+                      transform: `translateX(${mobileStripTranslate}%)`,
+                      transition: isDragging ? 'none' : isAnimating ? `transform ${SLIDE_DURATION_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)` : 'none',
+                      touchAction: 'pan-y',
                     }}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchCancel={handleTouchEnd}
                     onTransitionEnd={handleTransitionEnd}
                   >
                     <div className="flex-shrink-0 w-1/3 min-w-0 px-0.5">
@@ -316,7 +402,20 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
             role="tablist"
             aria-label="Quote slides"
           >
-            {quotes.map((_, i) => (
+            {quotes.map((_, i) => {
+              const goToSlide = () => {
+                if (i === currentIndex || isAnimating) return;
+                setCurrentIndex(i);
+                if (isMobile) {
+                  setIsDragging(false);
+                  setTouchDragPct(0);
+                  touchDragPctRef.current = 0;
+                  setMobileSlideOffset(MOBILE_OFFSET_IDLE);
+                } else if (totalItems >= 3) {
+                  setSlideOffset(SLIDE_OFFSET_IDLE);
+                }
+              };
+              return (
               <button
                 key={i}
                 type="button"
@@ -324,11 +423,10 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                 tabIndex={i === currentIndex ? 0 : -1}
                 aria-label={`Quote ${i + 1}`}
                 aria-selected={i === currentIndex}
-                onClick={() => {
-                  if (i === currentIndex || isAnimating) return;
-                  setCurrentIndex(i);
-                  if (isMobile) setMobileSlideOffset(MOBILE_OFFSET_IDLE);
-                  else if (totalItems >= 3) setSlideOffset(SLIDE_OFFSET_IDLE);
+                onClick={goToSlide}
+                onTouchEnd={(e) => {
+                  e.preventDefault();
+                  goToSlide();
                 }}
                 className="quotes-carousel-dot rounded-full flex-shrink-0 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B45309] focus-visible:ring-offset-1"
                 style={{
@@ -340,7 +438,8 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                   border: i === currentIndex ? 'none' : '1.5px solid rgba(0,0,0,0.25)',
                 }}
               />
-            ))}
+            );
+            })}
           </div>
         )}
       </div>

@@ -490,8 +490,9 @@ h6.multilingual-text {
 
 /* Quotes carousel dots – small on mobile, larger on desktop */
 .quotes-carousel-dots {
-  --dot-size: 5px;
-  gap: 4px;
+  --dot-size: 8px;
+  gap: 6px;
+  touch-action: manipulation;
 }
 @media (min-width: 640px) {
   .quotes-carousel-dots {
@@ -503,13 +504,13 @@ h6.multilingual-text {
   outline: none;
 }
 
-/* Quotes carousel arrows – small circle on mobile, larger on desktop */
+/* Quotes carousel arrows – smaller on mobile so card has more width, larger on desktop */
 .quotes-carousel-arrows {
-  --quotes-arrow-size: 26px;
+  --quotes-arrow-size: 30px;
 }
 .quotes-arrow-icon {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
 }
 @media (min-width: 640px) {
   .quotes-carousel-arrows {
