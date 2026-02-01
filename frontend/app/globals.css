@@ -454,6 +454,39 @@ a:focus-visible {
   animation: fade-in 0.8s ease-out 0.3s both;
 }
 
+/* Explore page: green glow moving along full capsule border – one fast lap */
+.capsule-guide-glow-outer {
+  position: relative;
+}
+.capsule-guide-glow-outer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  /* Wide teal arc so glow is visible around entire pill (top, bottom, and both rounded ends) */
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 60deg,
+    #0F766E 90deg,
+    #14B8A6 180deg,
+    #0F766E 270deg,
+    transparent 300deg,
+    transparent 360deg
+  );
+  animation: capsule-glow-spin 1s linear forwards;
+  pointer-events: none;
+  z-index: 0;
+}
+@keyframes capsule-glow-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 /* Hide components when loading screen is active */
 body.loading-active ~ * [data-hide-on-loading],
 body.loading-active [data-hide-on-loading] {

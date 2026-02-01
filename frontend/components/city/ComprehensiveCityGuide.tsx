@@ -242,6 +242,8 @@ interface City {
 interface ComprehensiveCityGuideProps {
   city: City;
   language: LanguageCode;
+  /** URL slug for the city (e.g. varanasi) used for Explore more link */
+  citySlug?: string;
   quotes?: Array<{
     _id: string;
     quote: {
@@ -289,6 +291,7 @@ function getPriceRangeColor(range: string) {
 export default function ComprehensiveCityGuide({
   city,
   language,
+  citySlug,
   quotes = [],
 }: ComprehensiveCityGuideProps) {
   const [ritualExpandedIndex, setRitualExpandedIndex] = useState<number | null>(null);
@@ -496,14 +499,6 @@ export default function ComprehensiveCityGuide({
     saveAccordionIndex(ACCORDION_RESTORE_KEYS.festivals, festivalExpandedIndex);
   }, [festivalExpandedIndex]);
 
-  const ritualClosedIndices = city.rituals ? city.rituals.map((_, i) => i).filter((i) => ritualExpandedIndex !== i) : [];
-  const ritualHighlightedIndex = ritualClosedIndices.length > 0 ? ritualClosedIndices[ritualHighlightStep % ritualClosedIndices.length] : -1;
-  useEffect(() => {
-    if (ritualClosedIndices.length <= 1) return;
-    const t = setInterval(() => setRitualHighlightStep((s) => s + 1), 1900);
-    return () => clearInterval(t);
-  }, [ritualClosedIndices.length]);
-
   const festivalClosedIndices = city.festivals ? city.festivals.map((_, i) => i).filter((i) => festivalExpandedIndex !== i) : [];
   const festivalHighlightedIndex = festivalClosedIndices.length > 0 ? festivalClosedIndices[festivalHighlightStep % festivalClosedIndices.length] : -1;
   useEffect(() => {
@@ -511,6 +506,28 @@ export default function ComprehensiveCityGuide({
     const t = setInterval(() => setFestivalHighlightStep((s) => s + 1), 1900);
     return () => clearInterval(t);
   }, [festivalClosedIndices.length]);
+
+  const isHolyDipRitual = (ritual: { name?: { en?: string } }) => {
+    const en = (ritual.name?.en ?? '').toLowerCase();
+    return en.includes('holy dip') || en.includes('ganga snan');
+  };
+  const ritualsToShowWithIndex = city.rituals
+    ? city.rituals.map((ritual, i) => ({ ritual, originalIndex: i })).filter(({ ritual }) => !isHolyDipRitual(ritual))
+    : [];
+  const ritualClosedIndices = ritualsToShowWithIndex.map(({ originalIndex }) => originalIndex).filter((i) => ritualExpandedIndex !== i);
+  const ritualHighlightedIndex = ritualClosedIndices.length > 0 ? ritualClosedIndices[ritualHighlightStep % ritualClosedIndices.length] : -1;
+  useEffect(() => {
+    if (ritualClosedIndices.length <= 1) return;
+    const t = setInterval(() => setRitualHighlightStep((s) => s + 1), 1900);
+    return () => clearInterval(t);
+  }, [ritualClosedIndices.length]);
+
+  // Clamp ritualSelectedIndex when it points to Holy Dip (filtered out)
+  useEffect(() => {
+    if (!city.rituals?.length || ritualsToShowWithIndex.length === 0) return;
+    const isSelectedHolyDip = city.rituals[ritualSelectedIndex] && isHolyDipRitual(city.rituals[ritualSelectedIndex]);
+    if (isSelectedHolyDip) setRitualSelectedIndex(ritualsToShowWithIndex[0].originalIndex);
+  }, [city.rituals?.length, ritualsToShowWithIndex.length]);
 
   // Scroll expanded ritual card into view on desktop only; on mobile skip to avoid auto-scroll on open/load
   useEffect(() => {
@@ -855,36 +872,41 @@ export default function ComprehensiveCityGuide({
           );
         })()}
 
-        {/* Places to Visit – premium section; minimal side padding on phone so cards use full width */}
-        {city.places && city.places.length > 0 && (
-          <section className="section-premium-peach rounded-2xl -mx-1 px-2 py-6 sm:mx-0 sm:p-8 mb-12 relative z-10">
-            <SectionHeader
-              title={t('places.to.visit', language)}
-              icon="📍"
-              subtitle={t('explore.sacred.sites', language)}
-            />
-            <PlacesCarousel places={city.places} language={language} />
-          </section>
-        )}
+        {/* Places to Visit – premium section; minimal side padding on phone so cards use full width. Exclude BHU; show Explore more link. */}
+        {city.places && city.places.length > 0 && (() => {
+          const placesWithoutBhu = city.places.filter(
+            (p) => !(p.name?.en && (p.name.en.includes('BHU') || p.name.en.includes('Banaras Hindu University')))
+          );
+          return placesWithoutBhu.length > 0 ? (
+            <section className="section-premium-peach rounded-2xl -mx-1 px-2 py-6 sm:mx-0 sm:p-8 mb-12 relative z-10">
+              <SectionHeader
+                title={t('places.to.visit', language)}
+                icon="📍"
+                subtitle={t('explore.sacred.sites', language)}
+              />
+              <PlacesCarousel places={placesWithoutBhu} language={language} exploreSlug={citySlug} />
+            </section>
+          ) : null;
+        })()}
 
         {/* Rituals & Practices – accordion on mobile, grid on desktop */}
         {city.rituals && city.rituals.length > 0 && (
           <section className="mb-12">
             <SectionHeader title={t('rituals.practices', language)} icon="🕯️" subtitle={t('sacred.rituals.significance', language)} />
-            {/* Mobile: accordion list (saffron accent) – time visible when closed; no repeat inside */}
+            {/* Mobile: accordion list (saffron accent) – Holy Dip excluded; time visible when closed */}
             <div className="sm:hidden rounded-2xl overflow-hidden border-2 border-orange-200/90 bg-white shadow-sm divide-y divide-orange-200/80">
-              {city.rituals.map((ritual, index) => {
-                const isExpanded = ritualExpandedIndex === index;
+              {ritualsToShowWithIndex.map(({ ritual, originalIndex }) => {
+                const isExpanded = ritualExpandedIndex === originalIndex;
                 return (
                   <div
-                    key={index}
-                    ref={(el) => { ritualCardRefs.current[index] = el; }}
+                    key={originalIndex}
+                    ref={(el) => { ritualCardRefs.current[originalIndex] = el; }}
                     className="bg-white first:rounded-t-2xl last:rounded-b-2xl scroll-mt-20 sm:scroll-mt-24"
                   >
                     <button
                       type="button"
-                      onClick={() => setRitualExpandedIndex((prev) => (prev === index ? null : index))}
-                      className={`w-full flex items-center gap-3 px-4 py-3.5 text-left bg-white hover:bg-orange-50/50 active:bg-orange-50 transition-colors touch-manipulation ${!isExpanded && index === ritualHighlightedIndex ? 'accordion-highlight-rituals' : ''}`}
+                      onClick={() => setRitualExpandedIndex((prev) => (prev === originalIndex ? null : originalIndex))}
+                      className={`w-full flex items-center gap-3 px-4 py-3.5 text-left bg-white hover:bg-orange-50/50 active:bg-orange-50 transition-colors touch-manipulation ${!isExpanded && originalIndex === ritualHighlightedIndex ? 'accordion-highlight-rituals' : ''}`}
                     >
                       <div className="w-12 h-12 rounded-xl bg-primary-saffron/10 flex items-center justify-center text-xl flex-shrink-0 border border-orange-200/60">🕯️</div>
                       <div className="flex-1 min-w-0">
@@ -917,6 +939,19 @@ export default function ComprehensiveCityGuide({
                 );
               })}
             </div>
+            {citySlug && (
+              <div className="mt-4 px-2 sm:hidden">
+                <Link
+                  href={`/city/${citySlug}/explore#aarti`}
+                  className="w-full rounded-xl border-2 border-primary-saffron/50 bg-primary-saffron/10 text-primary-saffron px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm hover:bg-primary-saffron/20 hover:border-primary-saffron/70 transition-colors"
+                >
+                  {t('explore.more', language)}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            )}
             {/* Desktop: featured ritual (left) + Quick View sidebar (right) – like Places to Visit */}
             <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
               <div className="sm:col-span-7 lg:col-span-8">
@@ -975,13 +1010,13 @@ export default function ComprehensiveCityGuide({
                       </h3>
                     </header>
                     <div className="space-y-2">
-                      {city.rituals.map((ritual, index) => {
-                        const isSelected = index === ritualSelectedIndex;
+                      {ritualsToShowWithIndex.map(({ ritual, originalIndex }) => {
+                        const isSelected = originalIndex === ritualSelectedIndex;
                         return (
                           <button
-                            key={index}
+                            key={originalIndex}
                             type="button"
-                            onClick={() => setRitualSelectedIndex(index)}
+                            onClick={() => setRitualSelectedIndex(originalIndex)}
                             className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors ${
                               isSelected ? 'border-primary-saffron/60 bg-amber-50/80 text-primary-dark shadow-sm' : 'border-slate-200/80 bg-white hover:border-primary-saffron/30 hover:bg-amber-50/40'
                             }`}
@@ -997,6 +1032,19 @@ export default function ComprehensiveCityGuide({
                         );
                       })}
                     </div>
+                    {citySlug && (
+                      <div className="mt-3 pt-0">
+                        <Link
+                          href={`/city/${citySlug}/explore#aarti`}
+                          className="w-full rounded-xl border-2 border-primary-saffron/50 bg-primary-saffron/10 text-primary-saffron px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm hover:bg-primary-saffron/20 hover:border-primary-saffron/70 transition-colors"
+                        >
+                          {t('explore.more', language)}
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </div>
               </aside>
@@ -1218,9 +1266,13 @@ export default function ComprehensiveCityGuide({
           <PlacesToStay hotels={city.hotels} language={language} />
         )}
 
-        {/* Cuisine Section */}
+        {/* Cuisine Section – last 2 cards (e.g. Tulsi, Varuna) removed; Explore more in Quick View sidebar */}
         {city.restaurants && city.restaurants.length > 0 && (
-          <CuisineSection restaurants={city.restaurants} language={language} />
+          <CuisineSection
+            restaurants={city.restaurants.length > 2 ? city.restaurants.slice(0, -2) : city.restaurants}
+            language={language}
+            exploreSlug={citySlug}
+          />
         )}
 
         {/* Transport & Info Section */}

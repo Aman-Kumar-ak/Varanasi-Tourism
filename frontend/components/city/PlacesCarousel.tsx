@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import PlaceCard from './PlaceCard';
 import { getLocalizedContent } from '@/lib/i18n';
 import { openGoogleMapsDirections } from '@/lib/googleMaps';
@@ -38,6 +39,8 @@ interface Place {
 interface PlacesCarouselProps {
   places: Place[];
   language: LanguageCode;
+  /** When set, show an "Explore more" button linking to the city explore page */
+  exploreSlug?: string;
 }
 
 const categoryIcons: Record<string, string> = {
@@ -51,7 +54,7 @@ const categoryIcons: Record<string, string> = {
 
 const HIGHLIGHT_INTERVAL_MS = 1900;
 
-export default function PlacesCarousel({ places, language }: PlacesCarouselProps) {
+export default function PlacesCarousel({ places, language, exploreSlug }: PlacesCarouselProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [highlightStep, setHighlightStep] = useState(0);
@@ -260,6 +263,19 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
             );
           })}
         </div>
+        {exploreSlug && (
+          <div className="mt-4 px-2">
+            <Link
+              href={`/city/${exploreSlug}/explore`}
+              className="w-full rounded-xl border-2 border-premium-teal/50 bg-premium-teal/10 text-premium-teal px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm"
+            >
+              {t('explore.more', language)}
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* PC: Featured place (left) + Quick View sidebar (right) */}
@@ -360,6 +376,17 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                     </button>
                   );
                 })}
+                {exploreSlug && (
+                  <Link
+                    href={`/city/${exploreSlug}/explore`}
+                    className="w-full rounded-xl border-2 border-premium-teal/50 bg-premium-teal/10 text-premium-teal px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm sm:text-base hover:bg-premium-teal/20 hover:border-premium-teal/70 transition-colors"
+                  >
+                    {t('explore.more', language)}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                )}
               </div>
             </div>
           </div>

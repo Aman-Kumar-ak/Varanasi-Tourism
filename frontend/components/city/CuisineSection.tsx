@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
 import SectionHeader from './SectionHeader';
@@ -24,11 +25,13 @@ interface Restaurant {
 interface CuisineSectionProps {
   restaurants: Restaurant[];
   language: LanguageCode;
+  /** When set, show an "Explore more" link in the Quick View sidebar (cuisine/saffron styling) */
+  exploreSlug?: string;
 }
 
 const HIGHLIGHT_INTERVAL_MS = 1900;
 
-export default function CuisineSection({ restaurants, language }: CuisineSectionProps) {
+export default function CuisineSection({ restaurants, language, exploreSlug }: CuisineSectionProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [highlightStep, setHighlightStep] = useState(0);
@@ -64,6 +67,12 @@ export default function CuisineSection({ restaurants, language }: CuisineSection
       return () => window.clearTimeout(timeoutId);
     }
   }, [expandedIndex]);
+
+  useEffect(() => {
+    if (restaurants.length > 0 && selectedIndex >= restaurants.length) {
+      setSelectedIndex(Math.max(0, restaurants.length - 1));
+    }
+  }, [restaurants.length, selectedIndex]);
 
   const featuredRestaurant = restaurants[selectedIndex];
 
@@ -110,6 +119,19 @@ export default function CuisineSection({ restaurants, language }: CuisineSection
           );
         })}
       </div>
+      {exploreSlug && (
+        <div className="mt-4 px-2 sm:hidden">
+          <Link
+            href={`/city/${exploreSlug}/explore#food`}
+            className="w-full rounded-xl border-2 border-primary-saffron/50 bg-primary-saffron/10 text-primary-saffron px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm hover:bg-primary-saffron/20 hover:border-primary-saffron/70 transition-colors"
+          >
+            {t('explore.more', language)}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </div>
+      )}
       {/* Desktop: featured restaurant (left) + Quick View sidebar (right) – like Places to Visit */}
       <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
         <div className="sm:col-span-7 lg:col-span-8">
@@ -165,6 +187,17 @@ export default function CuisineSection({ restaurants, language }: CuisineSection
                     </button>
                   );
                 })}
+                {exploreSlug && (
+                  <Link
+                    href={`/city/${exploreSlug}/explore#food`}
+                    className="w-full rounded-xl border-2 border-primary-saffron/50 bg-primary-saffron/10 text-primary-saffron px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm hover:bg-primary-saffron/20 hover:border-primary-saffron/70 transition-colors"
+                  >
+                    {t('explore.more', language)}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                )}
               </div>
             </div>
           </div>

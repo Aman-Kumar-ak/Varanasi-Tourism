@@ -130,6 +130,6 @@ export default function CityPage() {
     );
   }
 
-  return <ComprehensiveCityGuide city={city} language={language} quotes={quotes} />;
+  return <ComprehensiveCityGuide city={city} language={language} citySlug={typeof params.name === 'string' ? params.name : undefined} quotes={quotes} />;
 }
 
