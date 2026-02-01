@@ -637,7 +637,7 @@ export default function ComprehensiveCityGuide({
             'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769943131/2_railpl.mp4',  // bottom
           ];
           const knowMoreBtnClass =
-            'inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-gold to-primary-saffron text-white py-2.5 px-5 text-sm font-semibold shadow-md hover:shadow-temple hover:from-primary-saffron hover:to-primary-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2 active:scale-[0.98] transition-all duration-200 touch-manipulation min-h-[44px]';
+            'inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#B88576] to-[#C49A8C] text-white py-2.5 px-5 text-sm font-semibold shadow-md border border-[#D9B8AB]/80 hover:from-[#A67566] hover:to-[#B88576] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A8C] focus-visible:ring-offset-2 active:scale-[0.96] active:shadow-inner active:brightness-95 transition-all duration-150 ease-out touch-manipulation min-h-[44px] select-none';
           return (
             <section ref={spiritualSectionRef} className="mb-12 animate-fade-in-up" aria-labelledby="spiritual-significance-heading">
               {/* Mobile – image cluster first, then content; optimized for phone */}
@@ -754,7 +754,7 @@ export default function ComprehensiveCityGuide({
             'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769941738/kashi_pxgwfj.mp4',
           ];
           const knowMoreBtnClass =
-            'inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-gold to-primary-saffron text-white py-2.5 px-5 text-sm font-semibold shadow-md hover:shadow-temple hover:from-primary-saffron hover:to-primary-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-gold focus-visible:ring-offset-2 active:scale-[0.98] transition-all duration-200 touch-manipulation min-h-[44px]';
+            'inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#6B9BB5] to-[#8BB0C5] text-white py-2.5 px-5 text-sm font-semibold shadow-md border border-[#B8D0DE]/90 hover:from-[#5A8AA5] hover:to-[#7BA3BC] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8BB0C5] focus-visible:ring-offset-2 active:scale-[0.96] active:shadow-inner active:brightness-95 transition-all duration-150 ease-out touch-manipulation min-h-[44px] select-none';
           return (
             <section ref={historySectionRef} className="mb-12 animate-fade-in-up" aria-labelledby="history-heading">
               {/* Mobile – image cluster first, then content; optimized for phone */}
