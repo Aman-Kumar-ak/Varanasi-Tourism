@@ -708,7 +708,7 @@ async function seedDatabase() {
                 as: 'বাৰাণসীৰ সবাতোকৈ দক্ষিণৰ ঘাট, যত অসি নদী গংগাৰ সৈতে মিলিত হয়। ধ্যান আৰু যোগৰ বাবে শান্তিপূৰ্ণ স্থান, বিশেষকৈ সূৰ্যোদয়ৰ সময়ত জনপ্ৰিয়।',
                 ur: 'وارانسی کا سب سے جنوبی گھاٹ، جہاں اسی ندی گنگا سے ملتی ہے۔ مراقبہ اور یوگا کے لیے پرامن جگہ، خاص طور پر طلوع آفتاب کے وقت مقبول۔',
               },
-              image: '',
+              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769923053/assi_2_ig8t81.jpg',
               location: { lat: 25.2850, lng: 83.0104 },
               category: 'ghat' as const,
               spiritualImportance: {
@@ -990,7 +990,7 @@ async function seedDatabase() {
                 as: 'এছিয়াৰ সবাতোকৈ ডাঙৰ আবাসিক বিশ্ববিদ্যালয়সমূহৰ ভিতৰত এটা, মদন মোহন মালৱিয়াৰ দ্বাৰা স্থাপিত। কেম্পাছত বিখ্যাত বিশ্বনাথ মন্দিৰ আৰু ভাৰত কলা ভৱন যাদুঘৰ আছে।',
                 ur: 'ایشیا کی سب سے بڑی رہائشی یونیورسٹیوں میں سے ایک، مدن موہن مالویہ نے قائم کی۔ کیمپس میں مشہور وشوناتھ مندر اور بھارت کلا بھون عجائب گھر شامل ہے۔',
               },
-              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/w_800,q_auto,f_auto/v1767635729/BHU_ld7dpj.jpg',
+              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769944616/bhu_cgfvdm.png',
               location: { lat: 25.2677, lng: 82.9913 },
               category: 'monument' as const,
               bestTimeToVisit: 'Morning (8:00 AM - 12:00 PM)',
