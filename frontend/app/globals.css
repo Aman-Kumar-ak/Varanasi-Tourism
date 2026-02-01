@@ -437,6 +437,15 @@ a:focus-visible {
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .animate-fade-in {
   animation: fade-in 0.8s ease-out;
 }
@@ -477,5 +486,46 @@ h5.multilingual-text,
 h6.multilingual-text {
   padding-top: 0.1em;
   padding-bottom: 0.1em;
+}
+
+/* Quotes carousel dots – small on mobile, larger on desktop */
+.quotes-carousel-dots {
+  --dot-size: 5px;
+  gap: 4px;
+}
+@media (min-width: 640px) {
+  .quotes-carousel-dots {
+    --dot-size: 12px;
+    gap: 10px;
+  }
+}
+.quotes-carousel-dot:focus-visible {
+  outline: none;
+}
+
+/* Quotes carousel arrows – small circle on mobile, larger on desktop */
+.quotes-carousel-arrows {
+  --quotes-arrow-size: 26px;
+}
+.quotes-arrow-icon {
+  width: 10px;
+  height: 10px;
+}
+@media (min-width: 640px) {
+  .quotes-carousel-arrows {
+    --quotes-arrow-size: 40px;
+  }
+  .quotes-arrow-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Quotes strip – fixed height on desktop so all cards are symmetric; reduced height */
+@media (min-width: 640px) {
+  .quotes-strip {
+    min-height: 300px;
+    height: 300px;
+  }
 }
 

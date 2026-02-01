@@ -162,7 +162,7 @@ const quotesData = [
     },
     author: 'Ustad Bismillah Khan',
     source: undefined,
-    image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769591176/Ustad_Bismillah_Khan_nsdfdn.jpg', // Placeholder - user will add Cloudinary URL
+    image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769588706/Ustad_Bismillah_Khan_uvjipm.jpg', // Placeholder - user will add Cloudinary URL
     order: 3,
     isActive: true,
   },
@@ -184,7 +184,7 @@ const quotesData = [
     },
     author: 'Ustad Bismillah Khan',
     source: undefined,
-    image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769591176/Ustad_Bismillah_Khan_nsdfdn.jpg', // Placeholder - user will add Cloudinary URL
+    image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769588706/Ustad_Bismillah_Khan_uvjipm.jpg', // Placeholder - user will add Cloudinary URL
     order: 4,
     isActive: true,
   },

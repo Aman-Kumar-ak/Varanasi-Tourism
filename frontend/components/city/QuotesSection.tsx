@@ -7,6 +7,20 @@ import type { LanguageCode } from '@/lib/constants';
 import { t } from '@/lib/translations';
 import SectionHeader from './SectionHeader';
 
+const MOBILE_BREAKPOINT = 640; // Tailwind sm
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const update = () => setIsMobile(mql.matches);
+    update();
+    mql.addEventListener('change', update);
+    return () => mql.removeEventListener('change', update);
+  }, []);
+  return isMobile;
+}
+
 interface Quote {
   _id: string;
   quote: {
@@ -20,7 +34,7 @@ interface Quote {
     hi: string;
     [key: string]: string;
   };
-  image: string; // Cloudinary URL - placeholder for now
+  image: string;
   order: number;
 }
 
@@ -29,217 +43,304 @@ interface QuotesSectionProps {
   language: LanguageCode;
 }
 
-export default function QuotesSection({ quotes, language }: QuotesSectionProps) {
-  // Number of cards visible at once (1 on mobile, 3 on desktop)
-  const [pageSize, setPageSize] = useState(3);
-  // Index of the first (left-most) quote currently visible
-  const [startIndex, setStartIndex] = useState(0);
-  // Track slide direction for animation
-  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
+const SLIDE_DURATION_MS = 450;
+// 7-card strip: viewport shows 2.5 cards; offset so ~75% of left card + full center + ~75% of right (symmetric).
+const NUM_STRIP_CARDS = 7;
+const CARD_WIDTH_PCT = 100 / NUM_STRIP_CARDS; // % of strip per card
+const SLIDE_OFFSET_IDLE = -2.25 * CARD_WIDTH_PCT; // symmetric: ~3/4 of 2, full 3, ~3/4 of 4
+const SLIDE_OFFSET_NEXT = -3.25 * CARD_WIDTH_PCT; // after "next": ~3/4 of 3, full 4, ~3/4 of 5
+const SLIDE_OFFSET_PREV = -1.25 * CARD_WIDTH_PCT; // after "prev": ~3/4 of 1, full 2, ~3/4 of 3
+const STRIP_WIDTH_PCT = NUM_STRIP_CARDS * 40; // 280% so each card = 40% viewport (wider)
 
-  const SLIDE_ANIMATION_MS = 420; // Keep in sync with `globals.css`
-  const slideResetTimerRef = useRef<number | null>(null);
+// Mobile: 3-card strip (prev, current, next); each card = 100% viewport; offset % of strip width
+const MOBILE_OFFSET_IDLE = -100 / 3;   // show middle card
+const MOBILE_OFFSET_NEXT = (-200 / 3); // show next card (right)
+const MOBILE_OFFSET_PREV = 0;           // show prev card (left)
+
+export default function QuotesSection({ quotes, language }: QuotesSectionProps) {
+  const isMobile = useIsMobile();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideOffset, setSlideOffset] = useState(SLIDE_OFFSET_IDLE);
+  const [mobileSlideOffset, setMobileSlideOffset] = useState(MOBILE_OFFSET_IDLE);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const pendingIndexRef = useRef<number>(0);
 
   const totalItems = quotes?.length ?? 0;
 
-  // Use one shared function for both manual + auto slide so animation is identical.
-  // NOTE: "right" means the next item enters from the right (cards appear to move left).
-  const advance = useCallback(
-    (direction: 'left' | 'right') => {
-      if (totalItems <= 1) return;
-      setSlideDirection(direction);
-      setStartIndex((prev) => {
-        if (direction === 'right') return (prev + 1) % totalItems;
-        return (prev - 1 + totalItems) % totalItems;
-      });
-    },
-    [totalItems],
-  );
+  const goTo = useCallback((direction: 'left' | 'right') => {
+    if (totalItems <= 1 || isAnimating) return;
+    const nextIndex = direction === 'right'
+      ? (currentIndex + 1) % totalItems
+      : (currentIndex - 1 + totalItems) % totalItems;
+    if (isMobile) {
+      pendingIndexRef.current = nextIndex;
+      setIsAnimating(true);
+      if (direction === 'right') {
+        setMobileSlideOffset(MOBILE_OFFSET_NEXT); // slide left to show next
+      } else {
+        setMobileSlideOffset(MOBILE_OFFSET_PREV); // slide right to show prev
+      }
+      return;
+    }
+    pendingIndexRef.current = nextIndex;
+    setIsAnimating(true);
+    if (direction === 'right') {
+      setSlideOffset(SLIDE_OFFSET_NEXT); // strip slides left: right card comes into focus
+    } else {
+      setSlideOffset(SLIDE_OFFSET_PREV); // strip slides right: left card comes into focus
+    }
+  }, [totalItems, currentIndex, isAnimating, isMobile]);
 
-  // Auto-slide every 6 seconds (to the left)
+  const handleTransitionEnd = useCallback(() => {
+    if (!isAnimating) return;
+    setCurrentIndex(pendingIndexRef.current);
+    setIsAnimating(false);
+    if (isMobile) {
+      requestAnimationFrame(() => setMobileSlideOffset(MOBILE_OFFSET_IDLE));
+    } else {
+      // Reset to idle offset; with 7 cards, new strip's indices 2,3,4 = same content we're showing → no jump
+      requestAnimationFrame(() => setSlideOffset(SLIDE_OFFSET_IDLE));
+    }
+  }, [isAnimating, isMobile]);
+
   useEffect(() => {
     if (totalItems <= 1) return;
-
-    const intervalId = window.setInterval(() => {
-      // Same behavior as clicking the "Next" arrow:
-      // cards visually move left, next card enters from the right.
-      advance('right');
-    }, 6000);
-
+    const intervalId = window.setInterval(() => goTo('right'), 6000);
     return () => window.clearInterval(intervalId);
-  }, [advance, totalItems]);
+  }, [goTo, totalItems]);
 
-  // Update page size based on viewport: 1 card on small screens, 3 on md+
+  // Preload images for all quotes so no blank/empty during carousel transition
   useEffect(() => {
-    const updatePageSize = () => {
-      if (typeof window === 'undefined') return;
-      setPageSize(window.innerWidth < 768 ? 1 : 3);
-    };
-
-    updatePageSize();
-    window.addEventListener('resize', updatePageSize);
-    return () => window.removeEventListener('resize', updatePageSize);
-  }, []);
-
-  // Reset slide direction after animation completes.
-  // Use a single timer keyed only on `slideDirection` so it doesn't get re-triggered
-  // by unrelated renders; this keeps the CSS animation and state in sync.
-  useEffect(() => {
-    if (slideResetTimerRef.current !== null) {
-      window.clearTimeout(slideResetTimerRef.current);
-      slideResetTimerRef.current = null;
-    }
-
-    if (slideDirection === null) return;
-
-    slideResetTimerRef.current = window.setTimeout(() => {
-      setSlideDirection(null);
-      slideResetTimerRef.current = null;
-    }, SLIDE_ANIMATION_MS);
-
-    return () => {
-      if (slideResetTimerRef.current !== null) {
-        window.clearTimeout(slideResetTimerRef.current);
-        slideResetTimerRef.current = null;
+    if (!quotes?.length) return;
+    quotes.forEach((q) => {
+      if (q.image) {
+        const img = new window.Image();
+        img.src = q.image;
       }
-    };
-  }, [slideDirection]);
+    });
+  }, [quotes]);
 
-  if (!quotes || totalItems === 0) {
-    return null;
+  if (!quotes || totalItems === 0) return null;
+
+  const prevIndex = (currentIndex - 1 + totalItems) % totalItems;
+  const nextIndex = (currentIndex + 1) % totalItems;
+  // 7-card strip: all adjacent cards pre-rendered so no empty space during slide
+  const stripIndices = totalItems >= 3
+    ? Array.from({ length: NUM_STRIP_CARDS }, (_, i) => (currentIndex - 3 + i + totalItems) % totalItems)
+    : [];
+
+  function QuoteCard({
+    quote,
+    isActive,
+    position,
+    allInFocus,
+    compact,
+  }: {
+    quote: Quote;
+    isActive: boolean;
+    position: 'left' | 'center' | 'right';
+    allInFocus?: boolean;
+    compact?: boolean;
+  }) {
+    return (
+      <article
+        className={`w-full h-full flex flex-col min-h-0 rounded-2xl bg-[#FDF2EB] border border-[#E8D9D0] overflow-hidden transition-all duration-300 ease-out ${compact ? 'rounded-xl' : ''} ${
+          allInFocus || isActive
+            ? 'scale-100 opacity-100 z-10'
+            : position === 'left'
+              ? 'scale-90 opacity-55 z-0'
+              : 'scale-90 opacity-55 z-0'
+        }`}
+      >
+        <div className={`flex flex-row flex-1 min-h-0 ${compact ? 'min-h-[168px]' : 'min-h-[280px]'} sm:min-h-[300px]`}>
+          {/* Left: content – text justifies; quote area scrolls when long (desktop strip) */}
+          <div className={`flex flex-1 min-w-0 min-h-0 flex-col ${compact ? 'p-2.5 pr-1.5' : 'py-3 px-4 sm:py-4 sm:px-5 md:px-6 pr-4 sm:pr-5'}`}>
+            {/* Author name – top of content block */}
+            <p className={`flex-shrink-0 ${compact ? 'text-sm' : 'text-lg sm:text-xl'} font-bold text-amber-600 multilingual-text mb-0.5`}>
+              {quote.author}
+            </p>
+            {quote.source && (
+              <p className={`flex-shrink-0 ${compact ? 'text-[11px]' : 'text-sm'} text-primary-dark/60 multilingual-text ${compact ? 'mb-1' : 'mb-2'}`}>
+                {getLocalizedContent(quote.source, language)}
+              </p>
+            )}
+            <div className={`flex-shrink-0 ${compact ? 'w-8' : 'w-10'} h-px bg-slate-200 ${compact ? 'mb-1' : 'mb-2'}`} aria-hidden />
+            {/* Quote – justified; scrolls inside card when content overflows (symmetric card height) */}
+            <p className={`flex-1 min-h-0 overflow-y-auto ${compact ? 'text-[11px] leading-snug overflow-hidden' : 'text-sm sm:text-base leading-relaxed'} text-justify multilingual-text break-words`}>
+              {getLocalizedContent(quote.quote, language)}
+            </p>
+          </div>
+
+          {/* Right: full-height image; on mobile (compact) use smaller width */}
+          <div className={`relative flex-shrink-0 overflow-hidden self-stretch ${compact ? 'w-20 min-h-[168px]' : 'w-40 sm:w-44 md:w-48 min-h-0'} sm:w-44 md:w-48 sm:min-h-0`}>
+            {quote.image ? (
+              <Image
+                src={quote.image}
+                alt={quote.author}
+                fill
+                className="object-cover"
+                sizes="(max-width: 639px) 80px, 192px"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="w-full h-full bg-amber-100 flex items-center justify-center text-amber-700 text-2xl font-bold">
+                {quote.author.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+        </div>
+      </article>
+    );
   }
 
-  // Build a sliding window of pageSize quotes, wrapping around the list
-  const visibleQuotes = Array.from(
-    { length: Math.min(pageSize, totalItems) },
-    (_, offset) => quotes[(startIndex + offset) % totalItems],
-  );
-
-  const handleNext = () => {
-    advance('right');
-  };
-
-  const handlePrevious = () => {
-    advance('left');
-  };
-
   return (
-    <section className="mb-6 sm:mb-8 lg:mb-10">
+    <section className="mb-6 animate-fade-in-up" aria-labelledby="quotes-heading">
       <SectionHeader
         title={t('quotes.title', language)}
+        icon="💬"
         subtitle={t('quotes.subtitle', language)}
       />
 
-      {/* Background panel to visually group the quotes */}
-      <div className="mt-3 sm:mt-4 rounded-3xl bg-white/60 border border-primary-gold/10 shadow-temple px-3 sm:px-4 py-4 sm:py-6">
-        {/* Cards row */}
-        <div className="grid gap-4 sm:gap-5 md:gap-6 grid-cols-1 md:grid-cols-3 items-stretch">
-          {visibleQuotes.map((quote) => (
-            <article
-              key={`${quote._id}-${startIndex}`}
-              className={`group relative bg-gradient-to-b from-background-cream to-white rounded-2xl shadow-card border border-slate-200/70 px-5 sm:px-6 pt-5 pb-6 flex flex-col overflow-hidden min-h-[260px] sm:min-h-[270px] ${
-                slideDirection === 'right' ? 'quote-slide-right' : slideDirection === 'left' ? 'quote-slide-left' : ''
-              }`}
-            >
-              {/* Soft decorative glow */}
-              <div className="pointer-events-none absolute -top-14 -right-10 h-32 w-32 rounded-full bg-gradient-temple opacity-10 blur-2xl" />
+      {/* Carousel panel – warm cream/peach; section and cards match */}
+      <div className="relative rounded-2xl overflow-hidden bg-[#FFF8F5] border border-[#EDE0DB] py-3 sm:py-4 px-2 sm:px-4 w-full -mt-2 sm:-mt-3">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-[#FFF0EB] rounded-full -mr-20 -mt-20 pointer-events-none" aria-hidden />
+        <div className="quotes-carousel-arrows relative flex items-center justify-center min-h-0 sm:min-h-[280px] px-2 sm:px-6 z-10">
+          {totalItems > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => goTo('left')}
+                disabled={isAnimating}
+                className="quotes-arrow-btn absolute left-0 top-1/2 -translate-y-1/2 z-20 rounded-full bg-[#B45309] text-white border border-[#92400E] hover:bg-[#92400E] hover:border-[#78350F] active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#92400E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF8F5] disabled:opacity-60 disabled:pointer-events-none flex items-center justify-center flex-shrink-0"
+                style={{ width: 'var(--quotes-arrow-size)', height: 'var(--quotes-arrow-size)', minWidth: 'var(--quotes-arrow-size)', minHeight: 'var(--quotes-arrow-size)' }}
+                aria-label="Previous quote"
+              >
+                <svg className="quotes-arrow-icon flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                  <path d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => goTo('right')}
+                disabled={isAnimating}
+                className="quotes-arrow-btn absolute right-0 top-1/2 -translate-y-1/2 z-20 rounded-full bg-[#B45309] text-white border border-[#92400E] hover:bg-[#92400E] hover:border-[#78350F] active:scale-95 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#92400E] focus-visible:ring-offset-2 focus-visible:ring-offset-[#FFF8F5] disabled:opacity-60 disabled:pointer-events-none flex items-center justify-center flex-shrink-0"
+                style={{ width: 'var(--quotes-arrow-size)', height: 'var(--quotes-arrow-size)', minWidth: 'var(--quotes-arrow-size)', minHeight: 'var(--quotes-arrow-size)' }}
+                aria-label="Next quote"
+              >
+                <svg className="quotes-arrow-icon flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}>
+                  <path d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
 
-              {/* Top accent bar */}
-              <div className="relative z-10 h-1 w-16 mx-auto mb-4 rounded-full bg-gradient-temple opacity-70" />
-
-              {/* Decorative quotes */}
-              <div className="absolute top-4 left-4 text-3xl sm:text-4xl text-primary-orange/25 select-none">
-                “
+          {/* Viewport: inset so card border never touches arrows (arrow + gap); no horizontal scroll */}
+          <div className="flex items-stretch justify-start w-full min-w-0 overflow-hidden ml-[34px] mr-[34px] sm:ml-[48px] sm:mr-[48px]">
+            {isMobile && totalItems >= 1 ? (
+              <div className="w-full min-w-0 overflow-hidden">
+                {totalItems === 1 ? (
+                  <div className="w-full px-3">
+                    <QuoteCard quote={quotes[0]} isActive={true} position="center" allInFocus compact />
+                  </div>
+                ) : (
+                  <div
+                    className="flex flex-shrink-0 gap-0 will-change-transform"
+                    style={{
+                      width: '300%',
+                      transform: `translateX(${mobileSlideOffset}%)`,
+                      transition: isAnimating ? `transform ${SLIDE_DURATION_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)` : 'none',
+                    }}
+                    onTransitionEnd={handleTransitionEnd}
+                  >
+                    <div className="flex-shrink-0 w-1/3 min-w-0 px-0.5">
+                      <QuoteCard quote={quotes[prevIndex]} isActive={false} position="center" allInFocus compact />
+                    </div>
+                    <div className="flex-shrink-0 w-1/3 min-w-0 px-0.5">
+                      <QuoteCard quote={quotes[currentIndex]} isActive={true} position="center" allInFocus compact />
+                    </div>
+                    <div className="flex-shrink-0 w-1/3 min-w-0 px-0.5">
+                      <QuoteCard quote={quotes[nextIndex]} isActive={false} position="center" allInFocus compact />
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className="absolute bottom-4 right-4 text-3xl sm:text-4xl text-primary-orange/20 select-none">
-                ”
-              </div>
-
-              {/* Quote text */}
-              <p className="relative z-10 text-sm sm:text-base text-primary-dark/80 leading-relaxed text-center mb-4 sm:mb-5 px-6 sm:px-8 multilingual-text italic text-balance break-words">
-                {getLocalizedContent(quote.quote, language)}
-              </p>
-
-              {/* Divider between quote and author */}
-              <div className="relative z-10 w-10 h-px mx-auto mb-4 bg-gradient-to-r from-transparent via-primary-gold/60 to-transparent" />
-
-              {/* Avatar + author */}
-              <div className="relative z-10 flex flex-col items-center mt-auto">
-                <div className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-[68px] md:h-[68px] rounded-full overflow-hidden border-[3px] border-primary-orange/40 shadow-md bg-gradient-to-tr from-primary-orange to-primary-gold flex items-center justify-center text-white text-lg sm:text-xl font-bold">
-                  {quote.image ? (
-                    <Image
-                      src={quote.image}
-                      alt={quote.author}
-                      fill
-                      className="object-cover"
-                      sizes="72px"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                      }}
+            ) : totalItems >= 3 ? (
+              <div
+                className="quotes-strip flex items-stretch flex-shrink-0 gap-0 will-change-transform"
+                style={{
+                  width: `${STRIP_WIDTH_PCT}%`,
+                  transform: `translateX(${slideOffset}%)`,
+                  transition: isAnimating ? `transform ${SLIDE_DURATION_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)` : 'none',
+                }}
+                onTransitionEnd={handleTransitionEnd}
+              >
+                {stripIndices.map((quoteIdx, i) => (
+                  <div key={`${quoteIdx}-${i}`} className="flex h-full flex-shrink-0 px-1 sm:px-2 min-h-0" style={{ width: `${CARD_WIDTH_PCT}%`, minWidth: `${CARD_WIDTH_PCT}%` }}>
+                    <QuoteCard
+                      quote={quotes[quoteIdx]}
+                      isActive={i === 3}
+                      position={i < 3 ? 'left' : i === 3 ? 'center' : 'right'}
+                      allInFocus
                     />
-                  ) : (
-                    <span>{quote.author.charAt(0).toUpperCase()}</span>
-                  )}
+                  </div>
+                ))}
+              </div>
+            ) : totalItems === 2 ? (
+              <div className="flex items-stretch justify-center gap-3 sm:gap-4 md:gap-4 w-full">
+                <div className="hidden sm:flex sm:h-full w-[32%] max-w-[320px] flex-shrink-0 justify-end">
+                  <QuoteCard quote={quotes[prevIndex]} isActive={false} position="left" allInFocus />
                 </div>
-
-                <div className="bg-transparent pt-3 text-center">
-                  <p className="text-sm sm:text-base font-semibold text-primary-dark leading-tight">
-                    {quote.author}
-                  </p>
-                  {quote.source && (
-                    <p className="text-xs sm:text-sm text-primary-dark/60 multilingual-text mt-1 leading-snug">
-                      {getLocalizedContent(quote.source, language)}
-                    </p>
-                  )}
+                <div className="flex flex-1 min-w-0 max-w-xl mx-auto sm:mx-0 sm:w-[36%] flex-shrink-0 h-full min-h-0">
+                  <QuoteCard quote={quotes[currentIndex]} isActive={true} position="center" allInFocus />
+                </div>
+                <div className="hidden sm:flex sm:h-full w-[32%] max-w-[320px] flex-shrink-0 justify-start">
+                  <QuoteCard quote={quotes[nextIndex]} isActive={false} position="right" allInFocus />
                 </div>
               </div>
-            </article>
-          ))}
+            ) : (
+              <div className="w-full max-w-xl mx-auto">
+                <QuoteCard quote={quotes[currentIndex]} isActive={true} position="center" />
+              </div>
+            )}
+          </div>
+
         </div>
 
-        {/* Bottom navigation (arrows) */}
+        {/* Carousel dots – reimplemented: small on mobile, larger from sm */}
         {totalItems > 1 && (
-          <div className="mt-5 sm:mt-6 flex items-center justify-between max-w-xs mx-auto">
-            <button
-              onClick={handlePrevious}
-              className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-primary-orange/40 bg-white shadow-md text-primary-orange touch-manipulation"
-              aria-label="Previous quotes"
-            >
-              <svg
-                className="w-5 h-5 sm:w-5 sm:h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-
-            <button
-              onClick={handleNext}
-              className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-primary-orange/40 bg-white shadow-md text-primary-orange touch-manipulation"
-              aria-label="Next quotes"
-            >
-              <svg
-                className="w-5 h-5 sm:w-5 sm:h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
+          <div
+            className="quotes-carousel-dots flex items-center justify-center mt-2 sm:mt-3 pb-1 sm:pb-0"
+            role="tablist"
+            aria-label="Quote slides"
+          >
+            {quotes.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                tabIndex={i === currentIndex ? 0 : -1}
+                aria-label={`Quote ${i + 1}`}
+                aria-selected={i === currentIndex}
+                onClick={() => {
+                  if (i === currentIndex || isAnimating) return;
+                  setCurrentIndex(i);
+                  if (isMobile) setMobileSlideOffset(MOBILE_OFFSET_IDLE);
+                  else if (totalItems >= 3) setSlideOffset(SLIDE_OFFSET_IDLE);
+                }}
+                className="quotes-carousel-dot rounded-full flex-shrink-0 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B45309] focus-visible:ring-offset-1"
+                style={{
+                  width: 'var(--dot-size, 6px)',
+                  height: 'var(--dot-size, 6px)',
+                  minWidth: 'var(--dot-size, 6px)',
+                  minHeight: 'var(--dot-size, 6px)',
+                  backgroundColor: i === currentIndex ? '#B45309' : 'transparent',
+                  border: i === currentIndex ? 'none' : '1.5px solid rgba(0,0,0,0.25)',
+                }}
+              />
+            ))}
           </div>
         )}
       </div>
