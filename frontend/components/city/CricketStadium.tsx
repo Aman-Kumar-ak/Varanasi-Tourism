@@ -52,9 +52,9 @@ export default function CricketStadium({ stadium, language }: CricketStadiumProp
     <section className="mb-12">
       {/* Hero: image with overlay and title */}
       <div className="relative rounded-2xl overflow-hidden mb-6 sm:mb-8 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
-        <div className="relative w-full aspect-[21/9] min-h-[200px] sm:min-h-[240px] md:min-h-[280px]">
+        <div className="relative w-full aspect-[21/9] min-h-[240px] sm:min-h-[260px] md:min-h-[280px]">
           <Image
-            src="https://res.cloudinary.com/dp0gqerkk/image/upload/v1767775525/Cricket_Stadium_j6wg1o.png"
+            src="https://res.cloudinary.com/dp0gqerkk/image/upload/v1769856593/ChatGPT_Image_Jan_31_2026_04_19_06_PM_aitfun.png"
             alt={getLocalizedContent(stadium.name, language)}
             fill
             sizes="100vw"
@@ -63,10 +63,10 @@ export default function CricketStadium({ stadium, language }: CricketStadiumProp
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8 text-white">
-            <p className="text-white/90 text-xs sm:text-sm font-medium uppercase tracking-wider mb-1">
+            <p className="text-white/90 text-[10px] sm:text-xs font-medium uppercase tracking-wider mb-1">
               {t('international.cricket.stadium', language)}
             </p>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold drop-shadow-lg" style={{ lineHeight: 1.2 }}>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold drop-shadow-lg" style={{ lineHeight: 1.2 }}>
               {getLocalizedContent(stadium.name, language)}
             </h2>
           </div>
@@ -80,7 +80,7 @@ export default function CricketStadium({ stadium, language }: CricketStadiumProp
 
         <div className="p-5 sm:p-6 md:p-8">
           {/* Intro */}
-          <p className="text-primary-dark/90 text-base sm:text-lg leading-relaxed mb-6 sm:mb-8">
+          <p className="text-primary-dark/90 text-sm sm:text-base leading-relaxed mb-6 sm:mb-8">
             {getLocalizedContent(stadium.description, language)}
           </p>
 

@@ -642,7 +642,7 @@ async function seedDatabase() {
                 ur: 'دشاشومیدھ گھاٹ',
               },
               description: {
-                en: 'Dashashwamedh Ghat stands as the most vibrant and celebrated riverfront of Varanasi, located just a short walk from the sacred Kashi Vishwanath Temple. It is here that the spirit of the city feels most alive—where devotion, tradition, and daily life flow together along the banks of the holy Ganga. The name Dashashwamedh comes from ancient legend: Dash meaning ten, Ashwa meaning horse, and Medh meaning sacrifice. It is believed that Lord Brahma performed a grand yajna here, offering ten horses to welcome Lord Shiva to Kashi. This powerful mythological connection has made the ghat one of the holiest and most revered in India. From sunrise to sunset, Dashashwamedh Ghat remains full of life. Mornings begin with pilgrims taking sacred dips in the Ganga, performing ancestral rituals, and offering prayers with folded hands. Boatmen line the riverbank, offering rides that reveal breathtaking views of the ghats and the city skyline—especially magical during sunrise and sunset. As evening falls, the ghat transforms into a breathtaking stage for the world-famous Ganga Aarti. Priests dressed in traditional attire perform synchronized rituals with towering fire lamps, incense, flowers, and conch shells. The sound of bells and chants fills the air as rows of glowing flames reflect on the river, creating a powerful spiritual atmosphere that leaves visitors deeply moved. During major festivals such as Dev Deepawali, Kartik Purnima, and Ganga Dussehra, Dashashwamedh Ghat becomes the heart of grand celebrations, illuminated by countless lamps that turn the Ganga into a flowing river of light. Its close proximity to the Kashi Vishwanath Temple adds to its importance, as many devotees begin their spiritual journey here before heading for temple darshan. More than just a place of ritual, Dashashwamedh Ghat captures the living soul of Varanasi—a place where faith is not only practiced, but truly felt.',
+                en: 'Varanasi\'s most famous ghat, where the grand Ganga Aarti is held every evening. It is believed that Lord Brahma performed ten Ashwamedha yajnas here.',
                 hi: 'वाराणसी का सबसे प्रसिद्ध घाट, जहाँ हर शाम भव्य गंगा आरती का आयोजन होता है। माना जाता है कि यहाँ भगवान ब्रह्मा ने दस अश्वमेध यज्ञ किए थे।',
                 gu: 'વારાણસીનો સૌથી પ્રખ્યાત ઘાટ, જ્યાં દરેક સાંજે ભવ્ય ગંગા આરતીનો આયોજન થાય છે. માનવામાં આવે છે કે અહીં ભગવાન બ્રહ્માએ દસ અશ્વમેધ યજ્ઞ કર્યા હતા.',
                 ta: 'வாரணாசியின் மிகவும் பிரபலமான கடை, ஒவ்வொரு மாலையும் நடைபெறும் கங்கா ஆரத்தி விழாவுக்கு பெயர் பெற்றது. இங்கே பிரம்மா பத்து குதிரை பலிகளை செய்ததாக நம்பப்படுகிறது.',
@@ -656,7 +656,7 @@ async function seedDatabase() {
                 as: 'বাৰাণসীৰ সবাতোকৈ বিখ্যাত ঘাট, যত প্ৰতিদিন সন্ধিয়া ভৱ্য গংগা আৰতিৰ অনুষ্ঠান হয়। বিশ্বাস কৰা হয় যে ইয়াত ব্ৰহ্মাই দহটা অশ্বমেধ যজ্ঞ কৰিছিল।',
                 ur: 'وارانسی کا سب سے مشہور گھاٹ، جہاں ہر شام بھوی گنگا آرتی کا انعقاد ہوتا ہے۔ خیال کیا جاتا ہے کہ یہاں برہما نے دس اشومیدھ یجن کیے تھے۔',
               },
-              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/w_800,q_auto,f_auto/v1767635730/Dashashwamedh_Ghat_fbxhw2.jpg',
+              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769857774/ChatGPT_Image_Jan_31_2026_04_38_16_PM_c59usx.png',
               location: { lat: 25.3106, lng: 83.0104 },
               category: 'ghat' as const,
               spiritualImportance: {
@@ -708,7 +708,7 @@ async function seedDatabase() {
                 as: 'বাৰাণসীৰ সবাতোকৈ দক্ষিণৰ ঘাট, যত অসি নদী গংগাৰ সৈতে মিলিত হয়। ধ্যান আৰু যোগৰ বাবে শান্তিপূৰ্ণ স্থান, বিশেষকৈ সূৰ্যোদয়ৰ সময়ত জনপ্ৰিয়।',
                 ur: 'وارانسی کا سب سے جنوبی گھاٹ، جہاں اسی ندی گنگا سے ملتی ہے۔ مراقبہ اور یوگا کے لیے پرامن جگہ، خاص طور پر طلوع آفتاب کے وقت مقبول۔',
               },
-              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/w_800,q_auto,f_auto/v1767635730/Assi_Ghat_yde1wh.jpg',
+              image: '',
               location: { lat: 25.2850, lng: 83.0104 },
               category: 'ghat' as const,
               spiritualImportance: {
@@ -812,7 +812,7 @@ async function seedDatabase() {
                 as: 'এটা পবিত্ৰ বৌদ্ধ স্থান যত গৌতম বুদ্ধই জ্ঞান লাভৰ পিছত তেওঁৰ প্ৰথম উপদেশ দিছিল। বিখ্যাত ধমেক স্তূপ আৰু কেইবাটাও প্ৰাচীন মঠৰ আবাসস্থল।',
                 ur: 'ایک مقدس بدھ مقام جہاں گوتم بدھ نے روشن خیالی کے بعد اپنا پہلا خطبہ دیا تھا۔ مشہور دھمیک اسٹوپا اور کئی قدیم خانقاہوں کا گھر۔',
               },
-              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/w_800,q_auto,f_auto/v1767635729/sarnath_ng1ysr.jpg',
+              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769858795/sarnath_ipgyjl.png',
               location: { lat: 25.3811, lng: 83.0214 },
               category: 'monument' as const,
               spiritualImportance: {
@@ -864,7 +864,7 @@ async function seedDatabase() {
                 as: 'ৰামৰ প্ৰতি উৎসৰ্গীকৃত এটা আধুনিক মন্দিৰ, যত তুলসীদাসে ৰামচৰিতমানস ৰচনা কৰিছিল। দেৱালসমূহত মহাকাব্যৰ শ্লোক খোদিত কৰা আছে।',
                 ur: 'رام کے لیے وقف ایک جدید مندر، جہاں تلسی داس نے رام چرت مانس لکھی تھی۔ دیواروں پر مہاکاوی کے اشعار کندہ ہیں۔',
               },
-              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/w_800,q_auto,f_auto/v1767635729/Tulsi_Manas_Mandir_e6ld4f.jpg',
+              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769850873/tulsi_p2mwix.jpg',
               location: { lat: 25.3106, lng: 83.0104 },
               category: 'temple' as const,
               spiritualImportance: {
@@ -916,7 +916,7 @@ async function seedDatabase() {
                 as: 'মাতৃভূমিৰ প্ৰতি উৎসৰ্গীকৃত এটা অনন্য মন্দিৰ, যত অখণ্ড ভাৰতৰ এটা ৰিলিফ মানচিত্ৰ মাৰ্বলত খোদিত কৰা আছে। স্বাধীনতা সংগ্ৰামী বাবু শিৱ প্ৰসাদ গুপ্তৰ দ্বাৰা নিৰ্মিত।',
                 ur: 'مادر وطن کے لیے وقف ایک منفرد مندر، جس میں تقسیم سے پہلے بھارت کا ایک ریلیف نقشہ سنگ مرمر میں کندہ کیا گیا ہے۔ آزادی پسند جنگجو بابو شیو پرساد گپت نے بنایا۔',
               },
-              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/w_800,q_auto,f_auto/v1767635730/Bharat_Mata_Mandir_u132zp.jpg',
+              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769858095/bharat_mata_jd74f6.png',
               location: { lat: 25.3106, lng: 83.0104 },
               category: 'monument' as const,
               bestTimeToVisit: 'Any time',
@@ -953,7 +953,7 @@ async function seedDatabase() {
                 as: 'গংগাৰ পূব পাৰত 18 শতিকাৰ দুৰ্গ, বাৰাণসীৰ বিপৰীতে। দুৰ্গত এটা যাদুঘৰ আছে যত ভিনটেজ গাড়ী, ৰাজকীয় পোছাক আৰু প্ৰাচীন অস্ত্ৰ আছে।',
                 ur: 'گنگا کے مشرقی کنارے پر 18ویں صدی کا قلعہ، وارانسی کے سامنے۔ قلعے میں ایک عجائب گھر ہے جس میں پرانی گاڑیاں، شاہی لباس اور قدیم ہتھیار ہیں۔',
               },
-              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/w_800,q_auto,f_auto/v1767635731/Ramnagar_Fort_urf7gf.jpg',
+              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769858950/ramnagar_fort_f3g2nz.png',
               location: { lat: 25.3106, lng: 83.0104 },
               category: 'monument' as const,
               bestTimeToVisit: 'Morning (9:00 AM - 5:00 PM)',
@@ -1294,6 +1294,8 @@ The city witnessed invasions, political changes, and periods of destruction duri
                 ur: 'دشاشومیدھ گھاٹ پر منعقد ہونے والا ایک شاندار شام کا تقریب، جہاں پجاری آگ، پھول اور عطر کے ساتھ آرتی کرتے ہیں۔ یہ وارانسی کے سب سے دلکش روحانی تجربات میں سے ایک ہے۔',
               },
               timing: '6:30 PM daily',
+              image: 'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769850914/assi_yvrlrf.jpg',
+              imageId: 'ritual-ganga-aarti-image',
             },
             {
               name: {

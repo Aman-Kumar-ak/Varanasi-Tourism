@@ -89,6 +89,8 @@ export interface IRitual {
   name: IMultiLanguageContent;
   description: IMultiLanguageContent;
   timing?: string;
+  image?: string;
+  imageId?: string;
 }
 
 export interface IEvent {
@@ -314,6 +316,8 @@ const RitualSchema = new Schema<IRitual>({
   name: { type: MultiLanguageSchema, required: true },
   description: { type: MultiLanguageSchema, required: true },
   timing: String,
+  image: String,
+  imageId: String,
 });
 
 const EventSchema = new Schema<IEvent>({

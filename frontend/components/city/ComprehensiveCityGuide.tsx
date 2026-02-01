@@ -105,6 +105,7 @@ interface City {
     };
     timing?: string;
     image?: string;
+    imageId?: string;
   }>;
   darshanInfo?: {
     en: string;
@@ -614,7 +615,20 @@ export default function ComprehensiveCityGuide({
                       </span>
                     </button>
                     {isExpanded && (
-                      <div className="px-4 pb-4 pt-0 bg-orange-50/40 border-t border-orange-200/80">
+                      <div className="px-4 pb-4 pt-0 bg-orange-50/40">
+                        {ritual.image && (
+                          <div className="mb-3 rounded-xl overflow-hidden aspect-video w-full relative bg-primary-saffron/10">
+                            <Image
+                              id={ritual.imageId ?? undefined}
+                              data-ritual-image-id={ritual.imageId ?? undefined}
+                              src={ritual.image}
+                              alt={getLocalizedContent(ritual.name, language)}
+                              fill
+                              sizes="100vw"
+                              className="object-cover"
+                            />
+                          </div>
+                        )}
                         <p className="text-primary-dark/90 text-sm leading-relaxed">{getLocalizedContent(ritual.description, language)}</p>
                       </div>
                     )}
@@ -634,6 +648,8 @@ export default function ComprehensiveCityGuide({
                       {ritual.image ? (
                         <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
                           <Image
+                            id={ritual.imageId ?? undefined}
+                            data-ritual-image-id={ritual.imageId ?? undefined}
                             src={ritual.image}
                             alt={getLocalizedContent(ritual.name, language)}
                             fill

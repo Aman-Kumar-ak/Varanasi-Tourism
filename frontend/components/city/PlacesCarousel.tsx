@@ -182,10 +182,9 @@ export default function PlacesCarousel({ places, language }: PlacesCarouselProps
                           sizes="100vw"
                           className="object-cover border-0 outline-none"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
-                        {/* White/peach blur below the title – matches PC view; starts below the text */}
+                        {/* No full-image dark overlay – keep image bright like original; only bottom strip for title readability */}
                         <div
-                          className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-premium-peach to-transparent pointer-events-none"
+                          className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"
                           aria-hidden
                         />
                         <h3 className="absolute bottom-0 left-0 right-0 p-4 text-lg font-bold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] break-words text-left">
