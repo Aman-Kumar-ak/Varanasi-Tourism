@@ -522,6 +522,11 @@ h6.multilingual-text {
   }
 }
 
+/* Quotes mobile scroll-snap carousel – hide scrollbar */
+.quotes-mobile-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 /* Quotes strip – fixed height on desktop so all cards are symmetric; reduced height */
 @media (min-width: 640px) {
   .quotes-strip {
