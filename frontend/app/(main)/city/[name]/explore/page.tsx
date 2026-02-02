@@ -216,9 +216,12 @@ export default function CityExplorePage() {
     }
   }, [selectedPlace]);
 
-  // Guide animation: first at 2s, then every 6s. Single smooth out-and-back (sine curve); stop on touch/swipe.
+  // Guide animation: only on desktop (min-width 768px). Disabled on phone to avoid scroll jitter from RAF + scrollLeft.
   useEffect(() => {
     if (guideAnimationStopped || loading) return;
+    const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
+    if (!isDesktop) return;
+
     const el = filterScrollRef.current;
     if (!el) return;
 
@@ -357,7 +360,7 @@ export default function CityExplorePage() {
         </div>
       </header>
 
-      {/* Floating filter bar: scroll-hint at 2s then every 6s until touch/swipe */}
+      {/* Floating filter bar: solid bg on mobile (no backdrop-blur) to avoid scroll jitter */}
       <div className="fixed bottom-3 left-0 right-0 z-30 flex justify-center px-3 sm:bottom-4 sm:px-4 pointer-events-none">
           <div
             ref={filterScrollRef}
@@ -367,8 +370,8 @@ export default function CityExplorePage() {
             onTouchMove={stopGuideAnimation}
             onWheel={stopGuideAnimation}
             onMouseDown={stopGuideAnimation}
-            className="pointer-events-auto flex gap-2 overflow-x-auto scrollbar-hide items-center py-2 px-3 rounded-full bg-white/60 backdrop-blur-xl border border-white/50 w-fit max-w-[calc(100vw-1.5rem)]"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.7)' }}
+            className="pointer-events-auto flex gap-2 overflow-x-auto scrollbar-hide items-center py-2 px-3 rounded-full bg-white/60 backdrop-blur-md sm:backdrop-blur-xl border border-white/50 w-fit max-w-[calc(100vw-1.5rem)]"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.7)' }}
           >
             {filterCategories.map(({ id, labelKey }) => {
               const isSelected = scrolledToCategory === id;
