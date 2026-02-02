@@ -77,17 +77,24 @@ function RitualCard({ ritual, language }: { ritual: Ritual; language: LanguageCo
   const name = getLocalizedContent(ritual.name, language);
   const description = getLocalizedContent(ritual.description, language);
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200/60 shadow-lg shadow-amber-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 hover:-translate-y-0.5 hover:border-amber-300/80">
+    <article className="group relative flex flex-col h-full min-w-0 overflow-hidden rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200/60 shadow-lg shadow-amber-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 hover:-translate-y-0.5 hover:border-amber-300/80">
+      <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-saffron to-amber-400 rounded-l-2xl opacity-80" aria-hidden />
       <div className="absolute inset-0 bg-gradient-to-br from-amber-50/40 via-transparent to-primary-saffron/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden />
-      <div className="relative p-5 sm:p-6 flex-1 flex flex-col">
-        <h3 className="text-lg font-bold text-premium-section-text tracking-tight">{name}</h3>
+      <div className="relative p-5 sm:p-6 flex-1 flex flex-col min-h-0 pl-6">
+        <h3 className="text-base sm:text-lg font-bold text-premium-section-text tracking-tight leading-snug line-clamp-2 flex-shrink-0">
+          {name}
+        </h3>
         {ritual.timing && (
-          <p className="text-sm font-semibold text-primary-saffron mt-1.5 flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary-saffron" aria-hidden />
-            {ritual.timing}
+          <p className="text-sm font-semibold text-primary-saffron mt-2 flex items-center gap-2 flex-shrink-0">
+            <svg className="w-4 h-4 flex-shrink-0 text-primary-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{ritual.timing}</span>
           </p>
         )}
-        <p className="text-sm text-premium-section-muted mt-2 leading-relaxed line-clamp-3">{description}</p>
+        <p className="text-sm text-premium-section-muted mt-3 leading-relaxed break-words flex-1 min-h-0">
+          {description}
+        </p>
       </div>
     </article>
   );
@@ -95,23 +102,32 @@ function RitualCard({ ritual, language }: { ritual: Ritual; language: LanguageCo
 
 function RestaurantCard({ restaurant, language }: { restaurant: Restaurant; language: LanguageCode }) {
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200/60 shadow-lg shadow-amber-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 hover:-translate-y-0.5 hover:border-amber-300/80">
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 via-transparent to-primary-saffron/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden />
-      <div className="relative p-5 sm:p-6 flex-1 flex flex-col">
-        <h3 className="text-lg font-bold text-premium-section-text tracking-tight">{restaurant.name}</h3>
-        {restaurant.cuisine && (
-          <span className="inline-block mt-2 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-lg bg-amber-100/80 text-amber-800 border border-amber-200/60">
-            {restaurant.cuisine}
-          </span>
-        )}
+    <article className="group relative flex flex-col h-full min-h-0 min-w-0 overflow-hidden rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200/60 shadow-lg shadow-amber-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 hover:-translate-y-0.5 hover:border-amber-300/80">
+      <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-saffron to-amber-400 rounded-l-xl sm:rounded-l-2xl opacity-80" aria-hidden />
+      <div className="absolute inset-0 bg-gradient-to-br from-amber-50/40 via-transparent to-primary-saffron/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden />
+      <div className="relative p-3 sm:p-5 flex-1 flex flex-col min-h-0 min-w-0 pl-4 sm:pl-6">
+        <h3 className="text-sm sm:text-lg font-bold text-premium-section-text tracking-tight leading-snug line-clamp-2 break-words">
+          {restaurant.name}
+        </h3>
         {restaurant.address && (
-          <p className="text-sm text-premium-section-muted mt-3 leading-relaxed">{restaurant.address}</p>
+          <p className="text-xs sm:text-sm text-premium-section-muted mt-1.5 leading-relaxed line-clamp-2 flex items-start gap-1.5 flex-shrink-0 min-w-0">
+            <svg className="w-3.5 h-3.5 flex-shrink-0 text-amber-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            </svg>
+            <span className="break-words overflow-hidden line-clamp-2">{restaurant.address}</span>
+          </p>
         )}
-        {restaurant.priceRange && (
-          <span className="inline-flex items-center gap-1.5 mt-3 text-xs font-medium text-amber-700 px-2.5 py-1 rounded-md bg-amber-50 border border-amber-200/50">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" aria-hidden />
-            {restaurant.priceRange}
-          </span>
+        {restaurant.contact && (
+          <a
+            href={`tel:${restaurant.contact.replace(/\s/g, '')}`}
+            onClick={(e) => e.stopPropagation()}
+            className="text-xs sm:text-sm text-amber-700 font-medium mt-1 flex items-center gap-1.5 hover:text-amber-800 hover:underline flex-shrink-0 min-w-0"
+          >
+            <svg className="w-3.5 h-3.5 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+            <span className="truncate">{restaurant.contact}</span>
+          </a>
         )}
       </div>
     </article>
@@ -302,7 +318,6 @@ export default function CityExplorePage() {
   });
 
   const filterCategories: { id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all'; labelKey: string; icon: string }[] = [
-    { id: 'all', labelKey: 'explore.filter.all', icon: '◇' },
     ...categoriesToShow
       .filter((c) => c !== FOOD_CATEGORY && c !== AARTI_CATEGORY)
       .map((c) => ({ id: c as PlaceCategory, labelKey: `explore.category.${c}`, icon: CATEGORY_ICONS[c] || '📍' })),
@@ -388,7 +403,7 @@ export default function CityExplorePage() {
                   id="food"
                   className="scroll-mt-24 rounded-2xl sm:rounded-3xl bg-white/80 backdrop-blur-sm border border-amber-200/50 shadow-xl shadow-amber-900/5 overflow-hidden"
                 >
-                  <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-8 py-4 sm:py-6 border-b border-amber-200/40 bg-gradient-to-r from-amber-50/80 to-orange-50/50 border-l-4 border-l-primary-saffron">
+                  <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-8 py-4 sm:py-6 border-b border-amber-200/40 bg-gradient-to-r from-amber-50/80 to-orange-50/50">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-saffron/20 to-amber-200/50 flex items-center justify-center text-xl sm:text-2xl border border-amber-200/60 shadow-inner">
                       {CATEGORY_ICONS.food}
                     </div>
@@ -399,8 +414,8 @@ export default function CityExplorePage() {
                       <p className="text-xs sm:text-sm text-premium-section-muted mt-0.5">{restaurants.length} {language === 'hi' ? 'स्थान' : 'places'}</p>
                     </div>
                   </div>
-                  <div className="p-3 sm:p-6 lg:p-8">
-                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
+                  <div className="p-4 sm:p-6 lg:p-8">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 lg:gap-5 items-start">
                       {restaurants.map((r, i) => (
                         <RestaurantCard key={i} restaurant={r} language={language} />
                       ))}
@@ -430,13 +445,13 @@ export default function CityExplorePage() {
                       </p>
                     </div>
                   </div>
-                  <div className="p-3 sm:p-6 lg:p-8 space-y-8 sm:space-y-10">
+                  <div className="p-4 sm:p-6 lg:p-8 space-y-8 sm:space-y-10">
                     {aartiPlaces.length > 0 && (
                       <div>
                         <h3 className="text-sm sm:text-base font-semibold text-premium-section-text uppercase tracking-wider mb-3 sm:mb-4">
                           {t('explore.aarti.where', language)}
                         </h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6 items-start">
                           {aartiPlaces.map((place, i) => (
                             <div
                               key={i}
@@ -457,7 +472,7 @@ export default function CityExplorePage() {
                         <h3 className="text-sm sm:text-base font-semibold text-premium-section-text uppercase tracking-wider mb-3 sm:mb-4">
                           {t('explore.aarti.ceremonies', language)}
                         </h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
                           {aartiRituals.map((ritual, i) => (
                             <RitualCard key={i} ritual={ritual} language={language} />
                           ))}
@@ -480,19 +495,19 @@ export default function CityExplorePage() {
                 id={category}
                 className="scroll-mt-24 rounded-2xl sm:rounded-3xl bg-white/80 backdrop-blur-sm border border-premium-teal/10 shadow-xl shadow-premium-teal/5 overflow-hidden"
               >
-                <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-8 py-4 sm:py-6 border-b border-premium-teal/10 bg-gradient-to-r from-premium-peach/60 to-white/80 border-l-4 border-l-premium-teal">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-premium-teal/15 to-premium-teal-light/20 flex items-center justify-center text-xl sm:text-2xl border border-premium-teal/20 shadow-inner">
+                <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-8 py-3.5 sm:py-6 border-b border-premium-teal/10 bg-gradient-to-r from-premium-peach/60 to-white/80 border-l-4 border-l-premium-teal">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-premium-teal/15 to-premium-teal-light/20 flex items-center justify-center text-xl sm:text-2xl border border-premium-teal/20 shadow-inner flex-shrink-0">
                     {icon}
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <h2 className="text-lg sm:text-2xl font-bold text-premium-section-text tracking-tight">
                       {t(`explore.category.${category}`, language)}
                     </h2>
                     <p className="text-xs sm:text-sm text-premium-section-muted mt-0.5">{items.length} {language === 'hi' ? 'स्थान' : 'places'}</p>
                   </div>
                 </div>
-                <div className="p-3 sm:p-6 lg:p-8">
-                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6">
+                <div className="p-4 sm:p-6 lg:p-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 lg:gap-6 items-start">
                     {items.map((place, i) => (
                       <div
                         key={i}

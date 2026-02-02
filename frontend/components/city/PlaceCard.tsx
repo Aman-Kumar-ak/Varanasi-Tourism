@@ -69,7 +69,7 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
     <article className="sm:hidden group relative flex flex-col overflow-hidden rounded-xl border border-premium-teal/10 bg-white shadow-md transition-all duration-300 active:scale-[0.98]">
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-premium-teal via-premium-teal-light to-premium-teal z-10" aria-hidden />
       {place.image && (
-        <div className="relative w-full aspect-[4/3] overflow-hidden flex-shrink-0">
+        <div className="relative w-full aspect-[3/2] overflow-hidden flex-shrink-0">
           <Image
             src={place.image}
             alt={getLocalizedContent(place.name, language)}
@@ -83,8 +83,8 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
           />
         </div>
       )}
-      <div className="flex flex-col flex-1 min-h-0 p-2.5 bg-gradient-to-b from-white to-premium-peach/20 text-center">
-        <h3 className="font-bold text-primary-dark text-sm leading-tight line-clamp-2 break-words">
+      <div className="flex flex-col flex-shrink-0 p-3 sm:p-4 bg-gradient-to-b from-white to-premium-peach/20 text-center">
+        <h3 className="font-bold text-primary-dark text-sm sm:text-base leading-snug line-clamp-2 break-words">
           {getLocalizedContent(place.name, language)}
         </h3>
       </div>
