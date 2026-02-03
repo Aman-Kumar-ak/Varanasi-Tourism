@@ -39,7 +39,7 @@ export default function UserMenu() {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-temple flex items-center justify-center text-white font-bold text-sm sm:text-base hover:ring-2 ring-primary-gold/50 transition-all shadow-md hover:shadow-lg active:scale-95 flex-shrink-0"
+        className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-temple flex items-center justify-center text-white font-bold text-base sm:text-lg hover:ring-2 ring-primary-gold/50 transition-all shadow-md hover:shadow-lg active:scale-95 flex-shrink-0 [-webkit-tap-highlight-color:transparent] focus:outline-none focus-visible:outline-none"
         aria-label="User menu"
       >
         {firstLetter}

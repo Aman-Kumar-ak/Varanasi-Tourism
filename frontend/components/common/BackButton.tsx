@@ -38,12 +38,12 @@ export default function BackButton() {
   return (
     <button
       onClick={handleBack}
-      className="fixed top-4 left-4 sm:top-7 sm:left-6 z-50 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 backdrop-blur-md shadow-lg border border-white/40 flex items-center justify-center transition-all duration-200 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 group"
+      className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 sm:bg-white/85 backdrop-blur-xl shadow-lg shadow-black/8 border border-white/70 ring-1 ring-black/5 flex items-center justify-center transition-all duration-200 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 group"
       aria-label="Go back"
       title="Go back"
     >
       <svg
-        className="w-4 h-4 sm:w-5 sm:h-5 text-primary-dark group-hover:text-primary-blue transition-colors"
+        className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 group-hover:text-primary-blue transition-colors"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

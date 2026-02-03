@@ -4,36 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { t } from "@/lib/translations";
-import { useState, useEffect } from "react";
-import { getApiUrl } from "@/lib/utils";
-import QuotesSection from "@/components/city/QuotesSection";
+import { useState } from "react";
 import BeautifulLoading from "@/components/common/BeautifulLoading";
 
 export default function Home() {
   const router = useRouter();
   const { language } = useLanguage();
-  const [quotes, setQuotes] = useState<any[]>([]);
   const [navigatingToGuide, setNavigatingToGuide] = useState(false);
-
-  useEffect(() => {
-    // Fetch quotes
-    const fetchQuotes = async () => {
-      try {
-        const apiUrl = getApiUrl();
-        const response = await fetch(`${apiUrl}/api/quotes`, {
-          cache: 'no-store',
-        });
-        const data = await response.json();
-        if (data.success) {
-          setQuotes(data.data || []);
-        }
-      } catch (error) {
-        console.error('Error fetching quotes:', error);
-      }
-    };
-
-    fetchQuotes();
-  }, []);
 
   if (navigatingToGuide) {
     return <BeautifulLoading />;
@@ -185,17 +162,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Quotes Section – wider */}
-      {quotes && quotes.length > 0 && (
-        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-12 lg:pt-16 pb-2 sm:pb-3 lg:pb-4">
-          <QuotesSection quotes={quotes} language={language} />
-        </section>
-      )}
-
       {/* Overview card – premium peach section, wider */}
       <section
         id="varanasi-overview"
-        className="section-premium-peach w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-3 lg:pt-4 pb-10 sm:pb-12 lg:pb-16 rounded-3xl mx-4 sm:mx-6 lg:mx-auto"
+        className="section-premium-peach w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-2 sm:pt-3 lg:pt-4 pb-10 sm:pb-12 lg:pb-16 rounded-3xl mx-4 sm:mx-6 lg:mx-auto mt-10 sm:mt-12 lg:mt-16"
       >
         <div className="premium-card rounded-3xl p-6 sm:p-8 lg:p-10 space-y-6 sm:space-y-8 relative z-10">
             <header className="space-y-2 sm:space-y-3">
@@ -252,7 +222,7 @@ export default function Home() {
       </section>
 
       {/* Highlight experiences – premium teal section, full-width background */}
-      <section className="section-premium-teal w-full py-12 sm:py-14 lg:py-16">
+      <section className="section-premium-teal w-full py-12 sm:py-14 lg:py-16 mt-10 sm:mt-12 lg:mt-16 no-section-gap-mobile">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid gap-5 lg:grid-cols-[1.4fr,1fr] items-stretch relative z-10">
           {/* Left: experiences card */}
@@ -330,7 +300,7 @@ export default function Home() {
       </section>
 
       {/* Final CTA – premium orange accent, more space above footer */}
-      <section className="section-premium-orange w-full pt-10 sm:pt-12 pb-14 sm:pb-20 md:pb-24">
+      <section className="section-premium-orange w-full pt-10 sm:pt-12 pb-14 sm:pb-20 md:pb-24 no-section-gap-mobile">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-5 md:gap-8 relative z-10">
           <div className="space-y-2 max-w-xl">
             <h2 className="text-xl sm:text-2xl font-semibold text-white multilingual-text">

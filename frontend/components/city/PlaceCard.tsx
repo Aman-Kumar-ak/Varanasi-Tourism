@@ -66,8 +66,8 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
   const iconSize = compact ? 'w-10 h-10 sm:w-11 sm:h-11 text-lg sm:text-xl' : 'w-12 h-12 sm:w-14 sm:h-14 text-xl sm:text-2xl';
 
   const minimalMobileLayout = minimal && (
-    <article className="sm:hidden group relative flex flex-col overflow-hidden rounded-xl border border-premium-teal/10 bg-white shadow-md transition-all duration-300 active:scale-[0.98]">
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-premium-teal via-premium-teal-light to-premium-teal z-10" aria-hidden />
+    <article className="sm:hidden group relative flex flex-col overflow-hidden rounded-xl border border-primary-saffron/10 bg-white shadow-md transition-all duration-300 active:scale-[0.98]">
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-saffron via-amber-400 to-primary-saffron z-10" aria-hidden />
       {place.image && (
         <div className="relative w-full aspect-[3/2] overflow-hidden flex-shrink-0">
           <Image
@@ -92,8 +92,8 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
   );
 
   const mainLayout = (
-    <article className={`group relative flex flex-col overflow-hidden border border-premium-teal/10 transition-all duration-300 ${minimal ? 'hidden sm:flex' : ''} ${hideImage ? 'rounded-b-2xl rounded-t-none border-t-0 bg-white/98 shadow-[0_4px_24px_rgba(0,0,0,0.06)]' : 'rounded-2xl premium-card'} ${fillHeight ? 'h-full min-h-0' : ''}`}>
-      {!hideImage && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-premium-teal via-premium-teal-light to-premium-teal z-20" aria-hidden />}
+    <article className={`group relative flex flex-col overflow-hidden border border-primary-saffron/10 transition-all duration-300 ${minimal ? 'hidden sm:flex' : ''} ${hideImage ? 'rounded-b-2xl rounded-t-none border-t-0 bg-white/98 shadow-[0_4px_24px_rgba(0,0,0,0.06)]' : 'rounded-2xl premium-card'} ${fillHeight ? 'h-full min-h-0' : ''}`}>
+      {!hideImage && <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-saffron via-amber-400 to-primary-saffron z-20" aria-hidden />}
 
       {place.image && !hideImage && (
         <div className={`relative w-full overflow-hidden flex-shrink-0 ${imageHeight}`}>
@@ -117,7 +117,7 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
         {/* Icon + title row (hidden when name/logo/category shown on hero, e.g. PC view) */}
         {!hideTitle && (
           <div className={`flex items-start gap-3 ${compact ? 'mb-2' : 'mb-4'} flex-shrink-0`}>
-            <div className={`flex-shrink-0 rounded-xl sm:rounded-2xl bg-gradient-to-br from-premium-teal to-premium-teal-light flex items-center justify-center shadow-premium ring-2 ring-white/80 ${iconSize}`}>
+            <div className={`flex-shrink-0 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-saffron to-amber-400 flex items-center justify-center shadow-premium ring-2 ring-white/80 ${iconSize}`}>
               {icon}
             </div>
             <div className="flex-1 min-w-0 pt-0.5">
@@ -125,7 +125,7 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
                 {getLocalizedContent(place.name, language)}
               </h3>
               {place.category && (
-                <span className={`inline-block font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-premium-teal/10 text-premium-teal border border-premium-teal/20 ${compact ? 'text-xs sm:text-sm mt-1' : 'text-xs mt-2'}`}>
+                <span className={`inline-block font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary-saffron/10 text-primary-saffron border border-primary-saffron/20 ${compact ? 'text-xs sm:text-sm mt-1' : 'text-xs mt-2'}`}>
                   {place.category}
                 </span>
               )}
@@ -140,7 +140,7 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
           </p>
 
           {place.spiritualImportance && !compact && (
-            <div className="rounded-xl bg-premium-peach/60 border border-premium-teal/20 p-4 mb-5">
+            <div className="rounded-xl bg-premium-peach/60 border border-primary-saffron/20 p-4 mb-5">
               <p className="text-primary-dark/90 text-sm sm:text-base leading-relaxed">
                 {getLocalizedContent(place.spiritualImportance, language)}
               </p>

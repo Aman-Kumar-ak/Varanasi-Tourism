@@ -793,16 +793,16 @@ export default function ComprehensiveCityGuide({
                         )}
                       </div>
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#B8D0DE] shadow-sm">
-                        <Image src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover" sizes="50vw" />
+                        <Image src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="50vw" />
                         {historyClusterInView && (
-                          <video ref={(el) => { historyVideoRefsMobile.current[1] = el; }} src={historyClusterVideos[1]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 2 && historyClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(2)} />
+                          <video ref={(el) => { historyVideoRefsMobile.current[1] = el; }} src={historyClusterVideos[2]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 2 && historyClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(2)} />
                         )}
                       </div>
                     </div>
                     <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden bg-primary-dark/5 border border-[#B8D0DE] shadow-sm">
-                      <Image src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="100vw" />
+                      <Image src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover" sizes="100vw" />
                       {historyClusterInView && (
-                        <video ref={(el) => { historyVideoRefsMobile.current[2] = el; }} src={historyClusterVideos[2]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 3 && historyClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(3)} />
+                        <video ref={(el) => { historyVideoRefsMobile.current[2] = el; }} src={historyClusterVideos[1]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 3 && historyClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(3)} />
                       )}
                     </div>
                   </div>
@@ -841,16 +841,16 @@ export default function ComprehensiveCityGuide({
                           )}
                         </div>
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#B8D0DE] shadow-md">
-                          <Image src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
+                          <Image src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
                           {historyClusterInView && (
-                            <video ref={(el) => { historyVideoRefsDesktop.current[1] = el; }} src={historyClusterVideos[1]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 2 && historyClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(2)} />
+                            <video ref={(el) => { historyVideoRefsDesktop.current[1] = el; }} src={historyClusterVideos[2]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 2 && historyClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(2)} />
                           )}
                         </div>
                       </div>
                       <div className="relative aspect-[16/9] w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-gradient-to-b from-amber-50/80 to-white border border-[#B8D0DE] shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
-                        <Image src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
+                        <Image src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
                         {historyClusterInView && (
-                          <video ref={(el) => { historyVideoRefsDesktop.current[2] = el; }} src={historyClusterVideos[2]} muted playsInline className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 3 && historyClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(3)} />
+                          <video ref={(el) => { historyVideoRefsDesktop.current[2] = el; }} src={historyClusterVideos[1]} muted playsInline className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 3 && historyClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(3)} />
                         )}
                       </div>
                     </div>

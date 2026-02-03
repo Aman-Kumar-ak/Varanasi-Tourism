@@ -151,11 +151,11 @@ h1, h2, h3, h4, h5, h6,
     box-shadow: 0 0 0 2px var(--ah-glow, rgba(15, 118, 110, 0.08));
   }
 }
-/* Places to visit – light teal */
+/* Places to visit – light saffron */
 .accordion-highlight-places {
-  --ah-bg: rgba(15, 118, 110, 0.05);
-  --ah-bg-peak: rgba(15, 118, 110, 0.11);
-  --ah-glow: rgba(15, 118, 110, 0.06);
+  --ah-bg: rgba(255, 107, 53, 0.05);
+  --ah-bg-peak: rgba(255, 107, 53, 0.11);
+  --ah-glow: rgba(255, 107, 53, 0.06);
   animation: accordion-highlight-flow 1.2s ease-in-out infinite;
 }
 /* Rituals – light saffron/orange */
@@ -338,6 +338,13 @@ h1, h2, h3, h4, h5, h6,
 @media (max-width: 640px) {
   section {
     margin-bottom: 2rem !important;
+  }
+}
+
+/* Opt-out for sections that should touch on mobile */
+@media (max-width: 640px) {
+  .no-section-gap-mobile {
+    margin-bottom: 0 !important;
   }
 }
 

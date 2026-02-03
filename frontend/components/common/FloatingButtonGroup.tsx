@@ -80,8 +80,8 @@ export default function FloatingButtonGroup() {
 
   return (
     <>
-      {/* Unified Button Group Container - Capsule/Dumbbell Shape */}
-      <div className="fixed top-4 right-4 sm:top-7 sm:right-6 z-40 flex items-center gap-1 sm:gap-1.5 bg-black/30 backdrop-blur-md rounded-full px-1 sm:px-1.5 py-1 sm:py-1.5 border border-black/40 shadow-lg">
+      {/* Dark glass toolbar pill - no tap highlight */}
+      <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-40 flex items-center gap-1 sm:gap-1.5 rounded-full bg-black/40 sm:bg-black/35 backdrop-blur-xl px-1.5 sm:px-2 py-1.5 sm:py-2 border border-white/10 [&_button]:[-webkit-tap-highlight-color:transparent]">
         {/* Login/Profile Button - Left Circle */}
         <div className="flex items-center">
           {isAuthenticated ? (
@@ -89,7 +89,7 @@ export default function FloatingButtonGroup() {
           ) : (
             <button
               onClick={() => setIsLoginModalOpen(true)}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-temple flex items-center justify-center text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-200"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-temple flex items-center justify-center text-white shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all duration-200 [-webkit-tap-highlight-color:transparent] focus:outline-none focus-visible:outline-none"
               aria-label="Login"
               title="Login"
             >
@@ -114,12 +114,12 @@ export default function FloatingButtonGroup() {
         <div className="relative" ref={settingsPanelRef}>
           <button
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/80 backdrop-blur-sm shadow-md border border-primary-gold/20 flex items-center justify-center transition-all duration-200 hover:bg-white/95 hover:shadow-lg hover:scale-105 active:scale-95"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 text-white/90 hover:text-white [-webkit-tap-highlight-color:transparent] focus:outline-none focus-visible:outline-none"
             aria-label="Open settings"
             title="Settings"
           >
             <svg
-              className="w-5 h-5 sm:w-6 sm:h-6 text-primary-dark"
+              className="w-5 h-5 sm:w-6 sm:h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -134,15 +134,25 @@ export default function FloatingButtonGroup() {
           </button>
 
           {/* Settings Dropdown Panel */}
-          {isSettingsOpen && (
-            <div className="fixed top-14 right-2 sm:top-18 sm:right-4 z-50 bg-white/95 backdrop-blur-xl rounded-xl shadow-2xl border border-primary-gold/30 p-3 sm:p-4 max-w-[calc(100vw-2rem)] sm:max-w-none w-auto transform transition-all duration-200 opacity-100 translate-y-0">
+          <div
+            className={`absolute top-full mt-2 right-0 sm:top-14 sm:mt-0 z-50 max-w-[calc(100vw-2rem)] sm:max-w-none w-auto transform-gpu transition-all duration-200 origin-top-right ${
+              isSettingsOpen
+                ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
+                : 'opacity-0 scale-90 -translate-y-1 pointer-events-none'
+            }`}
+          >
+            <div className="relative rounded-2xl bg-gradient-to-br from-white/95 via-premium-peach/90 to-white/95 backdrop-blur-xl shadow-[0_18px_45px_rgba(15,23,42,0.18)] border border-primary-saffron/25 p-3 sm:p-4">
+              <div
+                className="absolute -top-2.5 right-3 h-5 w-5 rotate-45 rounded-[6px] bg-gradient-to-br from-white/95 via-premium-peach/90 to-white/95 border-l border-t border-primary-saffron/25 shadow-[0_8px_16px_rgba(15,23,42,0.08)]"
+                aria-hidden
+              />
               {/* Controls - In One Column */}
               <div className="flex flex-col gap-3">
                 <FontSizeControl />
                 <LanguageSelector />
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
 

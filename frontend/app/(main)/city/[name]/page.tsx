@@ -99,15 +99,9 @@ export default function CityPage() {
           sessionStorage.removeItem(LANGUAGE_CHANGE_SCROLL_KEY);
         }
       } else {
-        // No saved position (refresh or first visit): always start at top (mobile: multiple passes to override late scroll restoration)
+        // No saved position (refresh or first visit): scroll to top once when content is ready.
+        // Avoid delayed timeouts so we don't snap back to top after the user has started scrolling.
         scrollToTop();
-        requestAnimationFrame(scrollToTop);
-        const t1 = setTimeout(scrollToTop, 50);
-        const t2 = setTimeout(scrollToTop, 150);
-        return () => {
-          clearTimeout(t1);
-          clearTimeout(t2);
-        };
       }
     }
     prevLoadingRef.current = loading;

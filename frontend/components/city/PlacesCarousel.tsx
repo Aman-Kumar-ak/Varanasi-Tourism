@@ -105,7 +105,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
     <div className="relative">
       {/* Phone: Accordion – compact, one item expanded, same content + photos */}
       <div className="sm:hidden">
-        <div className="rounded-2xl overflow-hidden border-2 border-teal-200/90 bg-white shadow-sm divide-y divide-teal-200/80">
+        <div className="rounded-2xl overflow-hidden border-2 border-amber-200/80 bg-white shadow-sm divide-y divide-amber-200/70">
           {places.map((place, index) => {
             const isExpanded = expandedIndex === index;
             const category = place.category || 'other';
@@ -121,7 +121,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                 <button
                   type="button"
                   onClick={() => toggleExpand(index)}
-                  className={`flex items-center text-left transition-colors touch-manipulation ${isExpanded ? 'absolute right-4 z-20 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white shadow-sm border border-slate-200/80 justify-center items-center p-0 text-primary-dark hover:bg-white active:bg-white hover:scale-100 active:scale-100 cursor-default top-[1.375rem]' : 'w-full gap-3 px-4 py-3.5 bg-white hover:bg-teal-50/50 active:bg-teal-50'} ${!isExpanded && index === highlightedIndex ? 'accordion-highlight-places' : ''}`}
+                  className={`flex items-center text-left transition-colors touch-manipulation ${isExpanded ? 'absolute right-4 z-20 w-8 h-8 min-w-[32px] min-h-[32px] rounded-full bg-white shadow-sm border border-slate-200/80 justify-center items-center p-0 text-primary-dark hover:bg-white active:bg-white hover:scale-100 active:scale-100 cursor-default top-[1.375rem]' : 'w-full gap-3 px-4 py-3.5 bg-white hover:bg-amber-50/60 active:bg-amber-50'} ${!isExpanded && index === highlightedIndex ? 'accordion-highlight-places' : ''}`}
                   aria-expanded={isExpanded}
                   aria-controls={`place-accordion-${index}`}
                   id={`place-accordion-heading-${index}`}
@@ -140,7 +140,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                           />
                         </div>
                       ) : (
-                        <div className="w-12 h-12 rounded-xl bg-premium-teal/10 flex items-center justify-center text-lg flex-shrink-0 border border-teal-200/60">
+                        <div className="w-12 h-12 rounded-xl bg-primary-saffron/10 flex items-center justify-center text-lg flex-shrink-0 border border-amber-200/60">
                           {icon}
                         </div>
                       )}
@@ -150,7 +150,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                     </>
                   )}
                   <span
-                    className={`flex-shrink-0 rounded-full flex items-center justify-center border ${isExpanded ? 'bg-transparent w-8 h-8 text-primary-dark border-transparent' : 'w-8 h-8 bg-premium-teal/10 text-premium-teal border-teal-200/60'} ${!isExpanded ? '' : ''}`}
+                    className={`flex-shrink-0 rounded-full flex items-center justify-center border ${isExpanded ? 'bg-transparent w-8 h-8 text-primary-dark border-transparent' : 'w-8 h-8 bg-primary-saffron/10 text-primary-saffron border-amber-200/70'} ${!isExpanded ? '' : ''}`}
                     aria-hidden
                   >
                     {isExpanded ? (
@@ -203,7 +203,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                     )}
 
                     {place.category && (
-                      <span className="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-premium-teal/10 text-premium-teal border border-premium-teal/20">
+                      <span className="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-primary-saffron/10 text-primary-saffron border border-amber-200/70">
                         {place.category}
                       </span>
                     )}
@@ -213,7 +213,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                     </p>
 
                     {place.spiritualImportance && (
-                      <div className="rounded-xl bg-premium-peach/50 border border-premium-teal/20 p-3">
+                      <div className="rounded-xl bg-premium-peach/50 border border-amber-200/60 p-3">
                         <p className="text-primary-dark/90 text-xs sm:text-sm leading-relaxed">
                           {getLocalizedContent(place.spiritualImportance, language)}
                         </p>
@@ -249,7 +249,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                           openGoogleMapsDirections(place.location, getLocalizedContent(place.name, language));
                         }
                       }}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-premium-teal text-white py-3 px-4 text-sm font-semibold shadow-md hover:bg-premium-teal-light active:scale-[0.98] transition-all touch-manipulation disabled:opacity-70"
+                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary-saffron text-white py-3 px-4 text-sm font-semibold shadow-md hover:bg-primary-deepOrange active:scale-[0.98] transition-all touch-manipulation disabled:opacity-70"
                       disabled={!place.location}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,10 +267,10 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
           <div className="mt-4 px-2">
             <Link
               href={`/city/${exploreSlug}/explore`}
-              className="w-full rounded-xl border-2 border-premium-teal/50 bg-premium-teal/10 text-premium-teal px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm"
+              className="w-full rounded-xl bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron text-white px-5 py-3.5 min-h-[52px] flex items-center justify-center gap-2.5 font-bold text-sm shadow-lg border border-primary-saffron/70 hover:brightness-105 active:brightness-95 transition-all duration-200"
             >
               {t('explore.more', language)}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
@@ -280,12 +280,12 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
 
       {/* PC: Featured place (left) + Quick View sidebar (right) */}
       <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
-        {/* Left: Green strip above image, then image + card as one attached block */}
+        {/* Left: Accent strip above image, then image + card as one attached block */}
         <div className="sm:col-span-7 lg:col-span-8">
           {featuredPlace && (
-            <div className="rounded-2xl overflow-hidden border border-premium-teal/10 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
-              {/* Green strip above the image */}
-              <div className="h-1 w-full bg-gradient-to-r from-premium-teal via-premium-teal-light to-premium-teal flex-shrink-0" aria-hidden />
+            <div className="rounded-2xl overflow-hidden border border-amber-200/70 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+              {/* Accent strip above the image */}
+              <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron flex-shrink-0" aria-hidden />
               {/* Hero image – no gap below */}
               {featuredPlace.image && (
                 <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden border-0">
@@ -318,19 +318,19 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
 
         {/* Right: Quick View – More places list (no preview text, no scrolling – show all) */}
         <aside className="sm:col-span-5 lg:col-span-4">
-          <div className="sticky top-4 rounded-2xl overflow-hidden premium-card border border-premium-teal/10 flex flex-col">
-            <div className="h-1 w-full bg-gradient-to-r from-premium-teal via-premium-teal-light to-premium-teal flex-shrink-0" aria-hidden />
+          <div className="sticky top-4 rounded-2xl overflow-hidden premium-card border border-amber-200/70 flex flex-col">
+            <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron flex-shrink-0" aria-hidden />
             <div className="flex flex-col p-4 sm:p-5">
               <header className="flex items-center justify-between gap-3 mb-4">
                 <div>
-                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-premium-teal font-semibold">
+                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-primary-saffron font-semibold">
                     {language === 'hi' ? 'त्वरित दृश्य' : 'Quick view'}
                   </p>
                   <h3 className="text-base sm:text-lg font-bold text-premium-section-text mt-0.5">
                     {language === 'hi' ? 'अन्य स्थान' : 'More places'}
                   </h3>
                 </div>
-                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-premium-teal/10 border border-premium-teal/20 flex items-center justify-center text-premium-teal">
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary-saffron/10 border border-amber-200/70 flex items-center justify-center text-primary-saffron">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   </svg>
@@ -348,8 +348,8 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                       onClick={() => setSelectedIndex(index)}
                       className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors duration-200 ${
                         isSelected
-                          ? 'border-premium-teal/60 bg-premium-peach/80 text-premium-section-text shadow-sm'
-                          : 'border-slate-200/80 bg-white hover:border-premium-teal/30 hover:bg-premium-peach/40 text-premium-section-text/90'
+                          ? 'border-primary-saffron/60 bg-amber-50/80 text-premium-section-text shadow-sm'
+                          : 'border-slate-200/80 bg-white hover:border-primary-saffron/30 hover:bg-amber-50/50 text-premium-section-text/90'
                       }`}
                     >
                       <div className="min-w-0 flex-1 flex flex-col items-start gap-0.5">
@@ -357,14 +357,14 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                           {getLocalizedContent(place.name, language)}
                         </span>
                         {(place.category || place.bestTimeToVisit) && (
-                          <span className="text-xs text-premium-teal font-medium">
+                          <span className="text-xs text-primary-saffron font-medium">
                             {[place.category && String(place.category).toUpperCase(), place.bestTimeToVisit].filter(Boolean).join(' · ')}
                           </span>
                         )}
                       </div>
                       <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs">
                         {isSelected ? (
-                          <svg className="w-3.5 h-3.5 text-premium-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3.5 h-3.5 text-primary-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                           </svg>
                         ) : (
@@ -379,10 +379,10 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                 {exploreSlug && (
                   <Link
                     href={`/city/${exploreSlug}/explore`}
-                    className="w-full rounded-xl border-2 border-premium-teal/50 bg-premium-teal/10 text-premium-teal px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm sm:text-base hover:bg-premium-teal/20 hover:border-premium-teal/70 transition-colors"
+                    className="w-full rounded-xl bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron text-white px-5 py-3.5 min-h-[52px] flex items-center justify-center gap-2.5 font-bold text-sm sm:text-base shadow-lg border border-primary-saffron/70 hover:brightness-105 hover:shadow-xl active:brightness-95 transition-all duration-200"
                   >
                     {t('explore.more', language)}
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                     </svg>
                   </Link>

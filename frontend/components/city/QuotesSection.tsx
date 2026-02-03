@@ -181,9 +181,9 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
               : 'scale-90 opacity-55 z-0'
         }`}
       >
-        <div className={`flex flex-row flex-1 min-h-0 ${compact ? 'min-h-[208px]' : 'min-h-[280px]'} sm:min-h-[300px]`}>
+        <div className={`flex flex-row flex-1 min-h-0 ${compact ? 'min-h-[180px]' : 'min-h-[240px]'} sm:min-h-[260px]`}>
           {/* Left: content – text justifies; quote area scrolls when long (desktop strip) */}
-          <div className={`flex flex-1 min-w-0 min-h-0 flex-col ${compact ? 'p-3 pr-2' : 'py-3 px-4 sm:py-4 sm:px-5 md:px-6 pr-4 sm:pr-5'}`}>
+          <div className={`flex flex-1 min-w-0 min-h-0 flex-col ${compact ? 'p-2.5 pr-2' : 'py-2 px-4 sm:py-3 sm:px-5 md:px-6 pr-4 sm:pr-5'}`}>
             {/* Author name – top of content block */}
             <p className={`flex-shrink-0 ${compact ? 'text-base' : 'text-lg sm:text-xl'} font-bold text-amber-600 multilingual-text mb-0.5`}>
               {quote.author}
@@ -201,7 +201,7 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
           </div>
 
           {/* Right: full-height image; on mobile (compact) use smaller width */}
-          <div className={`relative flex-shrink-0 overflow-hidden self-stretch ${compact ? 'w-24 min-h-[208px]' : 'w-40 sm:w-44 md:w-48 min-h-0'} sm:w-44 md:w-48 sm:min-h-0`}>
+          <div className={`relative flex-shrink-0 overflow-hidden self-stretch ${compact ? 'w-24 min-h-[180px]' : 'w-40 sm:w-44 md:w-48 min-h-0'} sm:w-44 md:w-48 sm:min-h-0`}>
             {quote.image ? (
               <Image
                 src={quote.image}
@@ -266,8 +266,8 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
             </>
           )}
 
-          {/* Viewport: full width on mobile (no arrows); inset on desktop for arrows */}
-          <div className="flex items-stretch justify-start w-full min-w-0 overflow-hidden ml-0 mr-0 sm:ml-[48px] sm:mr-[48px]">
+          {/* Viewport: full width on mobile (no arrows); inset on desktop for arrows; rounded corners match cards at left/right edges */}
+          <div className="flex items-stretch justify-start w-full min-w-0 overflow-hidden rounded-2xl ml-0 mr-0 sm:ml-[48px] sm:mr-[48px]">
             {isMobile && totalItems >= 1 ? (
               <div className="w-full min-w-0 overflow-hidden">
                 {totalItems === 1 ? (

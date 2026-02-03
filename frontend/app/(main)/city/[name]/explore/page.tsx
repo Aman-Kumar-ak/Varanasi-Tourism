@@ -77,9 +77,8 @@ function RitualCard({ ritual, language }: { ritual: Ritual; language: LanguageCo
   const name = getLocalizedContent(ritual.name, language);
   const description = getLocalizedContent(ritual.description, language);
   return (
-    <article className="group relative flex flex-col h-full min-w-0 overflow-hidden rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200/60 shadow-lg shadow-amber-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 hover:-translate-y-0.5 hover:border-amber-300/80">
+    <article className="relative flex flex-col h-full min-w-0 overflow-hidden rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200/60 shadow-lg shadow-amber-900/5">
       <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-saffron to-amber-400 rounded-l-2xl opacity-80" aria-hidden />
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-50/40 via-transparent to-primary-saffron/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden />
       <div className="relative p-5 sm:p-6 flex-1 flex flex-col min-h-0 pl-6">
         <h3 className="text-base sm:text-lg font-bold text-premium-section-text tracking-tight leading-snug line-clamp-2 flex-shrink-0">
           {name}
@@ -102,9 +101,8 @@ function RitualCard({ ritual, language }: { ritual: Ritual; language: LanguageCo
 
 function RestaurantCard({ restaurant, language }: { restaurant: Restaurant; language: LanguageCode }) {
   return (
-    <article className="group relative flex flex-col h-full min-h-0 min-w-0 overflow-hidden rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200/60 shadow-lg shadow-amber-900/5 transition-all duration-300 hover:shadow-xl hover:shadow-amber-900/10 hover:-translate-y-0.5 hover:border-amber-300/80">
+    <article className="relative flex flex-col h-full min-h-0 min-w-0 overflow-hidden rounded-xl sm:rounded-2xl bg-white/95 backdrop-blur-sm border border-amber-200/60 shadow-lg shadow-amber-900/5">
       <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary-saffron to-amber-400 rounded-l-xl sm:rounded-l-2xl opacity-80" aria-hidden />
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-50/40 via-transparent to-primary-saffron/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" aria-hidden />
       <div className="relative p-3 sm:p-5 flex-1 flex flex-col min-h-0 min-w-0 pl-4 sm:pl-6">
         <h3 className="text-sm sm:text-lg font-bold text-premium-section-text tracking-tight leading-snug line-clamp-2 break-words">
           {restaurant.name}
@@ -143,6 +141,7 @@ export default function CityExplorePage() {
   const [scrolledToCategory, setScrolledToCategory] = useState<PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all'>('all');
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [guideAnimationStopped, setGuideAnimationStopped] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const filterScrollRef = useRef<HTMLDivElement>(null);
@@ -152,6 +151,14 @@ export default function CityExplorePage() {
   const closePopup = useCallback(() => {
     setPopupOpen(false);
     setTimeout(() => setSelectedPlace(null), 300);
+  }, []);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(mql.matches);
+    update();
+    mql.addEventListener('change', update);
+    return () => mql.removeEventListener('change', update);
   }, []);
 
   useEffect(() => {
@@ -205,16 +212,16 @@ export default function CityExplorePage() {
     }
   }, [loading, city]);
 
-  // Lock body scroll when place detail popup is open
+  // Lock body scroll when place detail popup is open (mobile only)
   useEffect(() => {
-    if (selectedPlace) {
+    if (selectedPlace && isMobile) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
       return () => {
         document.body.style.overflow = prev;
       };
     }
-  }, [selectedPlace]);
+  }, [selectedPlace, isMobile]);
 
   // Guide animation: only on desktop (min-width 768px). Disabled on phone to avoid scroll jitter from RAF + scrollLeft.
   useEffect(() => {
@@ -273,12 +280,12 @@ export default function CityExplorePage() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-premium-peach to-background-cream flex items-center justify-center px-4">
         <div className="text-center max-w-md">
-          <div className="w-20 h-20 rounded-2xl bg-premium-teal/10 flex items-center justify-center text-4xl mx-auto mb-6">📍</div>
+          <div className="w-20 h-20 rounded-2xl bg-primary-saffron/10 flex items-center justify-center text-4xl mx-auto mb-6">📍</div>
           <h2 className="text-2xl font-bold text-premium-section-text mb-3">City Not Found</h2>
           <p className="text-premium-section-muted mb-6">We couldn&apos;t load this city. Try another from the list.</p>
           <Link
             href="/cities"
-            className="inline-flex items-center gap-2 rounded-xl bg-premium-teal text-white px-6 py-3 font-semibold shadow-lg shadow-premium-teal/25 hover:bg-premium-teal-light transition-colors"
+            className="inline-flex items-center gap-2 rounded-xl bg-primary-saffron text-white px-6 py-3 font-semibold shadow-lg shadow-primary-saffron/25 hover:bg-primary-saffron/90 transition-colors"
           >
             Back to Cities
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -343,19 +350,25 @@ export default function CityExplorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-premium-peach via-white/40 to-background-cream">
-      {/* Header: on phone, content sits below fixed buttons so nothing is hidden */}
-      <header ref={headerRef} className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-premium-teal via-premium-teal-light/95 to-premium-teal" aria-hidden />
-        <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, white 1.5px, transparent 1.5px)', backgroundSize: '20px 20px' }} aria-hidden />
-        <div className="relative w-full mx-auto pt-14 pb-6 sm:pt-10 sm:pb-8">
-          <div className="pl-14 pr-24 sm:pl-16 sm:pr-24 max-w-xl min-w-0">
-            <p className="text-white/80 text-xs font-semibold uppercase tracking-[0.25em] mb-1.5">Discover</p>
-            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-tight">
-              {t('explore.page.title', language)}
-            </h1>
-            <p className="text-white/90 mt-2 text-sm sm:text-base leading-relaxed">
-              {t('explore.page.subtitle', language)}
-            </p>
+      {/* Modern header: single bar, content aligned with fixed back + actions */}
+      <header ref={headerRef} className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-amber-500 via-primary-saffron to-primary-deepOrange" aria-hidden />
+        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,transparent_50%,rgba(0,0,0,0.04)_100%)]" aria-hidden />
+        <div className="relative w-full max-w-[1600px] mx-auto pl-14 pr-4 sm:pl-16 sm:pr-6 lg:pl-20 lg:pr-10">
+          <div className="flex items-start justify-between gap-4 pt-14 pb-6 sm:pt-12 sm:pb-8 min-h-[5.5rem] sm:min-h-0">
+            <div className="min-w-0 flex-1 pt-0.5">
+              <span className="inline-block text-white/90 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] mb-1.5 rounded-full bg-white/15 px-2.5 py-0.5">
+                {language === 'hi' ? 'खोजें' : 'Discover'}
+              </span>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-tight leading-tight drop-shadow-sm">
+                {t('explore.page.title', language)}
+              </h1>
+              <p className="text-white/95 mt-1.5 text-sm sm:text-base leading-snug max-w-xl">
+                {t('explore.page.subtitle', language)}
+              </p>
+            </div>
+            {/* Spacer so fixed FloatingButtonGroup aligns with this row; no content so buttons stay on top */}
+            <div className="flex-shrink-0 w-20 sm:w-24 h-10 sm:h-12" aria-hidden />
           </div>
         </div>
       </header>
@@ -382,8 +395,8 @@ export default function CityExplorePage() {
                   onClick={() => handleFloatingFilterClick(id)}
                   className={`flex-shrink-0 flex items-center px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 touch-manipulation ${
                     isSelected
-                      ? 'bg-gradient-to-b from-premium-teal to-premium-teal/90 text-white border border-premium-teal/80 shadow-[0_4px_12px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.25)] active:shadow-[0_1px_4px_rgba(0,0,0,0.15),inset_0_2px_4px_rgba(0,0,0,0.1)]'
-                      : 'bg-gradient-to-b from-white/70 to-white/40 text-premium-section-text border border-slate-200/90 shadow-[0_2px_6px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.8)] hover:from-white/80 hover:to-white/50 hover:text-premium-teal hover:border-premium-teal/40 hover:shadow-[0_3px_10px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] backdrop-blur-sm'
+                      ? 'bg-gradient-to-b from-primary-saffron to-primary-saffron/90 text-white border border-primary-saffron/80 shadow-[0_4px_12px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.25)] active:shadow-[0_1px_4px_rgba(0,0,0,0.15),inset_0_2px_4px_rgba(0,0,0,0.1)]'
+                      : 'bg-gradient-to-b from-white/70 to-white/40 text-premium-section-text border border-slate-200/90 shadow-[0_2px_6px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.8)] hover:from-white/80 hover:to-white/50 hover:text-primary-saffron hover:border-primary-saffron/40 hover:shadow-[0_3px_10px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] backdrop-blur-sm'
                   }`}
                 >
                   {t(labelKey, language)}
@@ -462,7 +475,7 @@ export default function CityExplorePage() {
                               tabIndex={0}
                               onClick={() => setSelectedPlace(place)}
                               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPlace(place); } }}
-                              className="rounded-xl sm:rounded-2xl overflow-hidden shadow-lg shadow-premium-teal/5 border border-premium-teal/10 bg-white/95 hover:shadow-xl hover:shadow-premium-teal/10 transition-all duration-300 active:scale-[0.98] sm:hover:-translate-y-0.5 cursor-pointer"
+                              className="rounded-xl sm:rounded-2xl overflow-hidden shadow-lg shadow-primary-saffron/5 border border-primary-saffron/10 bg-white/95 active:scale-[0.98] cursor-pointer"
                             >
                               <PlaceCard place={place} language={language} fillHeight compact minimal />
                             </div>
@@ -496,10 +509,10 @@ export default function CityExplorePage() {
               <section
                 key={category}
                 id={category}
-                className="scroll-mt-24 rounded-2xl sm:rounded-3xl bg-white/80 backdrop-blur-sm border border-premium-teal/10 shadow-xl shadow-premium-teal/5 overflow-hidden"
+                className="scroll-mt-24 rounded-2xl sm:rounded-3xl bg-white/80 backdrop-blur-sm border border-primary-saffron/10 shadow-xl shadow-primary-saffron/5 overflow-hidden"
               >
-                <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-8 py-3.5 sm:py-6 border-b border-premium-teal/10 bg-gradient-to-r from-premium-peach/60 to-white/80 border-l-4 border-l-premium-teal">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-premium-teal/15 to-premium-teal-light/20 flex items-center justify-center text-xl sm:text-2xl border border-premium-teal/20 shadow-inner flex-shrink-0">
+                <div className="flex items-center gap-3 sm:gap-4 px-4 sm:px-8 py-3.5 sm:py-6 border-b border-primary-saffron/10 bg-gradient-to-r from-premium-peach/60 to-white/80 border-l-4 border-l-primary-saffron">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-primary-saffron/15 to-amber-200/50 flex items-center justify-center text-xl sm:text-2xl border border-primary-saffron/20 shadow-inner flex-shrink-0">
                     {icon}
                   </div>
                   <div className="min-w-0">
@@ -518,7 +531,7 @@ export default function CityExplorePage() {
                         tabIndex={0}
                         onClick={() => setSelectedPlace(place)}
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedPlace(place); } }}
-                        className="rounded-xl sm:rounded-2xl overflow-hidden shadow-lg shadow-premium-teal/5 border border-premium-teal/10 bg-white/95 hover:shadow-xl hover:shadow-premium-teal/10 transition-all duration-300 active:scale-[0.98] sm:hover:-translate-y-0.5 cursor-pointer"
+                        className="rounded-xl sm:rounded-2xl overflow-hidden shadow-lg shadow-primary-saffron/5 border border-primary-saffron/10 bg-white/95 active:scale-[0.98] cursor-pointer"
                       >
                         <PlaceCard place={place} language={language} fillHeight compact minimal />
                       </div>
@@ -534,8 +547,8 @@ export default function CityExplorePage() {
       {/* Bottom spacing for scroll */}
       <div className="h-12" aria-hidden />
 
-      {/* Place detail popup – full details on card click, with open/close animation */}
-      {selectedPlace && (
+      {/* Place detail popup – mobile only; full details on card tap */}
+      {selectedPlace && isMobile && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm transition-opacity duration-300 ease-out ${popupOpen ? 'opacity-100' : 'opacity-0'}`}
           onClick={closePopup}
@@ -544,7 +557,7 @@ export default function CityExplorePage() {
           aria-labelledby="place-detail-title"
         >
           <div
-            className={`relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-premium-teal/20 transition-all duration-300 ease-out ${popupOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'}`}
+            className={`relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-primary-saffron/20 transition-all duration-300 ease-out ${popupOpen ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'}`}
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -555,7 +568,7 @@ export default function CityExplorePage() {
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <div className="h-1 w-full bg-gradient-to-r from-premium-teal via-premium-teal-light to-premium-teal flex-shrink-0" aria-hidden />
+            <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-amber-400 to-primary-saffron flex-shrink-0" aria-hidden />
             {selectedPlace.image && (
               <div className="relative w-full aspect-video overflow-hidden">
                 <img
@@ -570,7 +583,7 @@ export default function CityExplorePage() {
                 {getLocalizedContent(selectedPlace.name, language)}
               </h2>
               {selectedPlace.category && (
-                <span className="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-premium-teal/10 text-premium-teal border border-premium-teal/20 mb-4">
+                <span className="inline-block text-xs font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-primary-saffron/10 text-primary-saffron border border-primary-saffron/20 mb-4">
                   {selectedPlace.category}
                 </span>
               )}
