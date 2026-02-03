@@ -325,11 +325,11 @@ export default function ComprehensiveCityGuide({
   const [spiritualClusterIsMobile, setSpiritualClusterIsMobile] = useState(false);
 
   const HISTORY_VIDEO_FADE_MS = 600;
-  const HISTORY_VIDEO_PAUSE_BETWEEN_MS = 1400;
-  const HISTORY_VIDEO_PAUSE_BEFORE_LOOP_MS = 2800;
+  const HISTORY_VIDEO_PAUSE_BETWEEN_MS = 0;
+  const HISTORY_VIDEO_PAUSE_BEFORE_LOOP_MS = 0;
   const SPIRITUAL_VIDEO_FADE_MS = 600;
-  const SPIRITUAL_VIDEO_PAUSE_BETWEEN_MS = 1400;
-  const SPIRITUAL_VIDEO_PAUSE_BEFORE_LOOP_MS = 2800;
+  const SPIRITUAL_VIDEO_PAUSE_BETWEEN_MS = 0;
+  const SPIRITUAL_VIDEO_PAUSE_BEFORE_LOOP_MS = 0;
 
   // History cluster: play videos only when section is in view; sequential playback with loop
   useEffect(() => {
@@ -359,10 +359,10 @@ export default function ComprehensiveCityGuide({
     return () => observer.disconnect();
   }, [city.history]);
 
-  // When History section enters view, show images for 2.5s then start first video
+  // When History section enters view, start first video immediately
   useEffect(() => {
     if (!historyClusterInView) return;
-    const id = setTimeout(() => setHistoryClusterPlayingSlot(1), 2500);
+    const id = setTimeout(() => setHistoryClusterPlayingSlot(1), 0);
     historyVideoTimeoutsRef.current.push(id);
     return () => {
       clearTimeout(id);
@@ -437,7 +437,7 @@ export default function ComprehensiveCityGuide({
 
   useEffect(() => {
     if (!spiritualClusterInView) return;
-    const id = setTimeout(() => setSpiritualClusterPlayingSlot(1), 2500);
+    const id = setTimeout(() => setSpiritualClusterPlayingSlot(1), 0);
     spiritualVideoTimeoutsRef.current.push(id);
     return () => {
       clearTimeout(id);
