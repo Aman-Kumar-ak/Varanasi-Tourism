@@ -80,8 +80,8 @@ export default function FloatingButtonGroup() {
 
   return (
     <>
-      {/* Dark glass toolbar pill - no tap highlight */}
-      <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-40 flex items-center gap-1 sm:gap-1.5 rounded-full bg-black/40 sm:bg-black/35 backdrop-blur-xl px-1.5 sm:px-2 py-1.5 sm:py-2 border border-white/10 [&_button]:[-webkit-tap-highlight-color:transparent]">
+      {/* Dark toolbar pill - solid background, no glass effect */}
+      <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-40 flex items-center gap-1 sm:gap-1.5 rounded-full bg-slate-800 sm:bg-slate-800/95 px-1.5 sm:px-2 py-1.5 sm:py-2 border border-white/10 [&_button]:[-webkit-tap-highlight-color:transparent]">
         {/* Login/Profile Button - Left Circle */}
         <div className="flex items-center">
           {isAuthenticated ? (
@@ -94,7 +94,7 @@ export default function FloatingButtonGroup() {
               title="Login"
             >
               <svg
-                className="w-3.5 h-3.5 sm:w-4 sm:h-4"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -114,12 +114,12 @@ export default function FloatingButtonGroup() {
         <div className="relative" ref={settingsPanelRef}>
           <button
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 text-white/90 hover:text-white [-webkit-tap-highlight-color:transparent] focus:outline-none focus-visible:outline-none"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-600 hover:bg-slate-500 border border-white/15 flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 text-white/90 hover:text-white [-webkit-tap-highlight-color:transparent] focus:outline-none focus-visible:outline-none"
             aria-label="Open settings"
             title="Settings"
           >
             <svg
-              className="w-5 h-5 sm:w-6 sm:h-6"
+              className="w-6 h-6 sm:w-7 sm:h-7"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

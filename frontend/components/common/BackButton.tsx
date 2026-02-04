@@ -38,7 +38,8 @@ export default function BackButton() {
   return (
     <button
       onClick={handleBack}
-      className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 sm:bg-white/85 backdrop-blur-xl shadow-lg shadow-black/8 border border-white/70 ring-1 ring-black/5 flex items-center justify-center transition-all duration-200 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 group"
+      className="fixed top-4 left-4 sm:top-6 sm:left-6 z-50 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/90 sm:bg-white/85 backdrop-blur-xl shadow-lg shadow-black/8 border border-white/70 ring-1 ring-black/5 flex items-center justify-center transition-all duration-200 hover:bg-white hover:shadow-xl hover:scale-105 active:scale-95 group outline-none focus:outline-none focus-visible:outline-none [-webkit-tap-highlight-color:transparent]"
+      style={{ WebkitTapHighlightColor: 'transparent' }}
       aria-label="Go back"
       title="Go back"
     >
