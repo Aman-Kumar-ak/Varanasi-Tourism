@@ -194,7 +194,6 @@ export default function LoginForm({ onSuccess }: LoginFormProps) {
                 className="flex-1 min-w-0 px-4 py-3 pr-5 rounded-r-full bg-transparent focus:outline-none text-premium-section-text placeholder:text-black/35"
                 required
                 maxLength={10}
-                autoFocus
               />
             </div>
             {phone && (

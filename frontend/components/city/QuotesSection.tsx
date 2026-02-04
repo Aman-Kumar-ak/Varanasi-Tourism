@@ -60,6 +60,9 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
   const pendingIndexRef = useRef<number>(0);
   const mobileScrollRef = useRef<HTMLDivElement>(null);
   const mobileScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isUserScrollingRef = useRef<boolean>(false);
+  const autoScrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isProgrammaticScrollRef = useRef<boolean>(false);
 
   const totalItems = quotes?.length ?? 0;
 
@@ -72,7 +75,15 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
       const el = mobileScrollRef.current;
       if (el) {
         const w = el.getBoundingClientRect().width;
+        // Mark as programmatic scroll to prevent handleMobileScroll from interfering
+        isProgrammaticScrollRef.current = true;
+        // Update currentIndex immediately to keep dots in sync
+        setCurrentIndex(nextIndex);
         el.scrollTo({ left: nextIndex * w, behavior: 'smooth' });
+        // Reset flag after scroll completes
+        setTimeout(() => {
+          isProgrammaticScrollRef.current = false;
+        }, 500);
       }
       return;
     }
@@ -99,9 +110,29 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
     if (!el || totalItems <= 1) return;
     const w = el.getBoundingClientRect().width;
     if (w <= 0) return;
-    const index = Math.round(el.scrollLeft / w);
+    
+    // Only mark as user scrolling if it's not a programmatic scroll
+    if (!isProgrammaticScrollRef.current) {
+      isUserScrollingRef.current = true;
+      if (autoScrollTimeoutRef.current) {
+        clearTimeout(autoScrollTimeoutRef.current);
+        autoScrollTimeoutRef.current = null;
+      }
+    }
+    
+    // Use a more accurate calculation with threshold to prevent mid-scroll updates
+    const scrollLeft = el.scrollLeft;
+    const index = Math.round(scrollLeft / w);
     const clamped = Math.max(0, Math.min(index, totalItems - 1));
-    setCurrentIndex((prev) => (prev === clamped ? prev : clamped));
+    // Only update if we're close enough to the snap point (within 10% of card width)
+    const threshold = w * 0.1;
+    const expectedScrollLeft = clamped * w;
+    if (Math.abs(scrollLeft - expectedScrollLeft) <= threshold) {
+      setCurrentIndex((prev) => {
+        // Only update if different to avoid unnecessary re-renders
+        return prev !== clamped ? clamped : prev;
+      });
+    }
   }, [totalItems]);
 
   // Mobile: sync currentIndex when scroll ends (scrollend if supported, else debounced scroll)
@@ -109,15 +140,61 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
     if (!isMobile || totalItems <= 1) return;
     const el = mobileScrollRef.current;
     if (!el) return;
+    
+    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+    
     const onScrollEnd = () => {
+      // Clear any pending timeout
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = null;
+      }
       const w = el.getBoundingClientRect().width;
       if (w <= 0) return;
-      const index = Math.round(el.scrollLeft / w);
-      setCurrentIndex(Math.max(0, Math.min(index, totalItems - 1)));
+      const scrollLeft = el.scrollLeft;
+      const index = Math.round(scrollLeft / w);
+      const clamped = Math.max(0, Math.min(index, totalItems - 1));
+      setCurrentIndex(clamped);
+      // Reset user scrolling flag after a delay to allow auto-scroll to resume
+      isUserScrollingRef.current = false;
+      autoScrollTimeoutRef.current = setTimeout(() => {
+        isUserScrollingRef.current = false;
+      }, 1000);
     };
-    el.addEventListener('scrollend', onScrollEnd);
+    
+    // Fallback for browsers that don't support scrollend
+    const onScroll = () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const w = el.getBoundingClientRect().width;
+        if (w <= 0) return;
+        const scrollLeft = el.scrollLeft;
+        const index = Math.round(scrollLeft / w);
+        const clamped = Math.max(0, Math.min(index, totalItems - 1));
+        setCurrentIndex(clamped);
+        // Reset user scrolling flag after a delay to allow auto-scroll to resume
+        isUserScrollingRef.current = false;
+        autoScrollTimeoutRef.current = setTimeout(() => {
+          isUserScrollingRef.current = false;
+        }, 1000);
+      }, 150); // 150ms debounce for scroll end detection
+    };
+    
+    // Try scrollend first (more reliable)
+    if ('onscrollend' in el) {
+      el.addEventListener('scrollend', onScrollEnd);
+    } else {
+      el.addEventListener('scroll', onScroll);
+    }
+    
     return () => {
-      el.removeEventListener('scrollend', onScrollEnd);
+      if ('onscrollend' in el) {
+        el.removeEventListener('scrollend', onScrollEnd);
+      } else {
+        el.removeEventListener('scroll', onScroll);
+      }
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      if (autoScrollTimeoutRef.current) clearTimeout(autoScrollTimeoutRef.current);
     };
   }, [isMobile, totalItems]);
 
@@ -127,9 +204,15 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
 
   useEffect(() => {
     if (totalItems <= 1) return;
-    const intervalId = window.setInterval(() => goTo('right'), 6000);
+    const intervalId = window.setInterval(() => {
+      // Skip auto-scroll if user is manually scrolling (mobile only)
+      if (isMobile && isUserScrollingRef.current) {
+        return;
+      }
+      goTo('right');
+    }, 6000);
     return () => window.clearInterval(intervalId);
-  }, [goTo, totalItems]);
+  }, [goTo, totalItems, isMobile]);
 
   // Preload images for all quotes so no blank/empty during carousel transition
   useEffect(() => {
@@ -353,9 +436,16 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                   const el = mobileScrollRef.current;
                   if (el) {
                     const w = el.getBoundingClientRect().width;
+                    // Mark as programmatic scroll
+                    isProgrammaticScrollRef.current = true;
+                    // Update index immediately to keep dots in sync
+                    setCurrentIndex(i);
                     el.scrollTo({ left: i * w, behavior: 'smooth' });
+                    // Reset flag after scroll completes
+                    setTimeout(() => {
+                      isProgrammaticScrollRef.current = false;
+                    }, 500);
                   }
-                  setCurrentIndex(i);
                 } else {
                   if (isAnimating) return;
                   setCurrentIndex(i);

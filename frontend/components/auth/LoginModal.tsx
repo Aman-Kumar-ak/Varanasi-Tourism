@@ -152,14 +152,14 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </button>
 
           <div className="p-8 pt-8">
-            <div className="text-center mb-7">
+            <div className="text-center mb-7 pr-14">
               {isAuthenticated && (
                 <h1 className="text-2xl font-bold text-primary-dark mb-1.5 tracking-tight">
                   Welcome!
                 </h1>
               )}
               <p
-                className={`mx-auto max-w-[18rem] leading-relaxed tracking-tight ${
+                className={`mx-auto max-w-[22rem] sm:max-w-none leading-relaxed tracking-tight whitespace-nowrap ${
                   isAuthenticated
                     ? 'text-sm text-premium-section-muted'
                     : 'text-base font-medium text-premium-section-text/90'

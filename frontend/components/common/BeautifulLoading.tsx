@@ -64,8 +64,8 @@ export default function BeautifulLoading({
           
           {/* Inner icon */}
           <div className="relative flex items-center justify-center">
-            <div className="w-20 h-20 sm:w-28 sm:h-28 bg-gradient-to-br from-primary-gold to-primary-orange rounded-2xl flex items-center justify-center shadow-2xl transform animate-pulse">
-              <span className="text-3xl sm:text-4xl">🕉️</span>
+            <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-primary-gold to-primary-orange rounded-full flex items-center justify-center shadow-2xl transform animate-pulse">
+              <span className="text-2xl sm:text-3xl">🕉️</span>
             </div>
           </div>
         </div>

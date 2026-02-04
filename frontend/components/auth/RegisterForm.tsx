@@ -194,7 +194,6 @@ export default function RegisterForm({ onSuccess }: RegisterFormProps) {
               className={`${inputBase} focus:ring-0 focus:border-black/10`}
               required
               minLength={2}
-              autoFocus
             />
           </div>
 
