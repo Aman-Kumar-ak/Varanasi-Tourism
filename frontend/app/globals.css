@@ -51,6 +51,24 @@ main {
   zoom: var(--font-size-multiplier);
 }
 
+/* Exclude fixed capsule slider from zoom - maintain original size */
+.capsule-chip-container {
+  zoom: calc(1 / var(--font-size-multiplier, 1)) !important;
+}
+
+/* Exclude fixed capsule slider from zoom to maintain consistent alignment */
+.capsule-chip-container {
+  zoom: 1 !important;
+  /* Use font-size scaling instead of zoom for text inside */
+  font-size: calc(15px * var(--font-size-multiplier, 1));
+}
+
+@media (max-width: 640px) {
+  .capsule-chip-container {
+    font-size: calc(16px * var(--font-size-multiplier, 1));
+  }
+}
+
 /* Premium section backgrounds */
 .section-premium-peach {
   background: linear-gradient(180deg, var(--premium-peach) 0%, var(--premium-peach-deep) 100%);
@@ -497,6 +515,7 @@ a:focus-visible {
 /* ================== EXPLORE PAGE: iOS Glass Morphism Capsule ================== */
 
 /* Container for capsule buttons - iOS style */
+/* Excluded from main zoom to maintain consistent size */
 .capsule-chip-container {
   position: relative;
   display: inline-flex;
@@ -513,6 +532,8 @@ a:focus-visible {
     0 8px 32px rgba(0, 0, 0, 0.06),
     inset 0 1px 1px rgba(255, 255, 255, 0.7),
     inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.08);
+  /* Cancel out main zoom to maintain original size */
+  zoom: calc(1 / var(--font-size-multiplier, 1)) !important;
 }
 
 .capsule-chip-container:focus,
@@ -540,6 +561,8 @@ a:focus-visible {
       0 10px 38px rgba(0, 0, 0, 0.07),
       inset 0 1px 1px rgba(255, 255, 255, 0.75),
       inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.09);
+    /* Cancel out main zoom to maintain original size */
+    zoom: calc(1 / var(--font-size-multiplier, 1)) !important;
   }
   
   .capsule-chip-container:focus,

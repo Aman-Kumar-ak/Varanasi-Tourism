@@ -142,12 +142,9 @@ export default function CityExplorePage() {
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [guideAnimationStopped, setGuideAnimationStopped] = useState(false);
   const [glassIndicator, setGlassIndicator] = useState({ left: 0, width: 0 });
   const headerRef = useRef<HTMLElement>(null);
   const filterScrollRef = useRef<HTMLDivElement>(null);
-  const guideIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const guideRafRef = useRef<number | null>(null);
   const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   const closePopup = useCallback(() => {
@@ -236,57 +233,6 @@ export default function CityExplorePage() {
     }
   }, [selectedPlace, isMobile]);
 
-  // Guide animation: only on desktop (min-width 768px). Disabled on phone to avoid scroll jitter from RAF + scrollLeft.
-  useEffect(() => {
-    if (guideAnimationStopped || loading) return;
-    const isDesktop = typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches;
-    if (!isDesktop) return;
-
-    const el = filterScrollRef.current;
-    if (!el) return;
-
-    const runHint = () => {
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (maxScroll <= 0) return;
-
-      const peak = Math.min(100, maxScroll);
-      const totalDuration = 1600;
-      const startTime = performance.now();
-
-      const tick = (now: number) => {
-        const elapsed = now - startTime;
-        if (elapsed >= totalDuration) {
-          el.scrollLeft = 0;
-          guideRafRef.current = null;
-          return;
-        }
-        const progress = elapsed / totalDuration;
-        el.scrollLeft = peak * Math.sin(progress * Math.PI);
-        guideRafRef.current = requestAnimationFrame(tick);
-      };
-      if (guideRafRef.current) cancelAnimationFrame(guideRafRef.current);
-      guideRafRef.current = requestAnimationFrame(tick);
-    };
-
-    const firstRun = setTimeout(runHint, 2000);
-    const id = setInterval(runHint, 6000);
-    guideIntervalRef.current = id;
-    return () => {
-      clearTimeout(firstRun);
-      if (guideIntervalRef.current) clearInterval(guideIntervalRef.current);
-      guideIntervalRef.current = null;
-      if (guideRafRef.current) cancelAnimationFrame(guideRafRef.current);
-      guideRafRef.current = null;
-    };
-  }, [guideAnimationStopped, loading]);
-
-  const stopGuideAnimation = useCallback(() => {
-    setGuideAnimationStopped(true);
-    if (guideIntervalRef.current) clearInterval(guideIntervalRef.current);
-    guideIntervalRef.current = null;
-    if (guideRafRef.current) cancelAnimationFrame(guideRafRef.current);
-    guideRafRef.current = null;
-  }, []);
 
   const places = useMemo(
     () => (city?.places || []).filter(
@@ -616,10 +562,6 @@ export default function CityExplorePage() {
             ref={filterScrollRef}
             role="region"
             aria-label={language === 'hi' ? 'श्रेणी फ़िल्टर - स्वाइप करें' : 'Category filters — swipe for more'}
-            onTouchStart={stopGuideAnimation}
-            onTouchMove={stopGuideAnimation}
-            onWheel={stopGuideAnimation}
-            onMouseDown={stopGuideAnimation}
             className="capsule-chip-container pointer-events-auto overflow-x-auto scrollbar-hide w-fit max-w-[calc(100vw-1.5rem)]"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           >
