@@ -447,6 +447,22 @@ a:focus-visible {
 
 /* Hover effects removed */
 
+/* Smooth accordion/dropdown open-close (site-wide; tuned for phone) */
+.accordion-panel-smooth {
+  overflow: hidden;
+}
+.dropdown-panel-smooth {
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+@media (max-width: 767px) {
+  .accordion-panel-smooth {
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
+  }
+  .dropdown-panel-smooth {
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
 /* Temple-inspired text gradient */
 .text-gradient-temple {
   background: linear-gradient(135deg, #FFB800 0%, #FF6B35 100%);
@@ -553,8 +569,6 @@ a:focus-visible {
   border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
   outline: none !important;
   box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 8px 32px rgba(0, 0, 0, 0.06),
     inset 0 1px 1px rgba(255, 255, 255, 0.7),
     inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.08);
   /* Cancel out main zoom to maintain original size */
@@ -567,25 +581,41 @@ a:focus-visible {
   outline: none !important;
   border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
   box-shadow: 
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    0 8px 32px rgba(0, 0, 0, 0.06),
     inset 0 1px 1px rgba(255, 255, 255, 0.7),
     inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.08) !important;
 }
 
+/* PC/desktop: prevent capsule from dissolving into white background; no outer shadow */
+@media (min-width: 641px) {
+  .capsule-chip-container {
+    background: rgba(255, 248, 240, 0.92);
+    border: 1.5px solid rgba(0, 0, 0, 0.07) !important;
+    box-shadow: 
+      inset 0 1px 1px rgba(255, 255, 255, 0.9),
+      inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.06);
+  }
+  .capsule-chip-container:focus,
+  .capsule-chip-container:focus-visible,
+  .capsule-chip-container:focus-within {
+    border: 1.5px solid rgba(0, 0, 0, 0.07) !important;
+    box-shadow: 
+      inset 0 1px 1px rgba(255, 255, 255, 0.9),
+      inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.06) !important;
+  }
+}
+
+/* Mobile: no glass effect (backdrop-filter) for better performance; no outer shadow; slightly bigger bar */
 @media (max-width: 640px) {
   .capsule-chip-container {
-    padding: 4px;
-    background: rgba(255, 255, 255, 0.20);
-    backdrop-filter: blur(18px) saturate(180%);
-    -webkit-backdrop-filter: blur(18px) saturate(180%);
-    border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
     outline: none !important;
     box-shadow: 
-      0 4px 18px rgba(0, 0, 0, 0.09),
-      0 10px 38px rgba(0, 0, 0, 0.07),
-      inset 0 1px 1px rgba(255, 255, 255, 0.75),
-      inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.09);
+      inset 0 1px 1px rgba(255, 255, 255, 0.9),
+      inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.06);
     /* Cancel out main zoom to maintain original size */
     zoom: calc(1 / var(--font-size-multiplier, 1)) !important;
   }
@@ -594,11 +624,14 @@ a:focus-visible {
   .capsule-chip-container:focus-visible,
   .capsule-chip-container:focus-within {
     outline: none !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 
+      inset 0 1px 1px rgba(255, 255, 255, 0.9),
+      inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.06) !important;
   }
 }
 
-/* Glass cylinder that slides behind active button - Liquid glass translucent */
+/* Glass cylinder that slides behind active button - subtle orangish/yellow, little shine */
 .glass-indicator {
   position: absolute;
   top: 3px;
@@ -606,9 +639,9 @@ a:focus-visible {
   height: calc(100% - 6px);
   border-radius: 9999px;
   background: linear-gradient(180deg, 
-    rgba(255, 255, 255, 0.35) 0%,
-    rgba(255, 255, 255, 0.25) 50%,
-    rgba(255, 255, 255, 0.30) 100%
+    rgba(255, 242, 218, 0.6) 0%,
+    rgba(255, 232, 200, 0.5) 50%,
+    rgba(255, 228, 195, 0.55) 100%
   );
   /* Liquid glass effect - highly translucent with background visible */
   backdrop-filter: blur(8px) saturate(200%) brightness(108%) contrast(105%);
@@ -616,41 +649,49 @@ a:focus-visible {
   border: none;
   outline: none;
   box-shadow: 
-    0 2px 12px rgba(0, 0, 0, 0.07),
-    0 4px 24px rgba(0, 0, 0, 0.05),
-    0 8px 32px rgba(0, 0, 0, 0.03),
-    inset 0 1px 1.5px rgba(255, 255, 255, 0.85),
-    inset 0 -0.5px 1px rgba(0, 0, 0, 0.06);
+    inset 0 1px 1.5px rgba(255, 255, 248, 0.9),
+    inset 0 -0.5px 1px rgba(210, 160, 80, 0.14);
   /* Synchronized transitions - both use same timing for consistent appearance */
-  transition: transform 0.18s linear,
-              width 0.18s linear;
+  transition: transform 0.32s ease-out,
+              width 0.32s ease-out;
   will-change: transform, width;
   pointer-events: none;
   z-index: 0;
   overflow: hidden;
 }
 
+/* PC/desktop: selected pill more visible on light background, higher saturation */
+@media (min-width: 641px) {
+  .glass-indicator {
+    background: linear-gradient(180deg, 
+      rgba(255, 238, 208, 0.98) 0%,
+      rgba(255, 228, 195, 0.96) 50%,
+      rgba(255, 230, 198, 0.97) 100%
+    );
+    box-shadow: 
+      inset 0 1px 1.5px rgba(255, 255, 252, 1),
+      inset 0 -0.5px 1px rgba(195, 140, 60, 0.18);
+  }
+}
+
 @media (max-width: 640px) {
   .glass-indicator {
-    top: 4px;
-    left: 4px;
-    height: calc(100% - 8px);
+    top: 5px;
+    left: 5px;
+    height: calc(100% - 10px);
     background: linear-gradient(180deg, 
-      rgba(255, 255, 255, 0.38) 0%,
-      rgba(255, 255, 255, 0.28) 50%,
-      rgba(255, 255, 255, 0.33) 100%
+      rgba(255, 242, 218, 0.98) 0%,
+      rgba(255, 232, 200, 0.96) 50%,
+      rgba(255, 228, 195, 0.97) 100%
     );
-    backdrop-filter: blur(10px) saturate(200%) brightness(108%) contrast(105%);
-    -webkit-backdrop-filter: blur(10px) saturate(200%) brightness(108%) contrast(105%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     box-shadow: 
-      0 2px 14px rgba(0, 0, 0, 0.08),
-      0 4px 28px rgba(0, 0, 0, 0.06),
-      0 8px 36px rgba(0, 0, 0, 0.04),
-      inset 0 1px 1.5px rgba(255, 255, 255, 0.9),
-      inset 0 -0.5px 1px rgba(0, 0, 0, 0.07);
+      inset 0 1px 1.5px rgba(255, 255, 250, 1),
+      inset 0 -0.5px 1px rgba(200, 155, 70, 0.14);
     /* Synchronized transitions - same timing for consistent shape */
-    transition: transform 0.15s linear,
-                width 0.15s linear;
+    transition: transform 0.28s ease-out,
+                width 0.28s ease-out;
   }
 }
 
@@ -709,10 +750,10 @@ a:focus-visible {
 
 @media (max-width: 640px) {
   .capsule-chip {
-    padding: 11px 22px;
+    padding: 12px 24px;
     font-size: 16px;
     font-weight: 600;
-    min-height: 44px;
+    min-height: 48px;
     border: none !important;
     outline: none !important;
   }
@@ -737,7 +778,7 @@ a:focus-visible {
   transition: color 0.2s ease-out;
 }
 
-/* iOS-style subtle highlight on top edge - liquid glass shimmer */
+/* Subtle shine on top edge - warm yellowish highlight */
 .glass-indicator::before {
   content: '';
   position: absolute;
@@ -747,9 +788,9 @@ a:focus-visible {
   height: 50%;
   border-radius: 9999px 9999px 0 0;
   background: linear-gradient(180deg, 
-    rgba(255, 255, 255, 0.50) 0%,
-    rgba(255, 255, 255, 0.15) 60%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(255, 252, 240, 0.5) 0%,
+    rgba(255, 248, 228, 0.22) 50%,
+    rgba(255, 242, 218, 0) 100%
   );
   pointer-events: none;
   z-index: 1;

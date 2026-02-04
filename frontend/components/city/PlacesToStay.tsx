@@ -197,13 +197,18 @@ export default function PlacesToStay({ hotels, language }: PlacesToStayProps) {
                       {isExpanded ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>}
                     </span>
                   </button>
-                  {isExpanded && (
+                  <div
+                    className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-none ${
+                      isExpanded ? 'max-h-[300px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                    aria-hidden={!isExpanded}
+                  >
                     <div className="px-4 pb-4 pt-0 bg-amber-50/40 border-t border-amber-200/80 space-y-2">
                       {hotel.address && <p className="text-xs text-primary-dark/70">📍 {hotel.address}</p>}
                       {hotel.contact && <p className="text-xs text-primary-dark/80">📞 {hotel.contact}</p>}
                       {hotel.website && <a href={hotel.website} target="_blank" rel="noopener noreferrer" className="text-xs text-primary-gold font-semibold hover:underline block">{t('places.stay.visit.website', language)} →</a>}
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}

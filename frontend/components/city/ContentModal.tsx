@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ContentModalProps {
   isOpen: boolean;
@@ -12,6 +13,12 @@ interface ContentModalProps {
 }
 
 export default function ContentModal({ isOpen, onClose, title, subtitle, icon, children }: ContentModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleEscape = (e: KeyboardEvent) => {
@@ -25,11 +32,11 @@ export default function ContentModal({ isOpen, onClose, title, subtitle, icon, c
     };
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted || typeof document === 'undefined') return null;
 
-  return (
+  const modalContent = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="content-modal-title"
@@ -71,4 +78,6 @@ export default function ContentModal({ isOpen, onClose, title, subtitle, icon, c
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

@@ -172,12 +172,12 @@ export default function PlacesCarousel({ places, language, exploreSlug, title, i
                   </span>
                 </button>
 
-                {/* Accordion panel – expanded content with image, description, CTA */}
+                {/* Accordion panel – expanded content with image, description, CTA; smooth open on phone */}
                 <div
                   id={`place-accordion-${index}`}
                   role="region"
                   aria-labelledby={`place-accordion-heading-${index}`}
-                  className={`overflow-hidden transition-all duration-300 ease-out ${
+                  className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-all ${
                     isExpanded ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >

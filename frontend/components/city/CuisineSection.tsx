@@ -109,13 +109,18 @@ export default function CuisineSection({ restaurants, language, exploreSlug }: C
                   {isExpanded ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>}
                 </span>
               </button>
-              {isExpanded && (
+              <div
+                className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-none ${
+                  isExpanded ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+                }`}
+                aria-hidden={!isExpanded}
+              >
                 <div className="px-4 pb-4 pt-0 space-y-2 bg-orange-50/30 border-t border-orange-100">
                   {specialty && <p className="text-sm text-primary-dark/80 leading-relaxed">{specialty}</p>}
                   {restaurant.address && <p className="text-xs text-primary-dark/70">📍 {restaurant.address}</p>}
                   {restaurant.contact && <p className="text-xs text-primary-dark/80">📞 {restaurant.contact}</p>}
                 </div>
-              )}
+              </div>
             </div>
           );
         })}

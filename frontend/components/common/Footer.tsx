@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import LanguageSelector from './LanguageSelector';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -107,10 +106,10 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 4: Legal & Language */}
+          {/* Column 4: Legal */}
           <div className="col-span-2 md:col-span-1">
             <h3 className="font-semibold mb-3 sm:mb-4 text-sm sm:text-base">Legal</h3>
-            <ul className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
+            <ul className="space-y-1.5 sm:space-y-2">
               <li>
                 <Link href="/privacy" className="text-white/80 hover:text-primary-blue transition-colors text-sm">
                   Privacy Policy
@@ -127,10 +126,6 @@ export default function Footer() {
                 </Link>
               </li>
             </ul>
-            <div className="mt-4">
-              <p className="text-white/80 text-sm mb-2">Language</p>
-              <LanguageSelector disableHover={true} variant="footer" />
-            </div>
           </div>
         </div>
 

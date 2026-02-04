@@ -117,7 +117,12 @@ export default function AcademicTourism({ institutions, language }: AcademicTour
                   {isExpanded ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>}
                 </span>
               </button>
-              {isExpanded && (
+              <div
+                className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-none ${
+                  isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                }`}
+                aria-hidden={!isExpanded}
+              >
                 <div className="px-4 pb-4 pt-0 space-y-3 bg-blue-50/30 border-t border-blue-100">
                   <p className="text-primary-dark/90 text-sm leading-relaxed">{getLocalizedContent(institution.description, language)}</p>
                   {institution.notableFeatures && <p className="text-xs text-primary-dark/80">{getLocalizedContent(institution.notableFeatures, language)}</p>}
@@ -128,7 +133,7 @@ export default function AcademicTourism({ institutions, language }: AcademicTour
                   </div>
                   {institution.contact && <p className="text-xs text-primary-dark/80">📞 {institution.contact}</p>}
                 </div>
-              )}
+              </div>
             </div>
           );
         })}

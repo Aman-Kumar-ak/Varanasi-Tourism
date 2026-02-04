@@ -191,8 +191,14 @@ function RestaurantCard({ restaurant, language }: { restaurant: Restaurant; lang
   );
 }
 
-const SCROLL_THROTTLE_MS = 200;
+const SCROLL_THROTTLE_MS = 100;
 const GLASS_INDICATOR_SETTLE_MS = 150;
+/** Distance from viewport top (px) at which a section is considered "active" for capsule sync */
+const ACTIVE_SECTION_TOP_OFFSET = 200;
+/** Minimum percentage of section that must be visible before it becomes active (prevents premature switching) */
+const MIN_SECTION_VISIBILITY_THRESHOLD = 0.25; // 25% of section must be visible
+/** Hysteresis: new section must have this much more visibility than current to switch */
+const VISIBILITY_HYSTERESIS = 0.15; // 15% more visibility required to switch
 
 export default function CityExplorePage() {
   const params = useParams();
@@ -200,7 +206,11 @@ export default function CityExplorePage() {
   const [city, setCity] = useState<City | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all'>('all');
-  const [scrolledToCategory, setScrolledToCategory] = useState<PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all'>('all');
+  // Initialize with first category instead of 'all' to prevent reset animation
+  const [scrolledToCategory, setScrolledToCategory] = useState<PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all'>(() => {
+    // Will be set properly after categories load, but start with a valid category ID
+    return 'all';
+  });
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [popupOpen, setPopupOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -209,6 +219,10 @@ export default function CityExplorePage() {
   const filterScrollRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const cacheAppliedRef = useRef(false);
+  /** After manual capsule click: ignore scroll-spy so the pill slides directly to target (no intermediate stops) */
+  const ignoreScrollSpyUntilRef = useRef(0);
+  /** Current scrolled category ref for hysteresis logic */
+  const scrolledToCategoryRef = useRef(scrolledToCategory);
 
   const closePopup = useCallback(() => {
     setPopupOpen(false);
@@ -234,15 +248,6 @@ export default function CityExplorePage() {
       setPopupOpen(false);
     }
   }, [selectedPlace]);
-
-  useEffect(() => {
-    const container = filterScrollRef.current;
-    if (!container || scrolledToCategory === 'all') return;
-    const activeButton = container.querySelector<HTMLButtonElement>(`[data-category="${scrolledToCategory}"]`);
-    if (activeButton) {
-      activeButton.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
-    }
-  }, [scrolledToCategory, isMobile]);
 
   const fetchCity = useCallback(async () => {
     if (!params.name || typeof params.name !== 'string') return;
@@ -374,15 +379,31 @@ export default function CityExplorePage() {
     const containerRect = container.getBoundingClientRect();
     const buttonRect = activeButton.getBoundingClientRect();
     const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 640;
-    const padding = isMobileView ? 5.5 : 4.5;
+    const padding = isMobileView ? 5 : 4.5;
     const left = buttonRect.left - containerRect.left + container.scrollLeft - padding;
     const width = buttonRect.width;
     setGlassIndicator((prev) => (prev.left === left && prev.width === width ? prev : { left, width }));
   }, [scrolledToCategory]);
 
-  // Update indicator when active category changes: one immediate + one after layout settle (reduces GPU work)
+  // Scroll capsule bar to center the active button, then update pill position after layout (avoids shake)
   useEffect(() => {
-    updateGlassIndicator();
+    const container = filterScrollRef.current;
+    if (!container || scrolledToCategory === 'all') return;
+    const activeButton = container.querySelector<HTMLButtonElement>(`[data-category="${scrolledToCategory}"]`);
+    if (activeButton) {
+      activeButton.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+      const rafId = requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          updateGlassIndicator();
+        });
+      });
+      return () => cancelAnimationFrame(rafId);
+    }
+  }, [scrolledToCategory, isMobile, updateGlassIndicator]);
+
+  // Update indicator after layout (e.g. when filter categories change). When scrolledToCategory changes from scroll-spy,
+  // the scroll-into-view effect above updates the pill via rAF to avoid shake; no immediate update here.
+  useEffect(() => {
     const t = setTimeout(updateGlassIndicator, GLASS_INDICATOR_SETTLE_MS);
     return () => clearTimeout(t);
   }, [scrolledToCategory, filterCategories, updateGlassIndicator]);
@@ -409,63 +430,185 @@ export default function CityExplorePage() {
     };
   }, [updateGlassIndicator]);
 
-  // Throttled scroll handler: update active category at most every SCROLL_THROTTLE_MS to avoid jitter/GPU load
+  // Scroll-spy: sync capsule with visible category (viewport-relative for reliable sync)
+  // Uses visibility-based detection with hysteresis to prevent shake/flicker
+  const getActiveCategoryFromViewport = useCallback((): PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all' | null => {
+    const elements = categoriesToShow
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (elements.length === 0) return null;
+    
+    const viewportHeight = window.innerHeight;
+    const offset = ACTIVE_SECTION_TOP_OFFSET;
+    const currentActiveId = scrolledToCategory;
+    
+    // Calculate visibility for each section
+    const sectionVisibilities = elements.map((el) => {
+      const rect = el.getBoundingClientRect();
+      const sectionHeight = rect.height;
+      
+      // Calculate how much of the section is visible in the viewport
+      const visibleTop = Math.max(0, -rect.top);
+      const visibleBottom = Math.min(sectionHeight, viewportHeight - rect.top);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const visibilityRatio = sectionHeight > 0 ? visibleHeight / sectionHeight : 0;
+      
+      // Also check if section top has passed the threshold
+      const hasPassedThreshold = rect.top <= offset;
+      
+      return {
+        id: el.id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY,
+        visibilityRatio,
+        hasPassedThreshold,
+        top: rect.top,
+        bottom: rect.bottom,
+      };
+    });
+    
+    // Find the best candidate: must pass threshold AND have minimum visibility
+    const candidates = sectionVisibilities.filter(
+      (s) => s.hasPassedThreshold && s.visibilityRatio >= MIN_SECTION_VISIBILITY_THRESHOLD
+    );
+    
+    // If no candidates meet strict criteria, check if current section is still somewhat visible
+    if (candidates.length === 0) {
+      const currentSection = sectionVisibilities.find((s) => s.id === currentActiveId);
+      // If current section is still visible (even if below threshold), keep it to prevent reset
+      if (currentSection && currentSection.visibilityRatio > 0.05 && currentSection.top < viewportHeight * 0.8) {
+        return currentActiveId;
+      }
+      
+      // Only reset to first/last if truly at top/bottom and current is not visible
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const nearTop = scrollY < 100;
+      const nearBottom = window.innerHeight + scrollY >= document.documentElement.scrollHeight - 50;
+      
+      if (nearTop) {
+        return elements[0].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
+      }
+      if (nearBottom) {
+        return elements[elements.length - 1].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
+      }
+      
+      // Middle of page but no clear candidate: keep current if it exists, otherwise first
+      return currentActiveId && currentActiveId !== 'all' ? currentActiveId : elements[0].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
+    }
+    
+    // If current section is still a valid candidate, apply hysteresis
+    const currentSection = sectionVisibilities.find((s) => s.id === currentActiveId);
+    if (currentSection && currentSection.hasPassedThreshold && currentSection.visibilityRatio >= MIN_SECTION_VISIBILITY_THRESHOLD) {
+      // Current section is still valid - only switch if another section has significantly more visibility
+      const bestCandidate = candidates.reduce((best, curr) => 
+        curr.visibilityRatio > best.visibilityRatio ? curr : best
+      );
+      
+      if (bestCandidate.id === currentActiveId) {
+        return currentActiveId; // Stay on current
+      }
+      
+      // Switch only if new section has enough more visibility (hysteresis)
+      if (bestCandidate.visibilityRatio >= currentSection.visibilityRatio + VISIBILITY_HYSTERESIS) {
+        return bestCandidate.id;
+      }
+      
+      return currentActiveId; // Stay on current due to hysteresis
+    }
+    
+    // Current section no longer valid - pick the best candidate
+    const bestCandidate = candidates.reduce((best, curr) => 
+      curr.visibilityRatio > best.visibilityRatio ? curr : best
+    );
+    
+    return bestCandidate.id;
+  }, [categoriesToShow, scrolledToCategory]);
+
+  // Throttled scroll + resize: update scrolledToCategory so capsule stays in sync
+  // Prevents rapid state changes that cause jittering
   useEffect(() => {
-    if (loading || !city) return;
+    if (loading || !city || categoriesToShow.length === 0) return;
     let rafId: number | null = null;
     let lastRun = 0;
-    const offset = 140;
+    let pendingUpdate: ReturnType<typeof setTimeout> | null = null;
+    let lastActiveId: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all' | null = null;
 
-    const getActiveCategory = () => {
-      const elements = categoriesToShow
-        .map((id) => document.getElementById(id))
-        .filter((el): el is HTMLElement => Boolean(el));
-      if (elements.length === 0) return null;
-      const scrollY = window.scrollY;
-      let activeId: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | null = null;
-      for (const el of elements) {
-        const top = el.getBoundingClientRect().top + scrollY;
-        if (top - offset <= scrollY) activeId = el.id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
-        else break;
-      }
-      if (!activeId) activeId = elements[0].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
-      const nearBottom = window.innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
-      if (nearBottom) activeId = elements[elements.length - 1].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
-      return activeId;
-    };
-
-    const onScroll = () => {
-      if (Date.now() - lastRun < SCROLL_THROTTLE_MS) return;
+    const run = () => {
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
         rafId = null;
+        if (Date.now() < ignoreScrollSpyUntilRef.current) return;
+        if (Date.now() - lastRun < SCROLL_THROTTLE_MS) return;
         lastRun = Date.now();
-        const activeId = getActiveCategory();
-        if (activeId && activeId !== scrolledToCategory) setScrolledToCategory(activeId);
+        
+        const activeId = getActiveCategoryFromViewport();
+        if (!activeId) return;
+        
+        // Skip if same as last detected (prevents unnecessary updates)
+        if (activeId === lastActiveId) return;
+        lastActiveId = activeId;
+        
+        // Debounce state updates to prevent rapid changes
+        if (pendingUpdate) clearTimeout(pendingUpdate);
+        pendingUpdate = setTimeout(() => {
+          setScrolledToCategory((prev) => {
+            // Only update if different to prevent unnecessary re-renders
+            if (prev !== activeId) {
+              return activeId;
+            }
+            return prev;
+          });
+          pendingUpdate = null;
+        }, 80); // Increased debounce for smoother transitions
       });
     };
 
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onScroll);
+    // Initial sync: set to first category if at top, otherwise detect current
+    const initialSync = () => {
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      if (scrollY < 50 && categoriesToShow.length > 0) {
+        // At top: set to first category immediately
+        const firstCategory = categoriesToShow[0];
+        setScrolledToCategory(firstCategory);
+        lastActiveId = firstCategory;
+      } else {
+        // Not at top: detect current section
+        run();
+      }
     };
-  }, [categoriesToShow, loading, city, scrolledToCategory]);
+
+    initialSync();
+    const delayedSync = setTimeout(initialSync, 200);
+    
+    window.addEventListener('scroll', run, { passive: true });
+    window.addEventListener('resize', run);
+    return () => {
+      clearTimeout(delayedSync);
+      if (pendingUpdate) clearTimeout(pendingUpdate);
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', run);
+      window.removeEventListener('resize', run);
+    };
+  }, [categoriesToShow, loading, city, getActiveCategoryFromViewport]);
+
+  // Keep ref in sync with state (for potential future use)
+  useEffect(() => {
+    scrolledToCategoryRef.current = scrolledToCategory;
+  }, [scrolledToCategory]);
+
 
   const handleFloatingFilterClick = useCallback((id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all') => {
     setSelectedCategory('all');
     setScrolledToCategory(id);
-    setTimeout(() => {
-      if (id === 'all') {
-        window.scrollTo({ top: 0, behavior: isMobile ? 'auto' : 'smooth' });
-      } else {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', block: 'start' });
-      }
-    }, 0);
+    ignoreScrollSpyUntilRef.current = Date.now() + 900;
+    if (id === 'all') {
+      window.scrollTo({ top: 0, behavior: isMobile ? 'auto' : 'smooth' });
+      return;
+    }
+    const el = document.getElementById(id);
+    if (el) {
+      requestAnimationFrame(() => {
+        el.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', block: 'start' });
+      });
+    }
   }, [isMobile]);
 
   if (loading) return <BeautifulLoading />;
@@ -513,9 +656,9 @@ export default function CityExplorePage() {
         </div>
       </header>
 
-      {/* Floating capsule: memo + containment to limit re-renders and GPU work */}
+      {/* Floating capsule: memo + containment to limit re-renders and GPU work; phone: slightly higher */}
       <div
-        className="fixed bottom-3 left-0 right-0 z-30 flex justify-center px-3 sm:bottom-4 sm:px-4 pointer-events-none"
+        className="fixed bottom-5 left-0 right-0 z-30 flex justify-center px-3 sm:bottom-4 sm:px-4 pointer-events-none"
         style={{ contain: 'layout style paint' }}
       >
         <FloatingCapsuleBar

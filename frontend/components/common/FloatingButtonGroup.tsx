@@ -133,12 +133,12 @@ export default function FloatingButtonGroup() {
             </svg>
           </button>
 
-          {/* Settings Dropdown Panel */}
+          {/* Settings Dropdown Panel – smooth open on phone */}
           <div
-            className={`absolute top-full mt-2 right-0 sm:top-14 sm:mt-0 z-50 max-w-[calc(100vw-2rem)] sm:max-w-none w-auto transform-gpu transition-all duration-200 origin-top-right ${
+            className={`absolute top-full mt-2 right-0 sm:top-14 sm:mt-0 z-50 max-w-[calc(100vw-2rem)] sm:max-w-none w-auto transform-gpu dropdown-panel-smooth origin-top-right ${
               isSettingsOpen
                 ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
-                : 'opacity-0 scale-90 -translate-y-1 pointer-events-none'
+                : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'
             }`}
           >
             <div className="relative rounded-2xl bg-gradient-to-br from-white/95 via-premium-peach/90 to-white/95 backdrop-blur-xl shadow-[0_18px_45px_rgba(15,23,42,0.18)] border border-primary-saffron/25 p-3 sm:p-4">

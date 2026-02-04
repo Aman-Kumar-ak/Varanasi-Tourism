@@ -678,10 +678,10 @@ export default function ComprehensiveCityGuide({
 className="w-full origin-bottom-left transition-transform duration-1000 ease-out"
             style={{ transform: heroTextSmall ? 'scale(0.72)' : 'scale(1)' }}
           >
-            <div className="inline-block mb-2 sm:mb-3 px-3 sm:px-4 py-1.5 sm:py-1 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
-              <span className="text-primary-gold text-xs sm:text-sm font-semibold">✨ {city.state}</span>
+            <div className="inline-block mb-1.5 sm:mb-2 px-2.5 sm:px-3 py-1 sm:py-0.5 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
+              <span className="text-primary-gold text-[10px] sm:text-xs font-semibold">✨ {city.state}</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-2 sm:mb-3 drop-shadow-2xl break-words" style={{ lineHeight: '1.5' }}>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-3 drop-shadow-2xl break-words" style={{ lineHeight: '1.5' }}>
               {getLocalizedContent(city.name, language)}
             </h1>
             <div className="w-16 sm:w-20 md:w-24 h-0.5 sm:h-1 bg-gradient-temple rounded-full"></div>
@@ -1078,7 +1078,12 @@ className="w-full origin-bottom-left transition-transform duration-1000 ease-out
                         {isExpanded ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>}
                       </span>
                     </button>
-                    {isExpanded && (
+                    <div
+                      className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-none ${
+                        isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                      aria-hidden={!isExpanded}
+                    >
                       <div className="px-4 pb-4 pt-0 bg-orange-50/40">
                         {ritual.image && (
                           <div className="mb-3 rounded-xl overflow-hidden aspect-video w-full relative bg-primary-saffron/10">
@@ -1093,7 +1098,7 @@ className="w-full origin-bottom-left transition-transform duration-1000 ease-out
                         )}
                         <p className="text-primary-dark/90 text-sm leading-relaxed">{getLocalizedContent(ritual.description, language)}</p>
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}
@@ -1258,11 +1263,16 @@ className="w-full origin-bottom-left transition-transform duration-1000 ease-out
                         {isExpanded ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>}
                       </span>
                     </button>
-                    {isExpanded && (
+                    <div
+                      className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-none ${
+                        isExpanded ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
+                      }`}
+                      aria-hidden={!isExpanded}
+                    >
                       <div className="px-4 pb-4 pt-0 bg-amber-50/40 border-t border-amber-200/80">
                         <p className="text-primary-dark/90 text-sm leading-relaxed">{getLocalizedContent(festival.description, language)}</p>
                       </div>
-                    )}
+                    </div>
                   </div>
                 );
               })}
