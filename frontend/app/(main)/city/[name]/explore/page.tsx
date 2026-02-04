@@ -295,163 +295,58 @@ export default function CityExplorePage() {
     [categoriesToShow]
   );
 
-  // Update glass indicator position
-  useEffect(() => {
-    const updatePosition = () => {
-      const activeButton = buttonRefs.current.get(scrolledToCategory);
-      const container = filterScrollRef.current;
-      
-      if (activeButton && container) {
-        // Use requestAnimationFrame for smooth updates
-        requestAnimationFrame(() => {
-          const containerRect = container.getBoundingClientRect();
-          const buttonRect = activeButton.getBoundingClientRect();
-          
-          // Account for container padding + border (3px padding + 1.5px border = 4.5px on desktop, 4px + 1.5px = 5.5px on mobile)
-          const isMobileView = window.innerWidth <= 640;
-          const totalOffset = isMobileView ? 5.5 : 4.5;
-          
-          // Calculate position relative to container, including scroll offset
-          const left = buttonRect.left - containerRect.left + container.scrollLeft - totalOffset;
-          const width = buttonRect.width;
-          
-          setGlassIndicator({ left, width });
-        });
-      }
-    };
-    
-    // Update immediately
-    updatePosition();
-    
-    // Update after multiple delays to catch all rendering changes
-    const timers = [
-      setTimeout(updatePosition, 50),
-      setTimeout(updatePosition, 150),
-      setTimeout(updatePosition, 300)
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, [scrolledToCategory, filterCategories]);
-
-  // Initialize glass indicator position on mount and observe ALL changes
-  useEffect(() => {
+  // Single consolidated glass indicator update: only when scrolledToCategory or layout changes (no polling)
+  const updateGlassIndicator = useCallback(() => {
+    const activeButton = buttonRefs.current.get(scrolledToCategory);
     const container = filterScrollRef.current;
-    
-    const updatePosition = () => {
-      const activeButton = buttonRefs.current.get(scrolledToCategory);
-      
-      if (activeButton && container) {
-        requestAnimationFrame(() => {
-          const containerRect = container.getBoundingClientRect();
-          const buttonRect = activeButton.getBoundingClientRect();
-          const isMobileView = window.innerWidth <= 640;
-          const totalOffset = isMobileView ? 5.5 : 4.5;
-          
-          const left = buttonRect.left - containerRect.left + container.scrollLeft - totalOffset;
-          const width = buttonRect.width;
-          setGlassIndicator({ left, width });
-        });
-      }
-    };
-    
-    // Initial position with multiple attempts
-    const timers = [
-      setTimeout(updatePosition, 100),
-      setTimeout(updatePosition, 250),
-      setTimeout(updatePosition, 500)
-    ];
-    
-    // Observe size changes to all buttons AND container
-    const resizeObserver = new ResizeObserver(() => {
-      updatePosition();
-    });
-    
-    // Observe container for padding/border changes
-    if (container) {
-      resizeObserver.observe(container);
-    }
-    
-    // Observe all buttons for size changes (font size, padding, etc)
-    buttonRefs.current.forEach((button) => {
-      if (button) resizeObserver.observe(button);
-    });
-    
-    // Also observe document font size changes
-    const mutationObserver = new MutationObserver(() => {
-      updatePosition();
-    });
-    
-    if (container) {
-      mutationObserver.observe(container, {
-        attributes: true,
-        attributeFilter: ['style', 'class'],
-        subtree: true
-      });
-    }
-    
-    // Observe document for global font size changes
-    mutationObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['style', 'class']
-    });
-    
-    return () => {
-      timers.forEach(t => clearTimeout(t));
-      resizeObserver.disconnect();
-      mutationObserver.disconnect();
-    };
+    if (!activeButton || !container) return;
+    const containerRect = container.getBoundingClientRect();
+    const buttonRect = activeButton.getBoundingClientRect();
+    const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 640;
+    const padding = isMobileView ? 5.5 : 4.5;
+    const left = buttonRect.left - containerRect.left + container.scrollLeft - padding;
+    const width = buttonRect.width;
+    setGlassIndicator((prev) => (prev.left === left && prev.width === width ? prev : { left, width }));
   }, [scrolledToCategory]);
 
-  // Recalculate on window resize, scroll, zoom, and continuous polling for font size changes
+  useEffect(() => {
+    updateGlassIndicator();
+    const t1 = setTimeout(updateGlassIndicator, 120);
+    const t2 = setTimeout(updateGlassIndicator, 400);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [scrolledToCategory, filterCategories, updateGlassIndicator]);
+
+  // Resize only: debounced indicator update (no scroll listener, no polling)
   useEffect(() => {
     const container = filterScrollRef.current;
-    let debounceTimer: NodeJS.Timeout;
-    let pollInterval: NodeJS.Timeout;
-    
-    const updateIndicator = () => {
-      const activeButton = buttonRefs.current.get(scrolledToCategory);
-      
-      if (activeButton && container) {
-        requestAnimationFrame(() => {
-          const containerRect = container.getBoundingClientRect();
-          const buttonRect = activeButton.getBoundingClientRect();
-          const isMobileView = window.innerWidth <= 640;
-          const padding = isMobileView ? 5.5 : 4.5;
-          
-          // Calculate position relative to container, including scroll offset
-          const left = buttonRect.left - containerRect.left + container.scrollLeft - padding;
-          const width = buttonRect.width;
-          setGlassIndicator({ left, width });
-        });
-      }
-    };
-    
+    let debounceTimer: ReturnType<typeof setTimeout>;
     const debouncedUpdate = () => {
       clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(updateIndicator, 10);
+      debounceTimer = setTimeout(updateGlassIndicator, 150);
     };
-
-    // Listen to visual viewport for zoom changes
-    const visualViewport = window.visualViewport;
-    
+    const ro = new ResizeObserver(debouncedUpdate);
+    if (container) ro.observe(container);
     window.addEventListener('resize', debouncedUpdate);
-    container?.addEventListener('scroll', debouncedUpdate);
-    visualViewport?.addEventListener('resize', debouncedUpdate);
-    
-    // Poll every 100ms to catch font size changes
-    pollInterval = setInterval(updateIndicator, 100);
-    
+    if (typeof window !== 'undefined' && window.visualViewport) {
+      window.visualViewport.addEventListener('resize', debouncedUpdate);
+    }
     return () => {
       clearTimeout(debounceTimer);
-      clearInterval(pollInterval);
+      ro.disconnect();
       window.removeEventListener('resize', debouncedUpdate);
-      container?.removeEventListener('scroll', debouncedUpdate);
-      visualViewport?.removeEventListener('resize', debouncedUpdate);
+      window.visualViewport?.removeEventListener('resize', debouncedUpdate);
     };
-  }, [scrolledToCategory]);
+  }, [updateGlassIndicator]);
 
+  // Throttled scroll handler: update active category at most every SCROLL_THROTTLE_MS to avoid jitter on mobile
+  const SCROLL_THROTTLE_MS = 180;
   useEffect(() => {
     if (loading || !city) return;
     let rafId: number | null = null;
+    let lastRun = 0;
 
     const getActiveCategory = () => {
       const elements = categoriesToShow
@@ -485,9 +380,12 @@ export default function CityExplorePage() {
     };
 
     const onScroll = () => {
+      const now = Date.now();
+      if (now - lastRun < SCROLL_THROTTLE_MS) return;
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
         rafId = null;
+        lastRun = Date.now();
         const activeId = getActiveCategory();
         if (activeId && activeId !== scrolledToCategory) {
           setScrolledToCategory(activeId);
@@ -563,8 +461,11 @@ export default function CityExplorePage() {
         </div>
       </header>
 
-      {/* Floating filter bar: solid bg on mobile (no backdrop-blur) to avoid scroll jitter */}
-      <div className="fixed bottom-3 left-0 right-0 z-30 flex justify-center px-3 sm:bottom-4 sm:px-4 pointer-events-none">
+      {/* Floating filter bar: contain layout for smooth scroll, no polling */}
+      <div
+        className="fixed bottom-3 left-0 right-0 z-30 flex justify-center px-3 sm:bottom-4 sm:px-4 pointer-events-none"
+        style={{ contain: 'layout style' }}
+      >
           <div
             ref={filterScrollRef}
             role="region"
@@ -572,11 +473,11 @@ export default function CityExplorePage() {
             className="capsule-chip-container pointer-events-auto overflow-x-auto scrollbar-hide w-fit max-w-[calc(100vw-1.5rem)]"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           >
-            {/* iOS Glass Indicator */}
+            {/* Glass indicator: transform-only updates for smooth mobile scroll */}
             <div
               className="glass-indicator"
               style={{
-                transform: `translateX(${glassIndicator.left}px)`,
+                transform: `translate3d(${glassIndicator.left}px, 0, 0)`,
                 width: `${glassIndicator.width}px`,
               }}
             />
