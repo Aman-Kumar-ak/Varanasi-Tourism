@@ -111,19 +111,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   return (
     <>
-      {/* Backdrop – deeper blur, gradient tint */}
+      {/* Backdrop – optimized for mobile performance */}
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-100 transition-opacity duration-200"
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-100 sm:transition-opacity sm:duration-200 backdrop-blur-[4px] sm:backdrop-blur-[12px]"
         onClick={onClose}
         style={{
           background: 'linear-gradient(160deg, rgba(26,26,46,0.6) 0%, rgba(30,58,138,0.25) 50%, rgba(26,26,46,0.5) 100%)',
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
         }}
       >
         {/* Modal – premium card with soft shadow and border */}
         <div
-          className="w-full max-w-md relative transform transition-all duration-300 ease-out scale-100 opacity-100 rounded-2xl overflow-hidden"
+          className="w-full max-w-md relative transform scale-100 opacity-100 rounded-2xl overflow-hidden sm:transition-all sm:duration-300 sm:ease-out"
           onClick={(e) => e.stopPropagation()}
           style={{
             background: 'linear-gradient(180deg, #FFFFFF 0%, #FDFBFA 100%)',
@@ -139,7 +137,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-5 right-5 w-9 h-9 rounded-full flex items-center justify-center z-10 transition-all duration-200 hover:scale-105 active:scale-95"
+            className="absolute top-5 right-5 w-9 h-9 rounded-full flex items-center justify-center z-10 sm:transition-all sm:duration-200 sm:hover:scale-105 active:scale-95"
             style={{
               background: 'rgba(26,26,46,0.06)',
               color: '#1A1A2E',
@@ -188,9 +186,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.04)',
                   }}
                 >
-                  {/* Sliding pill – animates between Login and Register */}
+                  {/* Sliding pill – instant on mobile, smooth on desktop */}
                   <div
-                    className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full transition-transform duration-300 ease-out"
+                    className="absolute top-1 bottom-1 left-1 w-[calc(50%-4px)] rounded-full sm:transition-transform sm:duration-200 sm:ease-out"
                     style={{
                       background: 'linear-gradient(145deg, #1E3A8A 0%, #163072 100%)',
                       boxShadow: '0 2px 8px rgba(30,58,138,0.35)',
@@ -203,8 +201,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       setMode('login');
                       if (typeof window !== 'undefined') window.recaptchaVerifier = null as any;
                     }}
-                    className={`relative flex-1 px-4 py-2.5 rounded-full font-medium text-sm transition-colors duration-200 z-10 outline-none focus:outline-none active:outline-none ${
-                      mode === 'login' ? 'text-white' : 'text-premium-section-muted hover:text-premium-section-text'
+                    className={`relative flex-1 px-4 py-2.5 rounded-full font-medium text-sm sm:transition-colors sm:duration-200 z-10 outline-none focus:outline-none active:outline-none ${
+                      mode === 'login' ? 'text-white' : 'text-premium-section-muted sm:hover:text-premium-section-text'
                     }`}
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
@@ -216,8 +214,8 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                       setMode('register');
                       if (typeof window !== 'undefined') window.recaptchaVerifier = null as any;
                     }}
-                    className={`relative flex-1 px-4 py-2.5 rounded-full font-medium text-sm transition-colors duration-200 z-10 outline-none focus:outline-none active:outline-none ${
-                      mode === 'register' ? 'text-white' : 'text-premium-section-muted hover:text-premium-section-text'
+                    className={`relative flex-1 px-4 py-2.5 rounded-full font-medium text-sm sm:transition-colors sm:duration-200 z-10 outline-none focus:outline-none active:outline-none ${
+                      mode === 'register' ? 'text-white' : 'text-premium-section-muted sm:hover:text-premium-section-text'
                     }`}
                     style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
@@ -227,10 +225,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               </div>
             )}
 
-            {/* Form area – height animates when switching Login ↔ Register */}
+            {/* Form area – height animates when switching Login ↔ Register (instant on mobile) */}
             {!isAuthenticated && (
               <div
-                className="overflow-hidden transition-[height] duration-300 ease-out"
+                className="overflow-hidden sm:transition-[height] sm:duration-200 sm:ease-out"
                 style={{ height: contentHeight }}
               >
                 <div ref={formWrapRef}>

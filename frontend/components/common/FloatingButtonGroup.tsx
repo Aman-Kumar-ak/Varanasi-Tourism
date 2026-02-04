@@ -135,7 +135,7 @@ export default function FloatingButtonGroup() {
 
           {/* Settings Dropdown Panel – smooth open on phone */}
           <div
-            className={`absolute top-full mt-2 right-0 sm:top-14 sm:mt-0 z-50 max-w-[calc(100vw-2rem)] sm:max-w-none w-auto transform-gpu dropdown-panel-smooth origin-top-right ${
+            className={`absolute top-full mt-2 right-0 sm:top-14 sm:mt-0 z-50 max-w-[calc(100vw-2rem)] sm:max-w-none w-auto transform-gpu origin-top-right ${
               isSettingsOpen
                 ? 'opacity-100 scale-100 translate-y-0 pointer-events-auto'
                 : 'opacity-0 scale-95 -translate-y-1 pointer-events-none'

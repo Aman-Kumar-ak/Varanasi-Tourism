@@ -1079,7 +1079,7 @@ className="w-full origin-bottom-left transition-transform duration-1000 ease-out
                       </span>
                     </button>
                     <div
-                      className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-none ${
+                      className={`accordion-panel-smooth overflow-hidden ${
                         isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
                       }`}
                       aria-hidden={!isExpanded}
@@ -1264,7 +1264,7 @@ className="w-full origin-bottom-left transition-transform duration-1000 ease-out
                       </span>
                     </button>
                     <div
-                      className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-none ${
+                      className={`accordion-panel-smooth overflow-hidden ${
                         isExpanded ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'
                       }`}
                       aria-hidden={!isExpanded}

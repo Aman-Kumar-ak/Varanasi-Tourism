@@ -177,7 +177,7 @@ export default function PlacesCarousel({ places, language, exploreSlug, title, i
                   id={`place-accordion-${index}`}
                   role="region"
                   aria-labelledby={`place-accordion-heading-${index}`}
-                  className={`accordion-panel-smooth overflow-hidden transition-[max-height,opacity] duration-300 ease-out sm:transition-all ${
+                  className={`accordion-panel-smooth overflow-hidden ${
                     isExpanded ? 'max-h-[1200px] opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >
