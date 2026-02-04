@@ -234,23 +234,37 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
     return () => window.clearInterval(intervalId);
   }, [goTo, totalItems, isMobile]);
 
-  // Preload images for all quotes so no blank/empty during carousel transition
-  // Optimized: only preload when section is near viewport
+  // Preload images for quotes - optimized: use IntersectionObserver to preload only when section is visible
   useEffect(() => {
     if (!quotes?.length) return;
     
-    // Delay preloading until after initial render to avoid blocking
-    const preloadTimeout = setTimeout(() => {
-      quotes.forEach((q) => {
-        if (q.image) {
-          const img = new window.Image();
-          img.loading = 'lazy'; // Use lazy loading for preloaded images
-          img.src = q.image;
-        }
-      });
-    }, 500); // Wait 500ms after mount
+    // Use IntersectionObserver to preload images only when section is near viewport
+    const section = document.getElementById('quotes-section');
+    if (!section) return;
     
-    return () => clearTimeout(preloadTimeout);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Preload images when section becomes visible
+            quotes.forEach((q) => {
+              if (q.image) {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = q.image;
+                document.head.appendChild(link);
+              }
+            });
+            observer.disconnect();
+          }
+        });
+      },
+      { rootMargin: '200px' } // Start preloading 200px before section enters viewport
+    );
+    
+    observer.observe(section);
+    return () => observer.disconnect();
   }, [quotes]);
 
   if (!quotes || totalItems === 0) return null;
@@ -331,6 +345,7 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
 
   return (
     <section 
+      id="quotes-section"
       className="mb-6" 
       aria-labelledby="quotes-heading"
       style={{ 

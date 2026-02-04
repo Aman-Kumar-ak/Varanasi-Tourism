@@ -77,7 +77,7 @@ function getCacheKey(url: string): string {
 }
 
 /**
- * Get cached data
+ * Get cached data (synchronous - checks localStorage immediately)
  */
 export function getCachedData<T>(url: string): T | null {
   if (typeof window === 'undefined') return null;
