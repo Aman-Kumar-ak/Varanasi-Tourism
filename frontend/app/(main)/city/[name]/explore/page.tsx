@@ -455,6 +455,19 @@ export default function CityExplorePage() {
     };
   }, [categoriesToShow, loading, city, scrolledToCategory]);
 
+  const handleFloatingFilterClick = useCallback((id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all') => {
+    setSelectedCategory('all');
+    setScrolledToCategory(id);
+    setTimeout(() => {
+      if (id === 'all') {
+        window.scrollTo({ top: 0, behavior: isMobile ? 'auto' : 'smooth' });
+      } else {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', block: 'start' });
+      }
+    }, 0);
+  }, [isMobile]);
+
   if (loading) return <BeautifulLoading />;
   if (!city) {
     return (
@@ -474,19 +487,6 @@ export default function CityExplorePage() {
       </div>
     );
   }
-
-  const handleFloatingFilterClick = useCallback((id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all') => {
-    setSelectedCategory('all');
-    setScrolledToCategory(id);
-    setTimeout(() => {
-      if (id === 'all') {
-        window.scrollTo({ top: 0, behavior: isMobile ? 'auto' : 'smooth' });
-      } else {
-        const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', block: 'start' });
-      }
-    }, 0);
-  }, [isMobile]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-premium-peach via-white/40 to-background-cream">
