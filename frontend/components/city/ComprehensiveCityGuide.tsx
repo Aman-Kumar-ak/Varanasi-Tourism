@@ -678,8 +678,8 @@ export default function ComprehensiveCityGuide({
 className="w-full origin-bottom-left transition-transform duration-1000 ease-out"
             style={{ transform: heroTextSmall ? 'scale(0.72)' : 'scale(1)' }}
           >
-            <div className="inline-block mb-1.5 sm:mb-2 px-2.5 sm:px-3 py-1 sm:py-0.5 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
-              <span className="text-primary-gold text-[10px] sm:text-xs font-semibold">✨ {city.state}</span>
+            <div className="inline-block mb-1.5 sm:mb-2 px-2 sm:px-3 py-0.5 sm:py-0.5 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
+              <span className="text-primary-gold text-[6px] sm:text-xs font-semibold">✨ {city.state}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-3 drop-shadow-2xl break-words" style={{ lineHeight: '1.5' }}>
               {getLocalizedContent(city.name, language)}

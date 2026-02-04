@@ -372,41 +372,138 @@ export default function CityExplorePage() {
   );
 
   // Single consolidated glass indicator update: only when scrolledToCategory or layout changes (no polling)
-  const updateGlassIndicator = useCallback(() => {
-    const activeButton = buttonRefs.current.get(scrolledToCategory);
+  // Helper function to scroll capsule container to center a button
+  const scrollCapsuleToButton = useCallback((container: HTMLDivElement, button: HTMLButtonElement) => {
+    const containerRect = container.getBoundingClientRect();
+    const buttonRect = button.getBoundingClientRect();
+    const containerScrollLeft = container.scrollLeft;
+    const buttonLeftRelativeToContainer = buttonRect.left - containerRect.left + containerScrollLeft;
+    const buttonWidth = buttonRect.width;
+    const containerWidth = containerRect.width;
+    
+    // Calculate scroll position to center the button
+    const targetScrollLeft = buttonLeftRelativeToContainer - (containerWidth / 2) + (buttonWidth / 2);
+    
+    // Scroll the container
+    container.scrollTo({
+      left: Math.max(0, targetScrollLeft),
+      behavior: isMobile ? 'auto' : 'smooth',
+    });
+  }, [isMobile]);
+
+  // Update glass indicator position - always syncs with current scrolledToCategory
+  const updateGlassIndicator = useCallback((categoryId?: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all') => {
+    const targetCategory = categoryId ?? scrolledToCategory;
+    if (targetCategory === 'all') {
+      // For 'all', position at first button
+      const firstCategory = filterCategories.length > 0 ? filterCategories[0].id : null;
+      if (firstCategory && firstCategory !== 'all') {
+        const firstButton = buttonRefs.current.get(firstCategory);
+        const container = filterScrollRef.current;
+        if (firstButton && container) {
+          const containerRect = container.getBoundingClientRect();
+          const buttonRect = firstButton.getBoundingClientRect();
+          const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 640;
+          const padding = isMobileView ? 5 : 4.5;
+          const left = buttonRect.left - containerRect.left + container.scrollLeft - padding;
+          const width = buttonRect.width;
+          setGlassIndicator({ left, width });
+        }
+      }
+      return;
+    }
+    
+    const activeButton = buttonRefs.current.get(targetCategory);
     const container = filterScrollRef.current;
-    if (!activeButton || !container) return;
+    if (!activeButton || !container) {
+      // Retry after a short delay if button not found
+      setTimeout(() => {
+        const retryButton = buttonRefs.current.get(targetCategory);
+        const retryContainer = filterScrollRef.current;
+        if (retryButton && retryContainer) {
+          const containerRect = retryContainer.getBoundingClientRect();
+          const buttonRect = retryButton.getBoundingClientRect();
+          const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 640;
+          const padding = isMobileView ? 5 : 4.5;
+          const left = buttonRect.left - containerRect.left + retryContainer.scrollLeft - padding;
+          const width = buttonRect.width;
+          setGlassIndicator({ left, width });
+        }
+      }, 50);
+      return;
+    }
+    
     const containerRect = container.getBoundingClientRect();
     const buttonRect = activeButton.getBoundingClientRect();
     const isMobileView = typeof window !== 'undefined' && window.innerWidth <= 640;
     const padding = isMobileView ? 5 : 4.5;
     const left = buttonRect.left - containerRect.left + container.scrollLeft - padding;
     const width = buttonRect.width;
-    setGlassIndicator((prev) => (prev.left === left && prev.width === width ? prev : { left, width }));
-  }, [scrolledToCategory]);
+    
+    // Always update, don't check if same (ensures sync)
+    setGlassIndicator({ left, width });
+  }, [scrolledToCategory, filterCategories]);
 
-  // Scroll capsule bar to center the active button, then update pill position after layout (avoids shake)
+  // Sync pill indicator and scroll capsule bar when category changes
   useEffect(() => {
-    const container = filterScrollRef.current;
-    if (!container || scrolledToCategory === 'all') return;
-    const activeButton = container.querySelector<HTMLButtonElement>(`[data-category="${scrolledToCategory}"]`);
-    if (activeButton) {
-      activeButton.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
-      const rafId = requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          updateGlassIndicator();
-        });
-      });
-      return () => cancelAnimationFrame(rafId);
+    if (scrolledToCategory === 'all') {
+      // For 'all', update indicator to first category position
+      updateGlassIndicator('all');
+      return;
     }
-  }, [scrolledToCategory, isMobile, updateGlassIndicator]);
+    
+    const container = filterScrollRef.current;
+    const activeButton = buttonRefs.current.get(scrolledToCategory);
+    
+    if (!container || !activeButton) {
+      // Elements not ready, retry after delay
+      const timeoutId = setTimeout(() => {
+        const retryContainer = filterScrollRef.current;
+        const retryButton = buttonRefs.current.get(scrolledToCategory);
+        if (retryContainer && retryButton) {
+          scrollCapsuleToButton(retryContainer, retryButton);
+          // Update pill immediately and after scroll
+          updateGlassIndicator(scrolledToCategory);
+          requestAnimationFrame(() => {
+            updateGlassIndicator(scrolledToCategory);
+          });
+        } else {
+          // Still not ready, just update indicator
+          updateGlassIndicator(scrolledToCategory);
+        }
+      }, 100);
+      return () => clearTimeout(timeoutId);
+    }
+    
+    // Update pill position immediately for instant feedback
+    updateGlassIndicator(scrolledToCategory);
+    
+    // Scroll container to center the active button
+    scrollCapsuleToButton(container, activeButton);
+    
+    // Update pill again after scroll completes
+    const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        updateGlassIndicator(scrolledToCategory);
+        // One more update after scroll animation completes
+        setTimeout(() => {
+          updateGlassIndicator(scrolledToCategory);
+        }, isMobile ? 100 : 300);
+      });
+    });
+    
+    return () => cancelAnimationFrame(rafId);
+  }, [scrolledToCategory, updateGlassIndicator, scrollCapsuleToButton, isMobile]);
 
-  // Update indicator after layout (e.g. when filter categories change). When scrolledToCategory changes from scroll-spy,
-  // the scroll-into-view effect above updates the pill via rAF to avoid shake; no immediate update here.
+  // Update indicator when filter categories change (e.g., after data loads)
   useEffect(() => {
-    const t = setTimeout(updateGlassIndicator, GLASS_INDICATOR_SETTLE_MS);
-    return () => clearTimeout(t);
-  }, [scrolledToCategory, filterCategories, updateGlassIndicator]);
+    if (filterCategories.length === 0) return;
+    // Update indicator after categories are ready
+    const timeoutId = setTimeout(() => {
+      updateGlassIndicator(scrolledToCategory);
+    }, 100);
+    return () => clearTimeout(timeoutId);
+  }, [filterCategories.length, updateGlassIndicator, scrolledToCategory]);
 
   // Resize only: debounced indicator update (no scroll listener, no polling)
   useEffect(() => {
@@ -546,18 +643,14 @@ export default function CityExplorePage() {
         if (activeId === lastActiveId) return;
         lastActiveId = activeId;
         
-        // Debounce state updates to prevent rapid changes
-        if (pendingUpdate) clearTimeout(pendingUpdate);
-        pendingUpdate = setTimeout(() => {
-          setScrolledToCategory((prev) => {
-            // Only update if different to prevent unnecessary re-renders
-            if (prev !== activeId) {
-              return activeId;
-            }
-            return prev;
-          });
-          pendingUpdate = null;
-        }, 80); // Increased debounce for smoother transitions
+        // Update state immediately (no debounce) to keep pill in sync
+        setScrolledToCategory((prev) => {
+          // Only update if different to prevent unnecessary re-renders
+          if (prev !== activeId) {
+            return activeId;
+          }
+          return prev;
+        });
       });
     };
 
@@ -597,19 +690,50 @@ export default function CityExplorePage() {
 
   const handleFloatingFilterClick = useCallback((id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all') => {
     setSelectedCategory('all');
+    
+    // Set scroll-spy ignore period BEFORE changing category
+    ignoreScrollSpyUntilRef.current = Date.now() + 2000;
+    
+    // Update category state FIRST - this triggers useEffect to sync pill
     setScrolledToCategory(id);
-    ignoreScrollSpyUntilRef.current = Date.now() + 900;
+    
+    // Immediately scroll capsule bar to the clicked button
+    const container = filterScrollRef.current;
+    const clickedButton = buttonRefs.current.get(id);
+    if (container && clickedButton) {
+      scrollCapsuleToButton(container, clickedButton);
+      // Update pill immediately
+      updateGlassIndicator(id);
+    }
+    
     if (id === 'all') {
       window.scrollTo({ top: 0, behavior: isMobile ? 'auto' : 'smooth' });
+      // Update pill after scroll completes
+      setTimeout(() => {
+        updateGlassIndicator(id);
+      }, isMobile ? 150 : 400);
       return;
     }
+    
+    // Scroll page to the section
     const el = document.getElementById(id);
     if (el) {
-      requestAnimationFrame(() => {
-        el.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', block: 'start' });
+      // Use scrollIntoView with proper options
+      el.scrollIntoView({ 
+        behavior: isMobile ? 'auto' : 'smooth', 
+        block: 'start',
+        inline: 'nearest'
       });
+      
+      // Update pill multiple times to ensure sync
+      setTimeout(() => {
+        updateGlassIndicator(id);
+      }, isMobile ? 200 : 400);
+      setTimeout(() => {
+        updateGlassIndicator(id);
+      }, isMobile ? 400 : 700);
     }
-  }, [isMobile]);
+  }, [isMobile, updateGlassIndicator, scrollCapsuleToButton]);
 
   if (loading) return <BeautifulLoading />;
   if (!city) {
