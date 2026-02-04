@@ -9,6 +9,7 @@ import ComprehensiveCityGuide from '@/components/city/ComprehensiveCityGuide';
 import BeautifulLoading from '@/components/common/BeautifulLoading';
 import { LANGUAGE_CHANGE_SCROLL_KEY } from '@/components/common/LanguageSelector';
 import { clearAccordionRestoreKeys } from '@/lib/accordionRestore';
+import { cachedFetch, CACHE_DURATIONS } from '@/lib/cache';
 
 export default function CityPage() {
   const params = useParams();
@@ -24,21 +25,24 @@ export default function CityPage() {
     try {
       setLoading(true);
       const apiUrl = getApiUrl();
-      // Add cache-busting query parameter to ensure fresh data
-      const response = await fetch(`${apiUrl}/api/cities/${params.name}?t=${Date.now()}`, {
-        cache: 'no-store',
-      });
-      const data = await response.json();
+      
+      // Use cached fetch for city data (static data - 7 days cache)
+      const data = await cachedFetch<{ success: boolean; data: any }>(
+        `${apiUrl}/api/cities/${params.name}`,
+        {},
+        CACHE_DURATIONS.STATIC
+      );
 
       if (data.success) {
         setCity(data.data);
         
-        // Fetch quotes for this city (or all quotes if no cityId)
+        // Fetch quotes for this city (semi-static data - 24 hours cache)
         try {
-          const quotesResponse = await fetch(`${apiUrl}/api/quotes`, {
-            cache: 'no-store',
-          });
-          const quotesData = await quotesResponse.json();
+          const quotesData = await cachedFetch<{ success: boolean; data: any[] }>(
+            `${apiUrl}/api/quotes`,
+            {},
+            CACHE_DURATIONS.SEMI_STATIC
+          );
           if (quotesData.success) {
             setQuotes(quotesData.data || []);
           }

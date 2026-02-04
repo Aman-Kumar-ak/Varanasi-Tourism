@@ -5,6 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import FilterBar from '@/components/jyotirlinga/FilterBar';
 import TempleCard from '@/components/jyotirlinga/TempleCard';
 import { getApiUrl } from '@/lib/utils';
+import { cachedFetch, CACHE_DURATIONS } from '@/lib/cache';
 
 interface Jyotirlinga {
   _id: string;
@@ -53,8 +54,12 @@ export default function JyotirlingasPage() {
         url += `?${params.toString()}`;
       }
 
-      const response = await fetch(url);
-      const data = await response.json();
+      // Use cached fetch for jyotirlingas data (static data - 7 days cache)
+      const data = await cachedFetch<{ success: boolean; data: Jyotirlinga[]; error?: string }>(
+        url,
+        {},
+        CACHE_DURATIONS.STATIC
+      );
 
       if (data.success) {
         setJyotirlingas(data.data || []);

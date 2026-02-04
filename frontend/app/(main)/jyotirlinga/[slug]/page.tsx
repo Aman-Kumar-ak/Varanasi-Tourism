@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getApiUrl } from '@/lib/utils';
+import { cachedFetch, CACHE_DURATIONS } from '@/lib/cache';
 
 // Loading component
 const LoadingSpinner = () => (
@@ -102,8 +103,12 @@ export default function JyotirlingaDetailPage() {
   const fetchTempleDetails = async () => {
     try {
       const apiUrl = getApiUrl();
-      const response = await fetch(`${apiUrl}/api/jyotirlingas/${params.slug}`);
-      const data = await response.json();
+      // Use cached fetch for temple data (static data - 7 days cache)
+      const data = await cachedFetch<{ success: boolean; data: Jyotirlinga }>(
+        `${apiUrl}/api/jyotirlingas/${params.slug}`,
+        {},
+        CACHE_DURATIONS.STATIC
+      );
 
       if (data.success) {
         setTemple(data.data);

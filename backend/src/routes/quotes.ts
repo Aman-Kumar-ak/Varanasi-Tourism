@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import connectDB from '../lib/db.js';
 import Quote from '../models/Quote.js';
 import { verifyAuth } from '../middleware/auth.js';
+import { setCacheHeaders, CACHE_DURATIONS } from '../middleware/cache.js';
 
 const router = express.Router();
 
@@ -13,6 +14,9 @@ router.get('/', async (req: Request, res: Response) => {
     const quotes = await Quote.find({ isActive: true })
       .sort({ order: 1 })
       .select('quote author source image order');
+
+    // Set cache headers for semi-static data (24 hours)
+    setCacheHeaders(res, CACHE_DURATIONS.SEMI_STATIC);
 
     res.json({
       success: true,
@@ -43,6 +47,9 @@ router.get('/city/:cityId', async (req: Request, res: Response) => {
     })
       .sort({ order: 1 })
       .select('quote author source image order');
+
+    // Set cache headers for semi-static data (24 hours)
+    setCacheHeaders(res, CACHE_DURATIONS.SEMI_STATIC);
 
     res.json({
       success: true,

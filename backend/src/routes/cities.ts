@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import connectDB from '../lib/db.js';
 import City from '../models/City.js';
 import Jyotirlinga from '../models/Jyotirlinga.js';
+import { setCacheHeaders, CACHE_DURATIONS } from '../middleware/cache.js';
 
 const router = express.Router();
 
@@ -14,6 +15,9 @@ router.get('/', async (req: Request, res: Response) => {
       .populate('jyotirlingaId', 'name slug city state')
       .select('name state images jyotirlingaId')
       .sort({ 'name.en': 1 });
+
+    // Set cache headers for static data (7 days)
+    setCacheHeaders(res, CACHE_DURATIONS.STATIC);
 
     res.json({
       success: true,
@@ -71,6 +75,9 @@ router.get('/:name', async (req: Request, res: Response) => {
 
     // Convert Mongoose document to plain object to ensure all fields are serialized
     const cityData = city.toObject ? city.toObject() : city;
+
+    // Set cache headers for static data (7 days)
+    setCacheHeaders(res, CACHE_DURATIONS.STATIC);
 
     res.json({
       success: true,

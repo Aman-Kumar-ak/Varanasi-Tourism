@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -306,21 +306,21 @@ export default function ComprehensiveCityGuide({
   const [heroTextSmall, setHeroTextSmall] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoDurationRef = useRef<number>(0);
+  const heroTextSmallRef = useRef(false);
+  const timeUpdateRAFRef = useRef<number | null>(null);
   const ritualCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const festivalCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const accordionRestoredRef = useRef(false);
-  const [historyClusterInView, setHistoryClusterInView] = useState(false);
+  // Video clusters: sequential playback top-left → top-right → bottom, no scroll detection
   const [historyClusterPlayingSlot, setHistoryClusterPlayingSlot] = useState<0 | 1 | 2 | 3>(0);
   const [historyClusterFadingSlot, setHistoryClusterFadingSlot] = useState<1 | 2 | 3 | null>(null);
-  const historySectionRef = useRef<HTMLElement | null>(null);
   const historyVideoRefsMobile = useRef<(HTMLVideoElement | null)[]>([]);
   const historyVideoRefsDesktop = useRef<(HTMLVideoElement | null)[]>([]);
   const historyVideoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [historyClusterIsMobile, setHistoryClusterIsMobile] = useState(false);
-  const [spiritualClusterInView, setSpiritualClusterInView] = useState(false);
+
   const [spiritualClusterPlayingSlot, setSpiritualClusterPlayingSlot] = useState<0 | 1 | 2 | 3>(0);
   const [spiritualClusterFadingSlot, setSpiritualClusterFadingSlot] = useState<1 | 2 | 3 | null>(null);
-  const spiritualSectionRef = useRef<HTMLElement | null>(null);
   const spiritualVideoRefsMobile = useRef<(HTMLVideoElement | null)[]>([]);
   const spiritualVideoRefsDesktop = useRef<(HTMLVideoElement | null)[]>([]);
   const spiritualVideoTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -338,44 +338,39 @@ export default function ComprehensiveCityGuide({
     router.prefetch(`/city/${citySlug}/explore`);
   }, [citySlug, router]);
 
-  // History cluster: play videos only when section is in view; sequential playback with loop
+  // Preload cluster videos with raw URLs (same as video src) for cache
   useEffect(() => {
-    const section = historySectionRef.current;
-    if (!section) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [e] = entries;
-        if (!e) return;
-        if (e.isIntersecting) {
-          setHistoryClusterInView(true);
-        } else {
-          setHistoryClusterInView(false);
-          setHistoryClusterPlayingSlot(0);
-          setHistoryClusterFadingSlot(null);
-          historyVideoTimeoutsRef.current.forEach((id) => clearTimeout(id));
-          historyVideoTimeoutsRef.current = [];
-          [...historyVideoRefsMobile.current, ...historyVideoRefsDesktop.current].forEach((v) => {
-            v?.pause();
-            if (v) v.currentTime = 0;
-          });
-        }
-      },
-      { threshold: 0.2, rootMargin: '0px' }
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [city.history]);
+    const urls = [
+      'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769941733/kashi-2_rnbwom.mp4',
+      'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769941720/kashi-3_vqq1cs.mp4',
+      'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769941738/kashi_pxgwfj.mp4',
+      'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769943119/1_w5wxln.mp4',
+      'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769943128/3_fq91kq.mp4',
+      'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769943131/2_railpl.mp4',
+    ];
+    setTimeout(() => {
+      urls.forEach((url, i) => {
+        setTimeout(() => {
+          const link = document.createElement('link');
+          link.rel = 'prefetch';
+          link.as = 'video';
+          link.href = url;
+          document.head.appendChild(link);
+        }, i * 150);
+      });
+    }, 1000);
+  }, []);
 
-  // When History section enters view, start first video immediately
+  // History cluster: start first video after mount so refs and DOM are ready (top-left → top-right → bottom, loop).
   useEffect(() => {
-    if (!historyClusterInView) return;
-    const id = setTimeout(() => setHistoryClusterPlayingSlot(1), 0);
+    const id = setTimeout(() => setHistoryClusterPlayingSlot(1), 600);
     historyVideoTimeoutsRef.current.push(id);
     return () => {
       clearTimeout(id);
-      historyVideoTimeoutsRef.current = historyVideoTimeoutsRef.current.filter((x) => x !== id);
+      historyVideoTimeoutsRef.current.forEach((tid) => clearTimeout(tid));
+      historyVideoTimeoutsRef.current = [];
     };
-  }, [historyClusterInView]);
+  }, []);
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 640px)');
@@ -385,12 +380,43 @@ export default function ComprehensiveCityGuide({
     return () => mql.removeEventListener('change', update);
   }, []);
 
+  // Note: Video sources are set via JSX src prop, which uses optimized URLs
+  // No need to manually update sources here as React handles it
+
   useEffect(() => {
-    if (!historyClusterInView || historyClusterPlayingSlot < 1 || historyClusterPlayingSlot > 3) return;
+    if (historyClusterPlayingSlot < 1 || historyClusterPlayingSlot > 3) return;
     const refs = historyClusterIsMobile ? historyVideoRefsMobile : historyVideoRefsDesktop;
     const vid = refs.current[historyClusterPlayingSlot - 1];
-    vid?.play().catch(() => {});
-  }, [historyClusterInView, historyClusterPlayingSlot, historyClusterIsMobile]);
+    if (!vid) return;
+
+    const play = () => {
+      vid.play().catch(() => {});
+    };
+
+    // Try play immediately if already ready
+    if (vid.readyState >= 2) {
+      play();
+    } else {
+      vid.addEventListener('canplay', play, { once: true });
+      vid.addEventListener('canplaythrough', play, { once: true });
+      vid.addEventListener('loadeddata', play, { once: true });
+      if (vid.readyState === 0) vid.load();
+    }
+
+    // Retry play after short delays in case video wasn't ready yet
+    const t1 = setTimeout(play, 200);
+    const t2 = setTimeout(play, 600);
+    const t3 = setTimeout(play, 1200);
+
+    return () => {
+      vid.removeEventListener('canplay', play);
+      vid.removeEventListener('canplaythrough', play);
+      vid.removeEventListener('loadeddata', play);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [historyClusterPlayingSlot, historyClusterIsMobile]);
 
   const scheduleHistoryNext = (delay: number, slot: 1 | 2 | 3) => {
     const id = setTimeout(() => setHistoryClusterPlayingSlot(slot), delay);
@@ -414,43 +440,16 @@ export default function ComprehensiveCityGuide({
     };
   }, [historyClusterFadingSlot]);
 
-  // Spiritual cluster: play videos only when section is in view; sequential playback with loop
+  // Spiritual cluster: start first video after mount so refs and DOM are ready (top-left → top-right → bottom, loop).
   useEffect(() => {
-    const section = spiritualSectionRef.current;
-    if (!section) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const [e] = entries;
-        if (!e) return;
-        if (e.isIntersecting) {
-          setSpiritualClusterInView(true);
-        } else {
-          setSpiritualClusterInView(false);
-          setSpiritualClusterPlayingSlot(0);
-          setSpiritualClusterFadingSlot(null);
-          spiritualVideoTimeoutsRef.current.forEach((id) => clearTimeout(id));
-          spiritualVideoTimeoutsRef.current = [];
-          [...spiritualVideoRefsMobile.current, ...spiritualVideoRefsDesktop.current].forEach((v) => {
-            v?.pause();
-            if (v) v.currentTime = 0;
-          });
-        }
-      },
-      { threshold: 0.2, rootMargin: '0px' }
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [city.spiritualSignificance]);
-
-  useEffect(() => {
-    if (!spiritualClusterInView) return;
-    const id = setTimeout(() => setSpiritualClusterPlayingSlot(1), 0);
+    const id = setTimeout(() => setSpiritualClusterPlayingSlot(1), 500);
     spiritualVideoTimeoutsRef.current.push(id);
     return () => {
       clearTimeout(id);
-      spiritualVideoTimeoutsRef.current = spiritualVideoTimeoutsRef.current.filter((x) => x !== id);
+      spiritualVideoTimeoutsRef.current.forEach((tid) => clearTimeout(tid));
+      spiritualVideoTimeoutsRef.current = [];
     };
-  }, [spiritualClusterInView]);
+  }, []);
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 640px)');
@@ -460,12 +459,43 @@ export default function ComprehensiveCityGuide({
     return () => mql.removeEventListener('change', update);
   }, []);
 
+  // Note: Video sources are set via JSX src prop, which uses optimized URLs
+  // No need to manually update sources here as React handles it
+
   useEffect(() => {
-    if (!spiritualClusterInView || spiritualClusterPlayingSlot < 1 || spiritualClusterPlayingSlot > 3) return;
+    if (spiritualClusterPlayingSlot < 1 || spiritualClusterPlayingSlot > 3) return;
     const refs = spiritualClusterIsMobile ? spiritualVideoRefsMobile : spiritualVideoRefsDesktop;
     const vid = refs.current[spiritualClusterPlayingSlot - 1];
-    vid?.play().catch(() => {});
-  }, [spiritualClusterInView, spiritualClusterPlayingSlot, spiritualClusterIsMobile]);
+    if (!vid) return;
+
+    const play = () => {
+      vid.play().catch(() => {});
+    };
+
+    // Try play immediately if already ready
+    if (vid.readyState >= 2) {
+      play();
+    } else {
+      vid.addEventListener('canplay', play, { once: true });
+      vid.addEventListener('canplaythrough', play, { once: true });
+      vid.addEventListener('loadeddata', play, { once: true });
+      if (vid.readyState === 0) vid.load();
+    }
+
+    // Retry play after short delays in case video wasn't ready yet
+    const t1 = setTimeout(play, 200);
+    const t2 = setTimeout(play, 600);
+    const t3 = setTimeout(play, 1200);
+
+    return () => {
+      vid.removeEventListener('canplay', play);
+      vid.removeEventListener('canplaythrough', play);
+      vid.removeEventListener('loadeddata', play);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [spiritualClusterPlayingSlot, spiritualClusterIsMobile]);
 
   const scheduleSpiritualNext = (delay: number, slot: 1 | 2 | 3) => {
     const id = setTimeout(() => setSpiritualClusterPlayingSlot(slot), delay);
@@ -565,7 +595,13 @@ export default function ComprehensiveCityGuide({
   return (
     <div className="min-h-screen">
       {/* Hero Section with Video Background */}
-      <section className="relative h-[50vh] min-h-[280px] sm:h-[55vh] sm:min-h-[320px] md:h-96 lg:h-[500px] overflow-hidden">
+      <section 
+        className="relative h-[50vh] min-h-[280px] sm:h-[55vh] sm:min-h-[320px] md:h-96 lg:h-[500px] overflow-hidden"
+        style={{ 
+          willChange: 'auto',
+          transform: 'translateZ(0)', // Enable GPU acceleration
+        }}
+      >
         {/* Video Background */}
         {city.videos && city.videos.length > 0 ? (
           <video
@@ -574,24 +610,41 @@ export default function ComprehensiveCityGuide({
             loop
             muted
             playsInline
+            preload="metadata"
             className="absolute inset-0 w-full h-full object-cover scale-105"
             poster={getVideoThumbnail(city.videos[0], 1920, 1080)}
             onLoadedMetadata={(e) => {
               const v = e.currentTarget;
-              if (v.duration && Number.isFinite(v.duration)) videoDurationRef.current = v.duration;
+              // Safety check: ensure video element exists and has valid duration
+              if (v && v.nodeName === 'VIDEO' && v.duration && Number.isFinite(v.duration)) {
+                videoDurationRef.current = v.duration;
+              }
             }}
             onTimeUpdate={(e) => {
-              const v = e.currentTarget;
-              const duration = v.duration && Number.isFinite(v.duration) ? v.duration : videoDurationRef.current;
-              const t = v.currentTime;
-              if (duration <= 0) return;
-              const shrinkAfter = 3;
-              const returnBeforeEnd = 1.5;
-              if (t >= shrinkAfter && t < duration - returnBeforeEnd) {
-                setHeroTextSmall(true);
-              } else {
-                setHeroTextSmall(false);
-              }
+              // Throttle time updates to prevent jitter - only check every ~200ms
+              if (timeUpdateRAFRef.current) return;
+              
+              timeUpdateRAFRef.current = requestAnimationFrame(() => {
+                timeUpdateRAFRef.current = null;
+                const v = e.currentTarget;
+                
+                // Safety check: ensure video element exists
+                if (!v || v.nodeName !== 'VIDEO') return;
+                
+                const duration = v.duration && Number.isFinite(v.duration) ? v.duration : videoDurationRef.current;
+                const t = v.currentTime;
+                if (duration <= 0 || !Number.isFinite(t)) return;
+                
+                const shrinkAfter = 3;
+                const returnBeforeEnd = 1.5;
+                const shouldBeSmall = t >= shrinkAfter && t < duration - returnBeforeEnd;
+                
+                // Only update state if it actually changed
+                if (shouldBeSmall !== heroTextSmallRef.current) {
+                  heroTextSmallRef.current = shouldBeSmall;
+                  setHeroTextSmall(shouldBeSmall);
+                }
+              });
             }}
           >
             <source 
@@ -655,6 +708,7 @@ export default function ComprehensiveCityGuide({
             'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769935161/Screenshot_2026-02-01_140641_zmtcsv.png',
             'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769936237/Screenshot_2026-02-01_142648_tegxcd.png',
           ];
+          // Use raw Cloudinary URLs for reliable playback (optimization can break in some environments)
           const spiritualClusterVideos = [
             'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769943119/1_w5wxln.mp4',  // top left
             'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769943128/3_fq91kq.mp4',  // top right
@@ -663,7 +717,14 @@ export default function ComprehensiveCityGuide({
           const knowMoreBtnClass =
             'inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#B88576] to-[#C49A8C] text-white py-2.5 px-5 text-sm font-semibold shadow-md border border-[#D9B8AB]/80 hover:from-[#A67566] hover:to-[#B88576] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A8C] focus-visible:ring-offset-2 active:scale-[0.96] active:shadow-inner active:brightness-95 transition-all duration-150 ease-out touch-manipulation min-h-[44px] select-none';
           return (
-            <section ref={spiritualSectionRef} className="mb-12 animate-fade-in-up" aria-labelledby="spiritual-significance-heading">
+            <section 
+              className="mb-12 animate-fade-in-up" 
+              aria-labelledby="spiritual-significance-heading"
+              style={{ 
+                willChange: 'auto',
+                transform: 'translateZ(0)',
+              }}
+            >
               {/* Mobile – image cluster first, then content; optimized for phone */}
               <div className="sm:hidden rounded-2xl overflow-hidden bg-[#FFDED3] shadow-lg border border-[#D9B8AB]/60">
                 <div className="px-4 pt-3.5 pb-2 flex items-center gap-2.5">
@@ -678,22 +739,43 @@ export default function ComprehensiveCityGuide({
                     <div className="grid grid-cols-2 gap-2 w-full">
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#D9B8AB] shadow-sm">
                         <Image src={spiritualClusterImages[1]} alt="River and ghats" fill className="object-cover" sizes="50vw" />
-                        {spiritualClusterInView && (
-                          <video ref={(el) => { spiritualVideoRefsMobile.current[0] = el; }} src={spiritualClusterVideos[0]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 1 && spiritualClusterFadingSlot !== 1 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setSpiritualClusterFadingSlot(1)} />
-                        )}
+                        <video 
+                          ref={(el) => { spiritualVideoRefsMobile.current[0] = el; }} 
+                          src={spiritualClusterVideos[0]} 
+                          muted 
+                          playsInline 
+                          preload="auto"
+                          crossOrigin="anonymous"
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 1 && spiritualClusterFadingSlot !== 1 ? 'opacity-100' : 'opacity-0'}`} 
+                          onEnded={() => setSpiritualClusterFadingSlot(1)}
+                        />
                       </div>
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#D9B8AB] shadow-sm">
                         <Image src={spiritualClusterImages[2]} alt="Aarti ceremony" fill className="object-cover" sizes="50vw" />
-                        {spiritualClusterInView && (
-                          <video ref={(el) => { spiritualVideoRefsMobile.current[1] = el; }} src={spiritualClusterVideos[1]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 2 && spiritualClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setSpiritualClusterFadingSlot(2)} />
-                        )}
+                        <video 
+                          ref={(el) => { spiritualVideoRefsMobile.current[1] = el; }} 
+                          src={spiritualClusterVideos[1]} 
+                          muted 
+                          playsInline 
+                          preload="auto"
+                          crossOrigin="anonymous"
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 2 && spiritualClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} 
+                          onEnded={() => setSpiritualClusterFadingSlot(2)}
+                        />
                       </div>
                     </div>
                     <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden bg-primary-dark/5 border border-[#D9B8AB] shadow-sm">
                       <Image src={spiritualClusterImages[0]} alt="Ghats and rituals on the Ganga" fill className="object-cover" sizes="100vw" />
-                      {spiritualClusterInView && (
-                        <video ref={(el) => { spiritualVideoRefsMobile.current[2] = el; }} src={spiritualClusterVideos[2]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 3 && spiritualClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setSpiritualClusterFadingSlot(3)} />
-                      )}
+                      <video 
+                        ref={(el) => { spiritualVideoRefsMobile.current[2] = el; }} 
+                        src={spiritualClusterVideos[2]} 
+                        muted 
+                        playsInline 
+                        preload="auto"
+                        crossOrigin="anonymous"
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 3 && spiritualClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} 
+                        onEnded={() => setSpiritualClusterFadingSlot(3)}
+                      />
                     </div>
                   </div>
                   <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-sm text-justify">
@@ -726,22 +808,43 @@ export default function ComprehensiveCityGuide({
                       <div className="grid grid-cols-2 gap-4 w-full">
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#D9B8AB] shadow-md">
                           <Image src={spiritualClusterImages[1]} alt="River and ghats" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
-                          {spiritualClusterInView && (
-                            <video ref={(el) => { spiritualVideoRefsDesktop.current[0] = el; }} src={spiritualClusterVideos[0]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 1 && spiritualClusterFadingSlot !== 1 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setSpiritualClusterFadingSlot(1)} />
-                          )}
+                          <video 
+                            ref={(el) => { spiritualVideoRefsDesktop.current[0] = el; }} 
+                            src={spiritualClusterVideos[0]} 
+                            muted 
+                            playsInline 
+                            preload="auto"
+                            crossOrigin="anonymous"
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 1 && spiritualClusterFadingSlot !== 1 ? 'opacity-100' : 'opacity-0'}`} 
+                            onEnded={() => setSpiritualClusterFadingSlot(1)}
+                          />
                         </div>
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#D9B8AB] shadow-md">
                           <Image src={spiritualClusterImages[2]} alt="Aarti ceremony" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
-                          {spiritualClusterInView && (
-                            <video ref={(el) => { spiritualVideoRefsDesktop.current[1] = el; }} src={spiritualClusterVideos[1]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 2 && spiritualClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setSpiritualClusterFadingSlot(2)} />
-                          )}
+                          <video 
+                            ref={(el) => { spiritualVideoRefsDesktop.current[1] = el; }} 
+                            src={spiritualClusterVideos[1]} 
+                            muted 
+                            playsInline 
+                            preload="auto"
+                            crossOrigin="anonymous"
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 2 && spiritualClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} 
+                            onEnded={() => setSpiritualClusterFadingSlot(2)}
+                          />
                         </div>
                       </div>
                       <div className="relative aspect-[16/9] w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-gradient-to-b from-amber-50/80 to-white border border-[#D9B8AB] shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
                         <Image src={spiritualClusterImages[0]} alt="Ghats and rituals on the Ganga" fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
-                        {spiritualClusterInView && (
-                          <video ref={(el) => { spiritualVideoRefsDesktop.current[2] = el; }} src={spiritualClusterVideos[2]} muted playsInline className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 3 && spiritualClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setSpiritualClusterFadingSlot(3)} />
-                        )}
+                        <video 
+                          ref={(el) => { spiritualVideoRefsDesktop.current[2] = el; }} 
+                          src={spiritualClusterVideos[2]} 
+                          muted 
+                          playsInline 
+                          preload="auto"
+                          crossOrigin="anonymous"
+                          className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-[600ms] ease-in-out pointer-events-none ${spiritualClusterPlayingSlot === 3 && spiritualClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} 
+                          onEnded={() => setSpiritualClusterFadingSlot(3)}
+                        />
                       </div>
                     </div>
                   </div>
@@ -772,6 +875,7 @@ export default function ComprehensiveCityGuide({
             'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769939212/kashi_2_f8j5qc.jpg',
             'https://res.cloudinary.com/dp0gqerkk/image/upload/v1769939210/kashi_3_yhfeny.jpg',
           ];
+          // Use raw Cloudinary URLs for reliable playback (optimization can break in some environments)
           const historyClusterVideos = [
             'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769941733/kashi-2_rnbwom.mp4',
             'https://res.cloudinary.com/dp0gqerkk/video/upload/v1769941720/kashi-3_vqq1cs.mp4',
@@ -780,7 +884,14 @@ export default function ComprehensiveCityGuide({
           const knowMoreBtnClass =
             'inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#6B9BB5] to-[#8BB0C5] text-white py-2.5 px-5 text-sm font-semibold shadow-md border border-[#B8D0DE]/90 hover:from-[#5A8AA5] hover:to-[#7BA3BC] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8BB0C5] focus-visible:ring-offset-2 active:scale-[0.96] active:shadow-inner active:brightness-95 transition-all duration-150 ease-out touch-manipulation min-h-[44px] select-none';
           return (
-            <section ref={historySectionRef} className="mb-12 animate-fade-in-up" aria-labelledby="history-heading">
+            <section 
+              className="mb-12 animate-fade-in-up" 
+              aria-labelledby="history-heading"
+              style={{ 
+                willChange: 'auto',
+                transform: 'translateZ(0)',
+              }}
+            >
               {/* Mobile – image cluster first, then content; optimized for phone */}
               <div className="sm:hidden rounded-2xl overflow-hidden bg-[#EDF3F7] shadow-lg border border-[#B8D0DE]">
                 <div className="px-4 pt-3.5 pb-2 flex items-center gap-2.5">
@@ -795,22 +906,44 @@ export default function ComprehensiveCityGuide({
                     <div className="grid grid-cols-2 gap-2 w-full">
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#B8D0DE] shadow-sm">
                         <Image src={historyClusterImages[1]} alt="Kashi heritage" fill className="object-cover" sizes="50vw" />
-                        {historyClusterInView && (
-                          <video ref={(el) => { historyVideoRefsMobile.current[0] = el; }} src={historyClusterVideos[0]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 1 && historyClusterFadingSlot !== 1 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(1)} />
-                        )}
+                        <video 
+                          key={`history-mobile-0-${historyClusterIsMobile}`}
+                          ref={(el) => { historyVideoRefsMobile.current[0] = el; }} 
+                          src={historyClusterVideos[0]} 
+                          muted 
+                          playsInline 
+                          preload="auto"
+                          crossOrigin="anonymous"
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 1 && historyClusterFadingSlot !== 1 ? 'opacity-100' : 'opacity-0'}`} 
+                          onEnded={() => setHistoryClusterFadingSlot(1)}
+                        />
                       </div>
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#B8D0DE] shadow-sm">
                         <Image src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="50vw" />
-                        {historyClusterInView && (
-                          <video ref={(el) => { historyVideoRefsMobile.current[1] = el; }} src={historyClusterVideos[2]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 2 && historyClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(2)} />
-                        )}
+                        <video 
+                          ref={(el) => { historyVideoRefsMobile.current[1] = el; }} 
+                          src={historyClusterVideos[2]} 
+                          muted 
+                          playsInline 
+                          preload="auto"
+                          crossOrigin="anonymous"
+                          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 2 && historyClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} 
+                          onEnded={() => setHistoryClusterFadingSlot(2)}
+                        />
                       </div>
                     </div>
                     <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden bg-primary-dark/5 border border-[#B8D0DE] shadow-sm">
                       <Image src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover" sizes="100vw" />
-                      {historyClusterInView && (
-                        <video ref={(el) => { historyVideoRefsMobile.current[2] = el; }} src={historyClusterVideos[1]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 3 && historyClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(3)} />
-                      )}
+                      <video 
+                        ref={(el) => { historyVideoRefsMobile.current[2] = el; }} 
+                        src={historyClusterVideos[1]} 
+                        muted 
+                        playsInline 
+                        preload="auto"
+                        crossOrigin="anonymous"
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 3 && historyClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} 
+                        onEnded={() => setHistoryClusterFadingSlot(3)}
+                      />
                     </div>
                   </div>
                   <p className="text-primary-dark/90 leading-relaxed whitespace-pre-line text-sm text-justify">
@@ -843,22 +976,43 @@ export default function ComprehensiveCityGuide({
                       <div className="grid grid-cols-2 gap-4 w-full">
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#B8D0DE] shadow-md">
                           <Image src={historyClusterImages[1]} alt="Kashi heritage" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
-                          {historyClusterInView && (
-                            <video ref={(el) => { historyVideoRefsDesktop.current[0] = el; }} src={historyClusterVideos[0]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 1 && historyClusterFadingSlot !== 1 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(1)} />
-                          )}
+                          <video 
+                            ref={(el) => { historyVideoRefsDesktop.current[0] = el; }} 
+                            src={historyClusterVideos[0]} 
+                            muted 
+                            playsInline 
+                            preload="auto"
+                            crossOrigin="anonymous"
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 1 && historyClusterFadingSlot !== 1 ? 'opacity-100' : 'opacity-0'}`} 
+                            onEnded={() => setHistoryClusterFadingSlot(1)}
+                          />
                         </div>
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#B8D0DE] shadow-md">
                           <Image src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
-                          {historyClusterInView && (
-                            <video ref={(el) => { historyVideoRefsDesktop.current[1] = el; }} src={historyClusterVideos[2]} muted playsInline className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 2 && historyClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(2)} />
-                          )}
+                          <video 
+                            ref={(el) => { historyVideoRefsDesktop.current[1] = el; }} 
+                            src={historyClusterVideos[2]} 
+                            muted 
+                            playsInline 
+                            preload="auto"
+                            crossOrigin="anonymous"
+                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 2 && historyClusterFadingSlot !== 2 ? 'opacity-100' : 'opacity-0'}`} 
+                            onEnded={() => setHistoryClusterFadingSlot(2)}
+                          />
                         </div>
                       </div>
                       <div className="relative aspect-[16/9] w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-gradient-to-b from-amber-50/80 to-white border border-[#B8D0DE] shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
                         <Image src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
-                        {historyClusterInView && (
-                          <video ref={(el) => { historyVideoRefsDesktop.current[2] = el; }} src={historyClusterVideos[1]} muted playsInline className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 3 && historyClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} onEnded={() => setHistoryClusterFadingSlot(3)} />
-                        )}
+                          <video 
+                            ref={(el) => { historyVideoRefsDesktop.current[2] = el; }} 
+                            src={historyClusterVideos[1]} 
+                            muted 
+                            playsInline 
+                            preload="auto"
+                            crossOrigin="anonymous"
+                            className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-[600ms] ease-in-out pointer-events-none ${historyClusterPlayingSlot === 3 && historyClusterFadingSlot !== 3 ? 'opacity-100' : 'opacity-0'}`} 
+                            onEnded={() => setHistoryClusterFadingSlot(3)}
+                          />
                       </div>
                     </div>
                   </div>

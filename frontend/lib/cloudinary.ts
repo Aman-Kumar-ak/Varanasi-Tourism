@@ -101,6 +101,7 @@ export function getVideoThumbnail(
 /**
  * Get optimized video URL from Cloudinary
  * Automatically applies quality and format optimization with scaling
+ * Optimized for streaming and reduced buffering
  * 
  * @param url - Original Cloudinary video URL
  * @param options - Optional transformation options
@@ -114,6 +115,7 @@ export function getOptimizedVideoUrl(
     quality?: 'auto' | number;
     format?: 'auto' | 'mp4' | 'webm';
     bitRate?: number;
+    streaming?: boolean;
   }
 ): string {
   if (!url || !url.includes('cloudinary.com')) {
@@ -143,12 +145,33 @@ export function getOptimizedVideoUrl(
   if (options?.format && options.format !== 'auto') {
     transformations.push(`f_${options.format}`);
   }
+  // Optimize bitrate for smaller file sizes and faster loading
   if (options?.bitRate) {
     transformations.push(`br_${options.bitRate}`);
+  } else if (!options?.bitRate && !options?.width && !options?.height) {
+    // Default bitrate optimization for smaller videos (cluster videos)
+    transformations.push('br_500k'); // 500kbps for background videos
   }
 
   const transformString = transformations.join(',');
   return `${baseUrl}${transformString}/${videoPath}`;
+}
+
+/**
+ * Get optimized video URL for cluster videos (smaller, faster loading)
+ * Specifically optimized for image cluster overlay videos
+ * Uses lower bitrate and resolution to prevent buffering
+ */
+export function getOptimizedClusterVideoUrl(
+  url: string,
+  isMobile: boolean = false
+): string {
+  return getOptimizedVideoUrl(url, {
+    width: isMobile ? 640 : 1280, // Smaller resolution for faster loading
+    height: isMobile ? 360 : 720,
+    bitRate: isMobile ? 400 : 800, // Lower bitrate for smoother playback
+    quality: 'auto', // Let Cloudinary optimize quality
+  });
 }
 
 /**

@@ -34,6 +34,12 @@
   --premium-section-text-muted: #64748B;
 }
 
+html {
+  scroll-behavior: smooth;
+  /* Enable hardware acceleration for smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   font-family: var(--font-sans);
   color: rgb(var(--foreground-rgb));
@@ -44,6 +50,25 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Optimize scrolling performance */
+  overscroll-behavior-y: contain;
+}
+
+/* Optimize video containers for smooth scrolling */
+video {
+  /* Enable GPU acceleration for videos */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Prevent video from causing layout shifts */
+  object-fit: cover;
+}
+
+/* Optimize image/video containers */
+.relative video,
+.relative img {
+  /* Create new stacking context for better performance */
+  will-change: auto;
 }
 
 /* A+ / A- scales whole page (text + cards + spacing); zoom applied to main content */

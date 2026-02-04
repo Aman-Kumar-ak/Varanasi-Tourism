@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import connectDB from '../lib/db.js';
 import Jyotirlinga from '../models/Jyotirlinga.js';
+import { setCacheHeaders, CACHE_DURATIONS } from '../middleware/cache.js';
 
 const router = express.Router();
 
@@ -34,6 +35,9 @@ router.get('/', async (req: Request, res: Response) => {
       .sort({ displayOrder: 1, name: 1 })
       .select('-__v');
 
+    // Set cache headers for static data (7 days)
+    setCacheHeaders(res, CACHE_DURATIONS.STATIC);
+
     res.json({
       success: true,
       count: jyotirlingas.length,
@@ -65,6 +69,9 @@ router.get('/states', async (req: Request, res: Response) => {
       },
       { $sort: { _id: 1 } },
     ]);
+
+    // Set cache headers for static data (7 days)
+    setCacheHeaders(res, CACHE_DURATIONS.STATIC);
 
     res.json({
       success: true,
@@ -105,6 +112,9 @@ router.get('/:slug', async (req: Request, res: Response) => {
       });
     }
 
+    // Set cache headers for static data (7 days)
+    setCacheHeaders(res, CACHE_DURATIONS.STATIC);
+
     res.json({
       success: true,
       data: jyotirlinga,
@@ -138,6 +148,9 @@ router.get('/:slug/darshan-types', async (req: Request, res: Response) => {
       jyotirlingaId: jyotirlinga._id,
       isActive: true,
     }).select('-__v').sort({ price: 1 });
+
+    // Set cache headers for semi-static data (24 hours)
+    setCacheHeaders(res, CACHE_DURATIONS.SEMI_STATIC);
 
     res.json({
       success: true,

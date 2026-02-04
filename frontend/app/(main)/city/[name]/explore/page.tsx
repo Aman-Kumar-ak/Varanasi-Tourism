@@ -11,6 +11,7 @@ import { openGoogleMapsDirections } from '@/lib/googleMaps';
 import PlaceCard from '@/components/city/PlaceCard';
 import BeautifulLoading from '@/components/common/BeautifulLoading';
 import type { LanguageCode } from '@/lib/constants';
+import { cachedFetch, CACHE_DURATIONS } from '@/lib/cache';
 
 type PlaceCategory = 'temple' | 'ghat' | 'monument' | 'market' | 'museum' | 'other';
 const PLACE_CATEGORIES: PlaceCategory[] = ['temple', 'ghat', 'monument', 'market', 'museum', 'other'];
@@ -186,8 +187,12 @@ export default function CityExplorePage() {
     try {
       setLoading(true);
       const apiUrl = getApiUrl();
-      const res = await fetch(`${apiUrl}/api/cities/${params.name}?t=${Date.now()}`, { cache: 'no-store' });
-      const data = await res.json();
+      // Use cached fetch for city data (static data - 7 days cache)
+      const data = await cachedFetch<{ success: boolean; data: City }>(
+        `${apiUrl}/api/cities/${params.name}`,
+        {},
+        CACHE_DURATIONS.STATIC
+      );
       if (data.success) setCity(data.data);
     } catch (e) {
       console.error('Error fetching city:', e);

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getLocalizedContent } from '@/lib/i18n';
 import { getApiUrl } from '@/lib/utils';
+import { cachedFetch, CACHE_DURATIONS } from '@/lib/cache';
 
 interface City {
   _id: string;
@@ -46,8 +47,12 @@ export default function CitiesPage() {
     try {
       setLoading(true);
       const apiUrl = getApiUrl();
-      const response = await fetch(`${apiUrl}/api/cities`);
-      const data = await response.json();
+      // Use cached fetch for cities data (static data - 7 days cache)
+      const data = await cachedFetch<{ success: boolean; data: City[] }>(
+        `${apiUrl}/api/cities`,
+        {},
+        CACHE_DURATIONS.STATIC
+      );
 
       if (data.success) {
         setCities(data.data || []);

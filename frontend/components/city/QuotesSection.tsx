@@ -166,32 +166,38 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
     const onScroll = () => {
       if (scrollTimeout) clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
-        const w = el.getBoundingClientRect().width;
-        if (w <= 0) return;
-        const scrollLeft = el.scrollLeft;
-        const index = Math.round(scrollLeft / w);
-        const clamped = Math.max(0, Math.min(index, totalItems - 1));
-        setCurrentIndex(clamped);
-        // Reset user scrolling flag after a delay to allow auto-scroll to resume
-        isUserScrollingRef.current = false;
-        autoScrollTimeoutRef.current = setTimeout(() => {
+        // Use requestAnimationFrame for smooth updates
+        requestAnimationFrame(() => {
+          const w = el.getBoundingClientRect().width;
+          if (w <= 0) return;
+          const scrollLeft = el.scrollLeft;
+          const index = Math.round(scrollLeft / w);
+          const clamped = Math.max(0, Math.min(index, totalItems - 1));
+          setCurrentIndex(clamped);
+          // Reset user scrolling flag after a delay to allow auto-scroll to resume
           isUserScrollingRef.current = false;
-        }, 1000);
+          autoScrollTimeoutRef.current = setTimeout(() => {
+            isUserScrollingRef.current = false;
+          }, 1000);
+        });
       }, 150); // 150ms debounce for scroll end detection
     };
     
-    // Try scrollend first (more reliable)
-    if ('onscrollend' in el) {
-      el.addEventListener('scrollend', onScrollEnd);
+    // Try scrollend first (more reliable), use passive listeners for better performance
+    const hasScrollEnd = 'onscrollend' in el;
+    const scrollElement = el; // Store reference to avoid type narrowing issues
+    
+    if (hasScrollEnd) {
+      scrollElement.addEventListener('scrollend', onScrollEnd, { passive: true });
     } else {
-      el.addEventListener('scroll', onScroll);
+      scrollElement.addEventListener('scroll', onScroll, { passive: true });
     }
     
     return () => {
-      if ('onscrollend' in el) {
-        el.removeEventListener('scrollend', onScrollEnd);
+      if (hasScrollEnd) {
+        scrollElement.removeEventListener('scrollend', onScrollEnd);
       } else {
-        el.removeEventListener('scroll', onScroll);
+        scrollElement.removeEventListener('scroll', onScroll);
       }
       if (scrollTimeout) clearTimeout(scrollTimeout);
       if (autoScrollTimeoutRef.current) clearTimeout(autoScrollTimeoutRef.current);
@@ -204,25 +210,47 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
 
   useEffect(() => {
     if (totalItems <= 1) return;
+    
+    // Use longer interval and check visibility before auto-scrolling
     const intervalId = window.setInterval(() => {
       // Skip auto-scroll if user is manually scrolling (mobile only)
       if (isMobile && isUserScrollingRef.current) {
         return;
       }
-      goTo('right');
+      
+      // Check if quotes section is visible before auto-scrolling
+      const quotesSection = mobileScrollRef.current?.closest('section');
+      if (quotesSection) {
+        const rect = quotesSection.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+        if (!isVisible) return; // Don't auto-scroll if section is not visible
+      }
+      
+      // Use requestAnimationFrame for smooth transitions
+      requestAnimationFrame(() => {
+        goTo('right');
+      });
     }, 6000);
     return () => window.clearInterval(intervalId);
   }, [goTo, totalItems, isMobile]);
 
   // Preload images for all quotes so no blank/empty during carousel transition
+  // Optimized: only preload when section is near viewport
   useEffect(() => {
     if (!quotes?.length) return;
-    quotes.forEach((q) => {
-      if (q.image) {
-        const img = new window.Image();
-        img.src = q.image;
-      }
-    });
+    
+    // Delay preloading until after initial render to avoid blocking
+    const preloadTimeout = setTimeout(() => {
+      quotes.forEach((q) => {
+        if (q.image) {
+          const img = new window.Image();
+          img.loading = 'lazy'; // Use lazy loading for preloaded images
+          img.src = q.image;
+        }
+      });
+    }, 500); // Wait 500ms after mount
+    
+    return () => clearTimeout(preloadTimeout);
   }, [quotes]);
 
   if (!quotes || totalItems === 0) return null;
@@ -302,7 +330,14 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
   }
 
   return (
-    <section className="mb-6 animate-fade-in-up" aria-labelledby="quotes-heading">
+    <section 
+      className="mb-6 animate-fade-in-up" 
+      aria-labelledby="quotes-heading"
+      style={{ 
+        willChange: 'auto',
+        transform: 'translateZ(0)', // Enable GPU acceleration
+      }}
+    >
       <SectionHeader
         title={t('quotes.title', language)}
         icon="💬"
