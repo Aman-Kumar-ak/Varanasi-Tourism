@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import SafeImage from '@/components/common/SafeImage';
 import { getLocalizedContent } from '@/lib/i18n';
 import { openGoogleMapsDirections } from '@/lib/googleMaps';
 import { t } from '@/lib/translations';
@@ -70,16 +70,12 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-saffron via-amber-400 to-primary-saffron z-10" aria-hidden />
       {place.image && (
         <div className="relative w-full aspect-[3/2] overflow-hidden flex-shrink-0">
-          <Image
+          <SafeImage
             src={place.image}
             alt={getLocalizedContent(place.name, language)}
             fill
             sizes="50vw"
             className="object-cover transition-transform duration-300 group-active:scale-[1.02]"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
           />
         </div>
       )}
@@ -99,16 +95,12 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
         <div className={`relative w-full overflow-hidden flex-shrink-0 ${imageHeight}`}>
           <div className="absolute inset-0 bg-gradient-to-t from-primary-dark/70 via-primary-dark/20 to-transparent z-10" />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-primary-dark/10 z-10" />
-          <Image
+          <SafeImage
             src={place.image}
             alt={getLocalizedContent(place.name, language)}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
           />
         </div>
       )}

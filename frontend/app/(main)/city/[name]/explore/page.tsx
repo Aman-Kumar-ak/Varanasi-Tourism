@@ -8,10 +8,12 @@ import { getLocalizedContent } from '@/lib/i18n';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { t } from '@/lib/translations';
 import { openGoogleMapsDirections } from '@/lib/googleMaps';
+import Image from 'next/image';
 import PlaceCard from '@/components/city/PlaceCard';
 import BeautifulLoading from '@/components/common/BeautifulLoading';
 import type { LanguageCode } from '@/lib/constants';
 import { cachedFetch, CACHE_DURATIONS } from '@/lib/cache';
+import { getOptimizedImageUrl, isCloudinaryUrl } from '@/lib/cloudinary';
 
 type PlaceCategory = 'temple' | 'ghat' | 'monument' | 'market' | 'museum' | 'other';
 const PLACE_CATEGORIES: PlaceCategory[] = ['temple', 'ghat', 'monument', 'market', 'museum', 'other'];
@@ -766,10 +768,12 @@ export default function CityExplorePage() {
             <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-amber-400 to-primary-saffron flex-shrink-0" aria-hidden />
             {selectedPlace.image && (
               <div className="relative w-full aspect-video overflow-hidden">
-                <img
-                  src={selectedPlace.image}
+                <Image
+                  src={isCloudinaryUrl(selectedPlace.image) ? getOptimizedImageUrl(selectedPlace.image, { width: 800, crop: 'fill' }) : selectedPlace.image}
                   alt={getLocalizedContent(selectedPlace.name, language)}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 512px"
+                  className="object-cover"
                 />
               </div>
             )}

@@ -331,7 +331,7 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
 
   return (
     <section 
-      className="mb-6 animate-fade-in-up" 
+      className="mb-6" 
       aria-labelledby="quotes-heading"
       style={{ 
         willChange: 'auto',

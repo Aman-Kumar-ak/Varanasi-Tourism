@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import SafeImage from '@/components/common/SafeImage';
 import { getLocalizedContent } from '@/lib/i18n';
 import { getOptimizedVideoUrl, getVideoThumbnail } from '@/lib/cloudinary';
 import { t } from '@/lib/translations';
@@ -657,16 +657,13 @@ export default function ComprehensiveCityGuide({
             />
           </video>
         ) : city.images && city.images.length > 0 ? (
-          <Image
+          <SafeImage
             src={city.images[0]}
             alt={getLocalizedContent(city.name, language)}
             fill
             sizes="100vw"
             className="object-cover scale-105"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-            }}
+            priority
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-temple"></div>
@@ -678,7 +675,7 @@ export default function ComprehensiveCityGuide({
         {/* Text Content – scales down after a few seconds of video, returns to original near end */}
         <div className="container mx-auto px-4 sm:px-6 relative z-10 h-full flex items-end pb-8 sm:pb-12">
           <div
-            className="animate-fade-in-up w-full origin-bottom-left transition-transform duration-1000 ease-out"
+className="w-full origin-bottom-left transition-transform duration-1000 ease-out"
             style={{ transform: heroTextSmall ? 'scale(0.72)' : 'scale(1)' }}
           >
             <div className="inline-block mb-2 sm:mb-3 px-3 sm:px-4 py-1.5 sm:py-1 bg-primary-gold/20 backdrop-blur-sm rounded-full border border-primary-gold/30">
@@ -718,7 +715,7 @@ export default function ComprehensiveCityGuide({
             'inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#B88576] to-[#C49A8C] text-white py-2.5 px-5 text-sm font-semibold shadow-md border border-[#D9B8AB]/80 hover:from-[#A67566] hover:to-[#B88576] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C49A8C] focus-visible:ring-offset-2 active:scale-[0.96] active:shadow-inner active:brightness-95 transition-all duration-150 ease-out touch-manipulation min-h-[44px] select-none';
           return (
             <section 
-              className="mb-12 animate-fade-in-up" 
+              className="mb-12" 
               aria-labelledby="spiritual-significance-heading"
               style={{ 
                 willChange: 'auto',
@@ -738,7 +735,7 @@ export default function ComprehensiveCityGuide({
                   <div className="flex flex-col gap-2 mb-4">
                     <div className="grid grid-cols-2 gap-2 w-full">
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#D9B8AB] shadow-sm">
-                        <Image src={spiritualClusterImages[1]} alt="River and ghats" fill className="object-cover" sizes="50vw" />
+                        <SafeImage src={spiritualClusterImages[1]} alt="River and ghats" fill className="object-cover" sizes="50vw" />
                         <video 
                           ref={(el) => { spiritualVideoRefsMobile.current[0] = el; }} 
                           src={spiritualClusterVideos[0]} 
@@ -751,7 +748,7 @@ export default function ComprehensiveCityGuide({
                         />
                       </div>
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#D9B8AB] shadow-sm">
-                        <Image src={spiritualClusterImages[2]} alt="Aarti ceremony" fill className="object-cover" sizes="50vw" />
+                        <SafeImage src={spiritualClusterImages[2]} alt="Aarti ceremony" fill className="object-cover" sizes="50vw" />
                         <video 
                           ref={(el) => { spiritualVideoRefsMobile.current[1] = el; }} 
                           src={spiritualClusterVideos[1]} 
@@ -765,7 +762,7 @@ export default function ComprehensiveCityGuide({
                       </div>
                     </div>
                     <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden bg-primary-dark/5 border border-[#D9B8AB] shadow-sm">
-                      <Image src={spiritualClusterImages[0]} alt="Ghats and rituals on the Ganga" fill className="object-cover" sizes="100vw" />
+                      <SafeImage src={spiritualClusterImages[0]} alt="Ghats and rituals on the Ganga" fill className="object-cover" sizes="100vw" />
                       <video 
                         ref={(el) => { spiritualVideoRefsMobile.current[2] = el; }} 
                         src={spiritualClusterVideos[2]} 
@@ -807,7 +804,7 @@ export default function ComprehensiveCityGuide({
                     <div className="w-full lg:sticky lg:top-24 flex flex-col gap-4">
                       <div className="grid grid-cols-2 gap-4 w-full">
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#D9B8AB] shadow-md">
-                          <Image src={spiritualClusterImages[1]} alt="River and ghats" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
+                          <SafeImage src={spiritualClusterImages[1]} alt="River and ghats" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
                           <video 
                             ref={(el) => { spiritualVideoRefsDesktop.current[0] = el; }} 
                             src={spiritualClusterVideos[0]} 
@@ -820,7 +817,7 @@ export default function ComprehensiveCityGuide({
                           />
                         </div>
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#D9B8AB] shadow-md">
-                          <Image src={spiritualClusterImages[2]} alt="Aarti ceremony" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
+                          <SafeImage src={spiritualClusterImages[2]} alt="Aarti ceremony" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
                           <video 
                             ref={(el) => { spiritualVideoRefsDesktop.current[1] = el; }} 
                             src={spiritualClusterVideos[1]} 
@@ -834,7 +831,7 @@ export default function ComprehensiveCityGuide({
                         </div>
                       </div>
                       <div className="relative aspect-[16/9] w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-gradient-to-b from-amber-50/80 to-white border border-[#D9B8AB] shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
-                        <Image src={spiritualClusterImages[0]} alt="Ghats and rituals on the Ganga" fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
+                        <SafeImage src={spiritualClusterImages[0]} alt="Ghats and rituals on the Ganga" fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
                         <video 
                           ref={(el) => { spiritualVideoRefsDesktop.current[2] = el; }} 
                           src={spiritualClusterVideos[2]} 
@@ -885,7 +882,7 @@ export default function ComprehensiveCityGuide({
             'inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#6B9BB5] to-[#8BB0C5] text-white py-2.5 px-5 text-sm font-semibold shadow-md border border-[#B8D0DE]/90 hover:from-[#5A8AA5] hover:to-[#7BA3BC] hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8BB0C5] focus-visible:ring-offset-2 active:scale-[0.96] active:shadow-inner active:brightness-95 transition-all duration-150 ease-out touch-manipulation min-h-[44px] select-none';
           return (
             <section 
-              className="mb-12 animate-fade-in-up" 
+              className="mb-12" 
               aria-labelledby="history-heading"
               style={{ 
                 willChange: 'auto',
@@ -905,7 +902,7 @@ export default function ComprehensiveCityGuide({
                   <div className="flex flex-col gap-2 mb-4">
                     <div className="grid grid-cols-2 gap-2 w-full">
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#B8D0DE] shadow-sm">
-                        <Image src={historyClusterImages[1]} alt="Kashi heritage" fill className="object-cover" sizes="50vw" />
+                        <SafeImage src={historyClusterImages[1]} alt="Kashi heritage" fill className="object-cover" sizes="50vw" />
                         <video 
                           key={`history-mobile-0-${historyClusterIsMobile}`}
                           ref={(el) => { historyVideoRefsMobile.current[0] = el; }} 
@@ -919,7 +916,7 @@ export default function ComprehensiveCityGuide({
                         />
                       </div>
                       <div className="relative aspect-[4/3] rounded-lg overflow-hidden bg-primary-dark/5 border border-[#B8D0DE] shadow-sm">
-                        <Image src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="50vw" />
+                        <SafeImage src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="50vw" />
                         <video 
                           ref={(el) => { historyVideoRefsMobile.current[1] = el; }} 
                           src={historyClusterVideos[2]} 
@@ -933,7 +930,7 @@ export default function ComprehensiveCityGuide({
                       </div>
                     </div>
                     <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden bg-primary-dark/5 border border-[#B8D0DE] shadow-sm">
-                      <Image src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover" sizes="100vw" />
+                      <SafeImage src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover" sizes="100vw" />
                       <video 
                         ref={(el) => { historyVideoRefsMobile.current[2] = el; }} 
                         src={historyClusterVideos[1]} 
@@ -975,7 +972,7 @@ export default function ComprehensiveCityGuide({
                     <div className="w-full lg:sticky lg:top-24 flex flex-col gap-4">
                       <div className="grid grid-cols-2 gap-4 w-full">
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#B8D0DE] shadow-md">
-                          <Image src={historyClusterImages[1]} alt="Kashi heritage" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
+                          <SafeImage src={historyClusterImages[1]} alt="Kashi heritage" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
                           <video 
                             ref={(el) => { historyVideoRefsDesktop.current[0] = el; }} 
                             src={historyClusterVideos[0]} 
@@ -988,7 +985,7 @@ export default function ComprehensiveCityGuide({
                           />
                         </div>
                         <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white/80 border border-[#B8D0DE] shadow-md">
-                          <Image src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
+                          <SafeImage src={historyClusterImages[0]} alt="Kashi and the Ganga" fill className="object-cover" sizes="(max-width: 1024px) 50vw, 25vw" />
                           <video 
                             ref={(el) => { historyVideoRefsDesktop.current[1] = el; }} 
                             src={historyClusterVideos[2]} 
@@ -1002,7 +999,7 @@ export default function ComprehensiveCityGuide({
                         </div>
                       </div>
                       <div className="relative aspect-[16/9] w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-gradient-to-b from-amber-50/80 to-white border border-[#B8D0DE] shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
-                        <Image src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
+                        <SafeImage src={historyClusterImages[2]} alt="Kashi streets" fill className="object-cover object-center" sizes="(max-width: 1024px) 100vw, 50vw" />
                           <video 
                             ref={(el) => { historyVideoRefsDesktop.current[2] = el; }} 
                             src={historyClusterVideos[1]} 
@@ -1085,9 +1082,7 @@ export default function ComprehensiveCityGuide({
                       <div className="px-4 pb-4 pt-0 bg-orange-50/40">
                         {ritual.image && (
                           <div className="mb-3 rounded-xl overflow-hidden aspect-video w-full relative bg-primary-saffron/10">
-                            <Image
-                              id={ritual.imageId ?? undefined}
-                              data-ritual-image-id={ritual.imageId ?? undefined}
+                            <SafeImage
                               src={ritual.image}
                               alt={getLocalizedContent(ritual.name, language)}
                               fill
@@ -1130,9 +1125,7 @@ export default function ComprehensiveCityGuide({
                       {/* Hero image or placeholder – name on image top-left, no top blur, bigger height (like Places to Visit) */}
                       {ritual.image ? (
                         <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
-                          <Image
-                            id={ritual.imageId ?? undefined}
-                            data-ritual-image-id={ritual.imageId ?? undefined}
+                          <SafeImage
                             src={ritual.image}
                             alt={getLocalizedContent(ritual.name, language)}
                             fill
@@ -1285,7 +1278,7 @@ export default function ComprehensiveCityGuide({
                       {/* Hero image or placeholder – name on image top-left, no top blur, bigger height (like Places to Visit) */}
                       {festival.image ? (
                         <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
-                          <Image
+                          <SafeImage
                             src={festival.image}
                             alt={festival.name}
                             fill

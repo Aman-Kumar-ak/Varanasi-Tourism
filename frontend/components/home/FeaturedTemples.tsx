@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import SafeImage from '@/components/common/SafeImage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getLocalizedContent } from '@/lib/i18n';
 import { INDIAN_STATES } from '@/lib/constants';
@@ -126,16 +126,12 @@ export default function FeaturedTemples() {
                       {/* Temple Image */}
                       <div className="relative w-28 sm:w-full h-28 sm:h-48 bg-background-parchment flex-shrink-0">
                         {temple.images && temple.images.length > 0 ? (
-                          <Image
+                          <SafeImage
                             src={temple.images[0]}
                             alt={getLocalizedContent(temple.name, language)}
                             fill
                             sizes="(max-width: 640px) 112px, 100vw"
                             className="object-cover group-hover:scale-110 transition-transform duration-300"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                            }}
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-4xl sm:text-6xl">

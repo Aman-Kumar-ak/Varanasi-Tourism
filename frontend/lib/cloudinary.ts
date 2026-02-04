@@ -181,3 +181,17 @@ export function isCloudinaryUrl(url: string): boolean {
   return url?.includes('cloudinary.com') || false;
 }
 
+/**
+ * Get a very small, blurred image URL for use as LQIP (Low-Quality Image Placeholder).
+ * Use this to show something instantly while the full image loads (e.g. for blur placeholders).
+ * Returns same URL with w_40,q_auto:low,e_blur:500 for fast first-byte.
+ */
+export function getBlurPlaceholderUrl(url: string): string {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  return getOptimizedImageUrl(url, {
+    width: 40,
+    quality: 20,
+    crop: 'scale',
+  });
+}
+

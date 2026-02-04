@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import SafeImage from '@/components/common/SafeImage';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getLocalizedContent } from '@/lib/i18n';
@@ -111,10 +111,11 @@ export default function CitiesPage() {
                 {/* City Image */}
                 <div className="relative h-48 sm:h-56 bg-background-parchment">
                   {city.images && city.images.length > 0 ? (
-                    <Image
+                    <SafeImage
                       src={city.images[0]}
                       alt={getLocalizedContent(city.name, language)}
                       fill
+                      sizes="(max-width: 640px) 100vw, 50vw, 33vw"
                       className="object-cover"
                     />
                   ) : (
