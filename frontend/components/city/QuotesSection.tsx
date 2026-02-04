@@ -408,7 +408,8 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                       WebkitOverflowScrolling: 'touch',
                       scrollbarWidth: 'none',
                       msOverflowStyle: 'none',
-                      touchAction: 'pan-x',
+                      // Allow both axes: vertical scrolls page, horizontal scrolls carousel (no pan-x so vertical isn't blocked)
+                      touchAction: 'manipulation',
                     }}
                     onScroll={handleMobileScroll}
                   >
@@ -511,10 +512,6 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                 aria-label={`Quote ${i + 1}`}
                 aria-selected={i === currentIndex}
                 onClick={goToSlide}
-                onTouchEnd={(e) => {
-                  e.preventDefault();
-                  goToSlide();
-                }}
                 className="quotes-carousel-dot rounded-full flex-shrink-0 transition-all duration-200 touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-[#B45309] focus-visible:ring-offset-1"
                 style={{
                   width: 'var(--dot-size, 6px)',

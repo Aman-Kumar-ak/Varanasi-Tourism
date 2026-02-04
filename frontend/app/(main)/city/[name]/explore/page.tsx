@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, memo, type RefObject, type MutableRefObject } from 'react';
 import Link from 'next/link';
 import { getApiUrl } from '@/lib/utils';
 import { getLocalizedContent } from '@/lib/i18n';
@@ -12,7 +12,7 @@ import Image from 'next/image';
 import PlaceCard from '@/components/city/PlaceCard';
 import BeautifulLoading from '@/components/common/BeautifulLoading';
 import type { LanguageCode } from '@/lib/constants';
-import { cachedFetch, CACHE_DURATIONS } from '@/lib/cache';
+import { cachedFetch, CACHE_DURATIONS, getCachedData } from '@/lib/cache';
 import { getOptimizedImageUrl, isCloudinaryUrl } from '@/lib/cloudinary';
 
 type PlaceCategory = 'temple' | 'ghat' | 'monument' | 'market' | 'museum' | 'other';
@@ -76,6 +76,62 @@ const CATEGORY_ICONS: Record<string, string> = {
   aarti: '🪔',
 };
 
+type CategoryId = PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all';
+
+const FloatingCapsuleBar = memo(function FloatingCapsuleBar({
+  filterCategories,
+  scrolledToCategory,
+  glassIndicator,
+  language,
+  onSelectCategory,
+  filterScrollRef,
+  buttonRefs,
+}: {
+  filterCategories: { id: CategoryId; labelKey: string; icon: string }[];
+  scrolledToCategory: CategoryId;
+  glassIndicator: { left: number; width: number };
+  language: LanguageCode;
+  onSelectCategory: (id: CategoryId) => void;
+  filterScrollRef: RefObject<HTMLDivElement | null>;
+  buttonRefs: MutableRefObject<Map<string, HTMLButtonElement>>;
+}) {
+  return (
+    <div
+      ref={filterScrollRef as RefObject<HTMLDivElement>}
+      role="region"
+      aria-label={language === 'hi' ? 'श्रेणी फ़िल्टर - स्वाइप करें' : 'Category filters — swipe for more'}
+      className="capsule-chip-container pointer-events-auto overflow-x-auto scrollbar-hide w-fit max-w-[calc(100vw-1.5rem)]"
+      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+    >
+      <div
+        className="glass-indicator"
+        style={{
+          transform: `translate3d(${glassIndicator.left}px, 0, 0)`,
+          width: `${glassIndicator.width}px`,
+        }}
+      />
+      {filterCategories.map(({ id, labelKey }) => {
+        const isSelected = scrolledToCategory === id;
+        return (
+          <button
+            key={id}
+            ref={(el) => {
+              if (el) buttonRefs.current.set(id, el);
+              else buttonRefs.current.delete(id);
+            }}
+            data-category={id}
+            type="button"
+            onClick={() => onSelectCategory(id)}
+            className={`capsule-chip ${isSelected ? 'capsule-chip--active' : ''}`}
+          >
+            <span>{t(labelKey, language)}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+});
+
 function RitualCard({ ritual, language }: { ritual: Ritual; language: LanguageCode }) {
   const name = getLocalizedContent(ritual.name, language);
   const description = getLocalizedContent(ritual.description, language);
@@ -135,6 +191,9 @@ function RestaurantCard({ restaurant, language }: { restaurant: Restaurant; lang
   );
 }
 
+const SCROLL_THROTTLE_MS = 200;
+const GLASS_INDICATOR_SETTLE_MS = 150;
+
 export default function CityExplorePage() {
   const params = useParams();
   const { language } = useLanguage();
@@ -149,6 +208,7 @@ export default function CityExplorePage() {
   const headerRef = useRef<HTMLElement>(null);
   const filterScrollRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const cacheAppliedRef = useRef(false);
 
   const closePopup = useCallback(() => {
     setPopupOpen(false);
@@ -189,7 +249,6 @@ export default function CityExplorePage() {
     try {
       setLoading(true);
       const apiUrl = getApiUrl();
-      // Use cached fetch for city data (static data - 7 days cache)
       const data = await cachedFetch<{ success: boolean; data: City }>(
         `${apiUrl}/api/cities/${params.name}`,
         {},
@@ -203,9 +262,21 @@ export default function CityExplorePage() {
     }
   }, [params.name]);
 
+  // Apply cache after mount for instant display, then fetch (avoids hydration mismatch)
   useEffect(() => {
+    if (!params.name || typeof params.name !== 'string') return;
+    const apiUrl = getApiUrl();
+    const url = `${apiUrl}/api/cities/${params.name}`;
+    if (!cacheAppliedRef.current) {
+      cacheAppliedRef.current = true;
+      const cached = getCachedData<{ success: boolean; data: City }>(url);
+      if (cached?.success && cached.data) {
+        setCity(cached.data);
+        setLoading(false);
+      }
+    }
     fetchCity();
-  }, [fetchCity, language]);
+  }, [params.name, language, fetchCity]);
 
   // When landing with a hash (e.g. /city/varanasi/explore#aarti), scroll to that category section
   useEffect(() => {
@@ -309,14 +380,11 @@ export default function CityExplorePage() {
     setGlassIndicator((prev) => (prev.left === left && prev.width === width ? prev : { left, width }));
   }, [scrolledToCategory]);
 
+  // Update indicator when active category changes: one immediate + one after layout settle (reduces GPU work)
   useEffect(() => {
     updateGlassIndicator();
-    const t1 = setTimeout(updateGlassIndicator, 120);
-    const t2 = setTimeout(updateGlassIndicator, 400);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    const t = setTimeout(updateGlassIndicator, GLASS_INDICATOR_SETTLE_MS);
+    return () => clearTimeout(t);
   }, [scrolledToCategory, filterCategories, updateGlassIndicator]);
 
   // Resize only: debounced indicator update (no scroll listener, no polling)
@@ -341,55 +409,39 @@ export default function CityExplorePage() {
     };
   }, [updateGlassIndicator]);
 
-  // Throttled scroll handler: update active category at most every SCROLL_THROTTLE_MS to avoid jitter on mobile
-  const SCROLL_THROTTLE_MS = 180;
+  // Throttled scroll handler: update active category at most every SCROLL_THROTTLE_MS to avoid jitter/GPU load
   useEffect(() => {
     if (loading || !city) return;
     let rafId: number | null = null;
     let lastRun = 0;
+    const offset = 140;
 
     const getActiveCategory = () => {
       const elements = categoriesToShow
         .map((id) => document.getElementById(id))
         .filter((el): el is HTMLElement => Boolean(el));
       if (elements.length === 0) return null;
-
       const scrollY = window.scrollY;
-      const offset = 140;
       let activeId: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | null = null;
-
       for (const el of elements) {
         const top = el.getBoundingClientRect().top + scrollY;
-        if (top - offset <= scrollY) {
-          activeId = el.id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
-        } else {
-          break;
-        }
+        if (top - offset <= scrollY) activeId = el.id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
+        else break;
       }
-
-      if (!activeId) {
-        activeId = elements[0].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
-      }
-
+      if (!activeId) activeId = elements[0].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
       const nearBottom = window.innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
-      if (nearBottom) {
-        activeId = elements[elements.length - 1].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
-      }
-
+      if (nearBottom) activeId = elements[elements.length - 1].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
       return activeId;
     };
 
     const onScroll = () => {
-      const now = Date.now();
-      if (now - lastRun < SCROLL_THROTTLE_MS) return;
+      if (Date.now() - lastRun < SCROLL_THROTTLE_MS) return;
       if (rafId) return;
       rafId = requestAnimationFrame(() => {
         rafId = null;
         lastRun = Date.now();
         const activeId = getActiveCategory();
-        if (activeId && activeId !== scrolledToCategory) {
-          setScrolledToCategory(activeId);
-        }
+        if (activeId && activeId !== scrolledToCategory) setScrolledToCategory(activeId);
       });
     };
 
@@ -423,7 +475,7 @@ export default function CityExplorePage() {
     );
   }
 
-  const handleFloatingFilterClick = (id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all') => {
+  const handleFloatingFilterClick = useCallback((id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all') => {
     setSelectedCategory('all');
     setScrolledToCategory(id);
     setTimeout(() => {
@@ -434,7 +486,7 @@ export default function CityExplorePage() {
         if (el) el.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', block: 'start' });
       }
     }, 0);
-  };
+  }, [isMobile]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-premium-peach via-white/40 to-background-cream">
@@ -461,48 +513,21 @@ export default function CityExplorePage() {
         </div>
       </header>
 
-      {/* Floating filter bar: contain layout for smooth scroll, no polling */}
+      {/* Floating capsule: memo + containment to limit re-renders and GPU work */}
       <div
         className="fixed bottom-3 left-0 right-0 z-30 flex justify-center px-3 sm:bottom-4 sm:px-4 pointer-events-none"
-        style={{ contain: 'layout style' }}
+        style={{ contain: 'layout style paint' }}
       >
-          <div
-            ref={filterScrollRef}
-            role="region"
-            aria-label={language === 'hi' ? 'श्रेणी फ़िल्टर - स्वाइप करें' : 'Category filters — swipe for more'}
-            className="capsule-chip-container pointer-events-auto overflow-x-auto scrollbar-hide w-fit max-w-[calc(100vw-1.5rem)]"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
-          >
-            {/* Glass indicator: transform-only updates for smooth mobile scroll */}
-            <div
-              className="glass-indicator"
-              style={{
-                transform: `translate3d(${glassIndicator.left}px, 0, 0)`,
-                width: `${glassIndicator.width}px`,
-              }}
-            />
-            
-            {/* Category Buttons */}
-            {filterCategories.map(({ id, labelKey }) => {
-              const isSelected = scrolledToCategory === id;
-              return (
-                <button
-                  key={id}
-                  ref={(el) => {
-                    if (el) buttonRefs.current.set(id, el);
-                    else buttonRefs.current.delete(id);
-                  }}
-                  data-category={id}
-                  type="button"
-                  onClick={() => handleFloatingFilterClick(id)}
-                  className={`capsule-chip ${isSelected ? 'capsule-chip--active' : ''}`}
-                >
-                  <span>{t(labelKey, language)}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <FloatingCapsuleBar
+          filterCategories={filterCategories}
+          scrolledToCategory={scrolledToCategory}
+          glassIndicator={glassIndicator}
+          language={language}
+          onSelectCategory={handleFloatingFilterClick}
+          filterScrollRef={filterScrollRef}
+          buttonRefs={buttonRefs}
+        />
+      </div>
 
       {/* Content – full width on mobile, clear spacing below header */}
       <div className="w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 xl:px-12 pt-8 pb-10 sm:py-14">
