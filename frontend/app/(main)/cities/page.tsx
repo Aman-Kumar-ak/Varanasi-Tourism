@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getLocalizedContent } from '@/lib/i18n';
 import { getApiUrl } from '@/lib/utils';
@@ -28,8 +29,14 @@ interface City {
 
 export default function CitiesPage() {
   const { language } = useLanguage();
+  const router = useRouter();
   const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const prefetchCity = useCallback((slug: string) => {
+    router.prefetch(`/city/${slug}`);
+    router.prefetch(`/city/${slug}/explore`);
+  }, [router]);
 
   useEffect(() => {
     fetchCities();
@@ -85,10 +92,15 @@ export default function CitiesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {cities.map((city) => (
+            {cities.map((city) => {
+              const slug = city.name.en.toLowerCase();
+              return (
               <Link
                 key={city._id}
-                href={`/city/${city.name.en.toLowerCase()}`}
+                href={`/city/${slug}`}
+                onMouseEnter={() => prefetchCity(slug)}
+                onFocus={() => prefetchCity(slug)}
+                onTouchStart={() => prefetchCity(slug)}
                 className="bg-white rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 sm:hover:-translate-y-2 border border-primary-blue/5 hover:border-primary-blue/20 block"
               >
                 {/* City Image */}
@@ -125,7 +137,8 @@ export default function CitiesPage() {
                   </span>
                 </div>
               </Link>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>

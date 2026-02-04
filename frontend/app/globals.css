@@ -494,6 +494,244 @@ a:focus-visible {
   }
 }
 
+/* ================== EXPLORE PAGE: iOS Glass Morphism Capsule ================== */
+
+/* Container for capsule buttons - iOS style */
+.capsule-chip-container {
+  position: relative;
+  display: inline-flex;
+  gap: 0;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 9999px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  outline: none !important;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.08);
+}
+
+.capsule-chip-container:focus,
+.capsule-chip-container:focus-visible,
+.capsule-chip-container:focus-within {
+  outline: none !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    0 8px 32px rgba(0, 0, 0, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.7),
+    inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.08) !important;
+}
+
+@media (max-width: 640px) {
+  .capsule-chip-container {
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.20);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+    outline: none !important;
+    box-shadow: 
+      0 4px 18px rgba(0, 0, 0, 0.09),
+      0 10px 38px rgba(0, 0, 0, 0.07),
+      inset 0 1px 1px rgba(255, 255, 255, 0.75),
+      inset 0 -0.5px 0.5px rgba(0, 0, 0, 0.09);
+  }
+  
+  .capsule-chip-container:focus,
+  .capsule-chip-container:focus-visible,
+  .capsule-chip-container:focus-within {
+    outline: none !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  }
+}
+
+/* Glass cylinder that slides behind active button - Liquid glass translucent */
+.glass-indicator {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  height: calc(100% - 6px);
+  border-radius: 9999px;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.30) 100%
+  );
+  /* Liquid glass effect - highly translucent with background visible */
+  backdrop-filter: blur(8px) saturate(200%) brightness(108%) contrast(105%);
+  -webkit-backdrop-filter: blur(8px) saturate(200%) brightness(108%) contrast(105%);
+  border: none;
+  outline: none;
+  box-shadow: 
+    0 2px 12px rgba(0, 0, 0, 0.07),
+    0 4px 24px rgba(0, 0, 0, 0.05),
+    0 8px 32px rgba(0, 0, 0, 0.03),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.85),
+    inset 0 -0.5px 1px rgba(0, 0, 0, 0.06);
+  /* Synchronized transitions - both use same timing for consistent appearance */
+  transition: transform 0.18s linear,
+              width 0.18s linear;
+  will-change: transform, width;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .glass-indicator {
+    top: 4px;
+    left: 4px;
+    height: calc(100% - 8px);
+    background: linear-gradient(180deg, 
+      rgba(255, 255, 255, 0.38) 0%,
+      rgba(255, 255, 255, 0.28) 50%,
+      rgba(255, 255, 255, 0.33) 100%
+    );
+    backdrop-filter: blur(10px) saturate(200%) brightness(108%) contrast(105%);
+    -webkit-backdrop-filter: blur(10px) saturate(200%) brightness(108%) contrast(105%);
+    box-shadow: 
+      0 2px 14px rgba(0, 0, 0, 0.08),
+      0 4px 28px rgba(0, 0, 0, 0.06),
+      0 8px 36px rgba(0, 0, 0, 0.04),
+      inset 0 1px 1.5px rgba(255, 255, 255, 0.9),
+      inset 0 -0.5px 1px rgba(0, 0, 0, 0.07);
+    /* Synchronized transitions - same timing for consistent shape */
+    transition: transform 0.15s linear,
+                width 0.15s linear;
+  }
+}
+
+
+/* Individual capsule buttons - iOS style */
+.capsule-chip {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: rgba(0, 0, 0, 0.65);
+  background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  transition: color 0.2s ease-out;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.capsule-chip:focus,
+.capsule-chip:focus-visible,
+.capsule-chip:hover,
+.capsule-chip:active:focus {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.capsule-chip:active {
+  transform: scale(0.96);
+  transition: transform 0.08s ease-out;
+}
+
+/* Active button styling - iOS style */
+.capsule-chip--active {
+  color: rgba(0, 0, 0, 0.88);
+  font-weight: 650;
+}
+
+.capsule-chip--active:focus,
+.capsule-chip--active:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 640px) {
+  .capsule-chip {
+    padding: 11px 22px;
+    font-size: 16px;
+    font-weight: 600;
+    min-height: 44px;
+    border: none !important;
+    outline: none !important;
+  }
+  
+  .capsule-chip--active {
+    font-weight: 650;
+  }
+  
+  .capsule-chip:focus,
+  .capsule-chip:active {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Smooth text transition */
+.capsule-chip > span {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  transition: color 0.2s ease-out;
+}
+
+/* iOS-style subtle highlight on top edge - liquid glass shimmer */
+.glass-indicator::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  border-radius: 9999px 9999px 0 0;
+  background: linear-gradient(180deg, 
+    rgba(255, 255, 255, 0.50) 0%,
+    rgba(255, 255, 255, 0.15) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Add subtle bottom shadow for depth */
+.glass-indicator::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  border-radius: 0 0 9999px 9999px;
+  background: linear-gradient(0deg, 
+    rgba(0, 0, 0, 0.03) 0%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-indicator,
+  .capsule-chip {
+    transition-duration: 0.2s;
+    transition-timing-function: ease-out;
+  }
+}
+
 /* Hide components when loading screen is active */
 body.loading-active ~ * [data-hide-on-loading],
 body.loading-active [data-hide-on-loading] {

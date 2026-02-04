@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { getApiUrl } from '@/lib/utils';
 import { getLocalizedContent } from '@/lib/i18n';
@@ -143,10 +143,12 @@ export default function CityExplorePage() {
   const [popupOpen, setPopupOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [guideAnimationStopped, setGuideAnimationStopped] = useState(false);
+  const [glassIndicator, setGlassIndicator] = useState({ left: 0, width: 0 });
   const headerRef = useRef<HTMLElement>(null);
   const filterScrollRef = useRef<HTMLDivElement>(null);
   const guideIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const guideRafRef = useRef<number | null>(null);
+  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
 
   const closePopup = useCallback(() => {
     setPopupOpen(false);
@@ -173,6 +175,15 @@ export default function CityExplorePage() {
     }
   }, [selectedPlace]);
 
+  useEffect(() => {
+    const container = filterScrollRef.current;
+    if (!container || scrolledToCategory === 'all') return;
+    const activeButton = container.querySelector<HTMLButtonElement>(`[data-category="${scrolledToCategory}"]`);
+    if (activeButton) {
+      activeButton.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', inline: 'center', block: 'nearest' });
+    }
+  }, [scrolledToCategory, isMobile]);
+
   const fetchCity = useCallback(async () => {
     if (!params.name || typeof params.name !== 'string') return;
     try {
@@ -198,7 +209,7 @@ export default function CityExplorePage() {
     const hash = typeof window !== 'undefined' ? window.location.hash.slice(1).toLowerCase() : '';
     if (!hash) return;
     if (hash === 'all') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: isMobile ? 'auto' : 'smooth' });
       setScrolledToCategory('all');
       return;
     }
@@ -206,11 +217,13 @@ export default function CityExplorePage() {
     const el = document.getElementById(hash);
     if (el) {
       const t = setTimeout(() => {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', block: 'start' });
       }, 100);
       return () => clearTimeout(t);
     }
-  }, [loading, city]);
+  }, [loading, city, isMobile]);
+
+  // intersection observer wired after categoriesToShow definition
 
   // Lock body scroll when place detail popup is open (mobile only)
   useEffect(() => {
@@ -275,6 +288,270 @@ export default function CityExplorePage() {
     guideRafRef.current = null;
   }, []);
 
+  const places = useMemo(
+    () => (city?.places || []).filter(
+      (p) => !(p.name?.en && (p.name.en.includes('BHU') || p.name.en.includes('Banaras Hindu University')))
+    ),
+    [city]
+  );
+
+  const placesByCategory = useMemo(
+    () => PLACE_CATEGORIES.reduce<Record<PlaceCategory, Place[]>>(
+      (acc, cat) => {
+        acc[cat] = places.filter((p) => (p.category || 'other') === cat);
+        return acc;
+      },
+      { temple: [], ghat: [], monument: [], market: [], museum: [], other: [] }
+    ),
+    [places]
+  );
+
+  const restaurants = city?.restaurants || [];
+  const hasFood = restaurants.length > 0;
+
+  const aartiPlaces = useMemo(
+    () => places.filter(
+      (p) =>
+        (p.bestTimeToVisit?.toLowerCase().includes('aarti') ||
+          (p.description?.en && p.description.en.toLowerCase().includes('aarti')) ||
+          (p.name?.en && p.name.en.toLowerCase().includes('aarti')))
+    ),
+    [places]
+  );
+  const aartiRituals = city?.rituals?.filter(
+    (r) => (r.name?.en && r.name.en.toLowerCase().includes('aarti')) || (r.name?.hi && r.name.hi.includes('आरती'))
+  ) || [];
+  const hasAarti = aartiPlaces.length > 0 || aartiRituals.length > 0;
+
+  const categoriesToShow = useMemo(
+    () => categoryOrder.filter((cat) => {
+      if (cat === FOOD_CATEGORY) return hasFood;
+      if (cat === AARTI_CATEGORY) return hasAarti;
+      return (placesByCategory[cat as PlaceCategory]?.length ?? 0) > 0;
+    }),
+    [hasFood, hasAarti, placesByCategory]
+  );
+
+  const filterCategories: { id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all'; labelKey: string; icon: string }[] = useMemo(
+    () =>
+      categoriesToShow.map((id) => ({
+        id,
+        labelKey: id === AARTI_CATEGORY ? 'explore.category.aarti' : id === FOOD_CATEGORY ? 'explore.category.food' : `explore.category.${id}`,
+        icon: CATEGORY_ICONS[id] || '📍',
+      })),
+    [categoriesToShow]
+  );
+
+  // Update glass indicator position
+  useEffect(() => {
+    const updatePosition = () => {
+      const activeButton = buttonRefs.current.get(scrolledToCategory);
+      const container = filterScrollRef.current;
+      
+      if (activeButton && container) {
+        // Use requestAnimationFrame for smooth updates
+        requestAnimationFrame(() => {
+          const containerRect = container.getBoundingClientRect();
+          const buttonRect = activeButton.getBoundingClientRect();
+          
+          // Account for container padding + border (3px padding + 1.5px border = 4.5px on desktop, 4px + 1.5px = 5.5px on mobile)
+          const isMobileView = window.innerWidth <= 640;
+          const totalOffset = isMobileView ? 5.5 : 4.5;
+          
+          // Calculate position relative to container, including scroll offset
+          const left = buttonRect.left - containerRect.left + container.scrollLeft - totalOffset;
+          const width = buttonRect.width;
+          
+          setGlassIndicator({ left, width });
+        });
+      }
+    };
+    
+    // Update immediately
+    updatePosition();
+    
+    // Update after multiple delays to catch all rendering changes
+    const timers = [
+      setTimeout(updatePosition, 50),
+      setTimeout(updatePosition, 150),
+      setTimeout(updatePosition, 300)
+    ];
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [scrolledToCategory, filterCategories]);
+
+  // Initialize glass indicator position on mount and observe ALL changes
+  useEffect(() => {
+    const container = filterScrollRef.current;
+    
+    const updatePosition = () => {
+      const activeButton = buttonRefs.current.get(scrolledToCategory);
+      
+      if (activeButton && container) {
+        requestAnimationFrame(() => {
+          const containerRect = container.getBoundingClientRect();
+          const buttonRect = activeButton.getBoundingClientRect();
+          const isMobileView = window.innerWidth <= 640;
+          const totalOffset = isMobileView ? 5.5 : 4.5;
+          
+          const left = buttonRect.left - containerRect.left + container.scrollLeft - totalOffset;
+          const width = buttonRect.width;
+          setGlassIndicator({ left, width });
+        });
+      }
+    };
+    
+    // Initial position with multiple attempts
+    const timers = [
+      setTimeout(updatePosition, 100),
+      setTimeout(updatePosition, 250),
+      setTimeout(updatePosition, 500)
+    ];
+    
+    // Observe size changes to all buttons AND container
+    const resizeObserver = new ResizeObserver(() => {
+      updatePosition();
+    });
+    
+    // Observe container for padding/border changes
+    if (container) {
+      resizeObserver.observe(container);
+    }
+    
+    // Observe all buttons for size changes (font size, padding, etc)
+    buttonRefs.current.forEach((button) => {
+      if (button) resizeObserver.observe(button);
+    });
+    
+    // Also observe document font size changes
+    const mutationObserver = new MutationObserver(() => {
+      updatePosition();
+    });
+    
+    if (container) {
+      mutationObserver.observe(container, {
+        attributes: true,
+        attributeFilter: ['style', 'class'],
+        subtree: true
+      });
+    }
+    
+    // Observe document for global font size changes
+    mutationObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style', 'class']
+    });
+    
+    return () => {
+      timers.forEach(t => clearTimeout(t));
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [scrolledToCategory]);
+
+  // Recalculate on window resize, scroll, zoom, and continuous polling for font size changes
+  useEffect(() => {
+    const container = filterScrollRef.current;
+    let debounceTimer: NodeJS.Timeout;
+    let pollInterval: NodeJS.Timeout;
+    
+    const updateIndicator = () => {
+      const activeButton = buttonRefs.current.get(scrolledToCategory);
+      
+      if (activeButton && container) {
+        requestAnimationFrame(() => {
+          const containerRect = container.getBoundingClientRect();
+          const buttonRect = activeButton.getBoundingClientRect();
+          const isMobileView = window.innerWidth <= 640;
+          const padding = isMobileView ? 5.5 : 4.5;
+          
+          // Calculate position relative to container, including scroll offset
+          const left = buttonRect.left - containerRect.left + container.scrollLeft - padding;
+          const width = buttonRect.width;
+          setGlassIndicator({ left, width });
+        });
+      }
+    };
+    
+    const debouncedUpdate = () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(updateIndicator, 10);
+    };
+
+    // Listen to visual viewport for zoom changes
+    const visualViewport = window.visualViewport;
+    
+    window.addEventListener('resize', debouncedUpdate);
+    container?.addEventListener('scroll', debouncedUpdate);
+    visualViewport?.addEventListener('resize', debouncedUpdate);
+    
+    // Poll every 100ms to catch font size changes
+    pollInterval = setInterval(updateIndicator, 100);
+    
+    return () => {
+      clearTimeout(debounceTimer);
+      clearInterval(pollInterval);
+      window.removeEventListener('resize', debouncedUpdate);
+      container?.removeEventListener('scroll', debouncedUpdate);
+      visualViewport?.removeEventListener('resize', debouncedUpdate);
+    };
+  }, [scrolledToCategory]);
+
+  useEffect(() => {
+    if (loading || !city) return;
+    let rafId: number | null = null;
+
+    const getActiveCategory = () => {
+      const elements = categoriesToShow
+        .map((id) => document.getElementById(id))
+        .filter((el): el is HTMLElement => Boolean(el));
+      if (elements.length === 0) return null;
+
+      const scrollY = window.scrollY;
+      const offset = 140;
+      let activeId: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | null = null;
+
+      for (const el of elements) {
+        const top = el.getBoundingClientRect().top + scrollY;
+        if (top - offset <= scrollY) {
+          activeId = el.id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
+        } else {
+          break;
+        }
+      }
+
+      if (!activeId) {
+        activeId = elements[0].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
+      }
+
+      const nearBottom = window.innerHeight + scrollY >= document.documentElement.scrollHeight - 4;
+      if (nearBottom) {
+        activeId = elements[elements.length - 1].id as PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY;
+      }
+
+      return activeId;
+    };
+
+    const onScroll = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const activeId = getActiveCategory();
+        if (activeId && activeId !== scrolledToCategory) {
+          setScrolledToCategory(activeId);
+        }
+      });
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [categoriesToShow, loading, city, scrolledToCategory]);
+
   if (loading) return <BeautifulLoading />;
   if (!city) {
     return (
@@ -295,55 +572,15 @@ export default function CityExplorePage() {
     );
   }
 
-  const places = (city.places || []).filter(
-    (p) => !(p.name?.en && (p.name.en.includes('BHU') || p.name.en.includes('Banaras Hindu University')))
-  );
-
-  const placesByCategory = PLACE_CATEGORIES.reduce<Record<PlaceCategory, Place[]>>(
-    (acc, cat) => {
-      acc[cat] = places.filter((p) => (p.category || 'other') === cat);
-      return acc;
-    },
-    { temple: [], ghat: [], monument: [], market: [], museum: [], other: [] }
-  );
-
-  const restaurants = city.restaurants || [];
-  const hasFood = restaurants.length > 0;
-
-  const aartiPlaces = places.filter(
-    (p) =>
-      (p.bestTimeToVisit?.toLowerCase().includes('aarti') ||
-        (p.description?.en && p.description.en.toLowerCase().includes('aarti')) ||
-        (p.name?.en && p.name.en.toLowerCase().includes('aarti')))
-  );
-  const aartiRituals = (city.rituals || []).filter(
-    (r) => (r.name?.en && r.name.en.toLowerCase().includes('aarti')) || (r.name?.hi && r.name.hi.includes('आरती'))
-  );
-  const hasAarti = aartiPlaces.length > 0 || aartiRituals.length > 0;
-
-  const categoriesToShow = categoryOrder.filter((cat) => {
-    if (cat === FOOD_CATEGORY) return hasFood;
-    if (cat === AARTI_CATEGORY) return hasAarti;
-    return (placesByCategory[cat as PlaceCategory]?.length ?? 0) > 0;
-  });
-
-  const filterCategories: { id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all'; labelKey: string; icon: string }[] = [
-    ...categoriesToShow
-      .filter((c) => c !== FOOD_CATEGORY && c !== AARTI_CATEGORY)
-      .map((c) => ({ id: c as PlaceCategory, labelKey: `explore.category.${c}`, icon: CATEGORY_ICONS[c] || '📍' })),
-    ...(hasAarti ? [{ id: AARTI_CATEGORY as typeof AARTI_CATEGORY, labelKey: 'explore.category.aarti', icon: CATEGORY_ICONS.aarti }] : []),
-    ...(hasFood ? [{ id: FOOD_CATEGORY as typeof FOOD_CATEGORY, labelKey: 'explore.category.food', icon: CATEGORY_ICONS.food }] : []),
-  ];
-
   const handleFloatingFilterClick = (id: PlaceCategory | typeof FOOD_CATEGORY | typeof AARTI_CATEGORY | 'all') => {
     setSelectedCategory('all');
     setScrolledToCategory(id);
     setTimeout(() => {
       if (id === 'all') {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: isMobile ? 'auto' : 'smooth' });
       } else {
         const el = document.getElementById(id);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (el) el.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth', block: 'start' });
       }
     }, 0);
   };
@@ -383,23 +620,34 @@ export default function CityExplorePage() {
             onTouchMove={stopGuideAnimation}
             onWheel={stopGuideAnimation}
             onMouseDown={stopGuideAnimation}
-            className="pointer-events-auto flex gap-2 overflow-x-auto scrollbar-hide items-center py-2 px-3 rounded-full bg-white/60 backdrop-blur-md sm:backdrop-blur-xl border border-white/50 w-fit max-w-[calc(100vw-1.5rem)]"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', boxShadow: '0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.7)' }}
+            className="capsule-chip-container pointer-events-auto overflow-x-auto scrollbar-hide w-fit max-w-[calc(100vw-1.5rem)]"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           >
+            {/* iOS Glass Indicator */}
+            <div
+              className="glass-indicator"
+              style={{
+                transform: `translateX(${glassIndicator.left}px)`,
+                width: `${glassIndicator.width}px`,
+              }}
+            />
+            
+            {/* Category Buttons */}
             {filterCategories.map(({ id, labelKey }) => {
               const isSelected = scrolledToCategory === id;
               return (
                 <button
                   key={id}
+                  ref={(el) => {
+                    if (el) buttonRefs.current.set(id, el);
+                    else buttonRefs.current.delete(id);
+                  }}
+                  data-category={id}
                   type="button"
                   onClick={() => handleFloatingFilterClick(id)}
-                  className={`flex-shrink-0 flex items-center px-4 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 touch-manipulation ${
-                    isSelected
-                      ? 'bg-gradient-to-b from-primary-saffron to-primary-saffron/90 text-white border border-primary-saffron/80 shadow-[0_4px_12px_rgba(0,0,0,0.2),0_2px_4px_rgba(0,0,0,0.1),inset_0_1px_0_rgba(255,255,255,0.25)] active:shadow-[0_1px_4px_rgba(0,0,0,0.15),inset_0_2px_4px_rgba(0,0,0,0.1)]'
-                      : 'bg-gradient-to-b from-white/70 to-white/40 text-premium-section-text border border-slate-200/90 shadow-[0_2px_6px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.8)] hover:from-white/80 hover:to-white/50 hover:text-primary-saffron hover:border-primary-saffron/40 hover:shadow-[0_3px_10px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] backdrop-blur-sm'
-                  }`}
+                  className={`capsule-chip ${isSelected ? 'capsule-chip--active' : ''}`}
                 >
-                  {t(labelKey, language)}
+                  <span>{t(labelKey, language)}</span>
                 </button>
               );
             })}

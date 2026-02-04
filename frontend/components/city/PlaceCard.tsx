@@ -61,7 +61,7 @@ export default function PlaceCard({ place, language, fillHeight, hideImage, hide
   const icon = categoryIcons[category] || '📍';
 
   const imageHeight = compact ? 'h-40 sm:h-48 md:h-52' : fillHeight ? 'h-44 sm:h-48' : 'h-48 sm:h-56 md:h-64';
-  const contentPadding = compact ? 'p-4 sm:p-5' : 'p-6 sm:p-7 md:p-8';
+  const contentPadding = compact ? 'p-4 sm:p-5' : 'p-5 sm:p-6 md:p-8';
   const titleSize = compact ? 'text-lg sm:text-xl' : 'text-lg sm:text-xl md:text-2xl';
   const iconSize = compact ? 'w-10 h-10 sm:w-11 sm:h-11 text-lg sm:text-xl' : 'w-12 h-12 sm:w-14 sm:h-14 text-xl sm:text-2xl';
 

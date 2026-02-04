@@ -97,15 +97,11 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
   const handleMobileScroll = useCallback(() => {
     const el = mobileScrollRef.current;
     if (!el || totalItems <= 1) return;
-    if (mobileScrollTimeoutRef.current) clearTimeout(mobileScrollTimeoutRef.current);
-    mobileScrollTimeoutRef.current = setTimeout(() => {
-      mobileScrollTimeoutRef.current = null;
-      const w = el.getBoundingClientRect().width;
-      if (w <= 0) return;
-      const index = Math.round(el.scrollLeft / w);
-      const clamped = Math.max(0, Math.min(index, totalItems - 1));
-      setCurrentIndex(clamped);
-    }, 120);
+    const w = el.getBoundingClientRect().width;
+    if (w <= 0) return;
+    const index = Math.round(el.scrollLeft / w);
+    const clamped = Math.max(0, Math.min(index, totalItems - 1));
+    setCurrentIndex((prev) => (prev === clamped ? prev : clamped));
   }, [totalItems]);
 
   // Mobile: sync currentIndex when scroll ends (scrollend if supported, else debounced scroll)
@@ -122,14 +118,11 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
     el.addEventListener('scrollend', onScrollEnd);
     return () => {
       el.removeEventListener('scrollend', onScrollEnd);
-      if (mobileScrollTimeoutRef.current) clearTimeout(mobileScrollTimeoutRef.current);
     };
   }, [isMobile, totalItems]);
 
   useEffect(() => {
-    return () => {
-      if (mobileScrollTimeoutRef.current) clearTimeout(mobileScrollTimeoutRef.current);
-    };
+    return () => {};
   }, []);
 
   useEffect(() => {
@@ -282,6 +275,7 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                       WebkitOverflowScrolling: 'touch',
                       scrollbarWidth: 'none',
                       msOverflowStyle: 'none',
+                      touchAction: 'pan-x',
                     }}
                     onScroll={handleMobileScroll}
                   >
@@ -289,6 +283,7 @@ export default function QuotesSection({ quotes, language }: QuotesSectionProps) 
                       <div
                         key={quote._id}
                         className="flex-shrink-0 w-full min-w-full snap-center px-2"
+                        style={{ scrollSnapStop: 'always' }}
                       >
                         <QuoteCard
                           quote={quote}

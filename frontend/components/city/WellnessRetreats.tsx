@@ -115,9 +115,10 @@ export default function WellnessRetreats({ centers, language }: WellnessRetreats
 
   return (
     <section className="mb-12">
-      <SectionHeader title={t('wellness.spiritual.retreats', language)} icon="🧘" subtitle={t('yoga.meditation.ayurveda', language)} />
-      {/* Mobile: accordion (teal accent) – clear division */}
-      <div className="sm:hidden rounded-2xl overflow-hidden border-2 border-teal-200/90 bg-white shadow-sm divide-y divide-teal-200/80">
+      <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#FDF6ED] via-[#F5E6D8] to-[#FFF8E7] border border-amber-200/50 shadow-xl shadow-amber-900/5 p-4 sm:p-6 lg:p-8">
+        <SectionHeader title={t('wellness.spiritual.retreats', language)} icon="🧘" subtitle={t('yoga.meditation.ayurveda', language)} />
+        {/* Mobile: accordion (teal accent) – clear division */}
+        <div className="sm:hidden rounded-2xl overflow-hidden border-2 border-teal-200/90 bg-white shadow-sm divide-y divide-teal-200/80">
         {centers.map((center, index) => {
           const isExpanded = expandedIndex === index;
           return (
@@ -152,13 +153,13 @@ export default function WellnessRetreats({ centers, language }: WellnessRetreats
             </div>
           );
         })}
-      </div>
-      {/* Desktop: featured center (left) + Quick View sidebar (right) – like Places to Visit */}
-      <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
-        <div className="sm:col-span-7 lg:col-span-8">
+        </div>
+        {/* Desktop: featured center (left) + Quick View sidebar (right) – like Places to Visit */}
+        <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <div className="sm:col-span-7 lg:col-span-8 w-full">
           {featuredCenter && (
-            <div className="rounded-2xl overflow-hidden border border-premium-teal/20 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
-              <div className="h-1 w-full bg-gradient-to-r from-premium-teal via-teal-400 to-premium-teal flex-shrink-0" aria-hidden />
+            <div className="rounded-2xl overflow-hidden border border-amber-200/70 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+              <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron flex-shrink-0" aria-hidden />
               {featuredCenter.image ? (
                 <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
                   <Image src={featuredCenter.image} alt={featuredCenter.name} fill sizes="(min-width: 1024px) 66vw, (min-width: 640px) 58vw, 100vw" className="object-cover" />
@@ -183,13 +184,24 @@ export default function WellnessRetreats({ centers, language }: WellnessRetreats
             </div>
           )}
         </div>
-        <aside className="sm:col-span-5 lg:col-span-4">
-          <div className="sticky top-4 rounded-2xl overflow-hidden border-2 border-premium-teal/20 bg-white shadow-sm flex flex-col">
-            <div className="h-1 w-full bg-gradient-to-r from-premium-teal via-teal-400 to-premium-teal flex-shrink-0" aria-hidden />
-            <div className="p-4 sm:p-5">
-              <header className="mb-4">
-                <p className="text-[10px] sm:text-xs uppercase tracking-wider text-premium-teal font-semibold">{language === 'hi' ? 'त्वरित दृश्य' : 'Quick view'}</p>
-                <h3 className="text-base sm:text-lg font-bold text-primary-dark mt-0.5">{language === 'hi' ? 'अन्य केंद्र' : 'More centers'}</h3>
+        <aside className="sm:col-span-5 lg:col-span-4 w-full">
+          <div className="sticky top-4 rounded-2xl overflow-hidden premium-card border border-amber-200/70 flex flex-col">
+            <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron flex-shrink-0" aria-hidden />
+            <div className="flex flex-col p-4 sm:p-5">
+              <header className="flex items-center justify-between gap-3 mb-4">
+                <div>
+                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-primary-saffron font-semibold">
+                    {language === 'hi' ? 'त्वरित दृश्य' : 'Quick view'}
+                  </p>
+                  <h3 className="text-base sm:text-lg font-bold text-premium-section-text mt-0.5">
+                    {language === 'hi' ? 'अन्य केंद्र' : 'More centers'}
+                  </h3>
+                </div>
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary-saffron/10 border border-amber-200/70 flex items-center justify-center text-primary-saffron">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                </div>
               </header>
               <div className="space-y-2">
                 {centers.map((center, index) => {
@@ -199,16 +211,24 @@ export default function WellnessRetreats({ centers, language }: WellnessRetreats
                       key={index}
                       type="button"
                       onClick={() => setSelectedIndex(index)}
-                      className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors ${
-                        isSelected ? 'border-premium-teal/60 bg-premium-peach/80 text-primary-dark shadow-sm' : 'border-slate-200/80 bg-white hover:border-premium-teal/30 hover:bg-premium-peach/40'
+                      className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors duration-200 ${
+                        isSelected ? 'border-primary-saffron/60 bg-amber-50/80 text-premium-section-text shadow-sm' : 'border-slate-200/80 bg-white hover:border-primary-saffron/30 hover:bg-amber-50/50 text-premium-section-text/90'
                       }`}
                     >
                       <div className="min-w-0 flex-1 flex flex-col items-start gap-0.5">
-                        <span className="font-semibold text-sm sm:text-base text-primary-dark break-words text-left">{center.name}</span>
-                        <span className="text-xs text-premium-teal font-semibold capitalize">{center.type}{(center.rating != null || center.priceRange) && ` · ${[center.rating != null && `⭐ ${center.rating}`, center.priceRange && getPriceRangeLabel(center.priceRange)].filter(Boolean).join(' ')}`}</span>
+                        <span className="font-semibold text-sm sm:text-base text-primary-dark leading-snug break-words text-left">{center.name}</span>
+                        <span className="text-xs text-primary-saffron font-medium capitalize">{center.type}{(center.rating != null || center.priceRange) && ` · ${[center.rating != null && `⭐ ${center.rating}`, center.priceRange && getPriceRangeLabel(center.priceRange)].filter(Boolean).join(' ')}`}</span>
                       </div>
-                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        {isSelected ? <svg className="w-3.5 h-3.5 text-premium-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg> : <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>}
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                        {isSelected ? (
+                          <svg className="w-3.5 h-3.5 text-primary-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                          </svg>
+                        )}
                       </span>
                     </button>
                   );
@@ -217,6 +237,7 @@ export default function WellnessRetreats({ centers, language }: WellnessRetreats
             </div>
           </div>
         </aside>
+        </div>
       </div>
     </section>
   );

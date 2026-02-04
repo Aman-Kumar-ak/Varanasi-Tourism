@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function CityCarousel() {
+  const router = useRouter();
   const cities = [
     {
       name: 'Varanasi',
@@ -51,6 +53,11 @@ export default function CityCarousel() {
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const prefetchCity = useCallback((slug: string) => {
+    router.prefetch(`/city/${slug}`);
+    router.prefetch(`/city/${slug}/explore`);
+  }, [router]);
+
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev + 1) % cities.length);
   };
@@ -74,10 +81,15 @@ export default function CityCarousel() {
         <div className="relative max-w-6xl mx-auto">
           {/* City Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cities.map((city, index) => (
+            {cities.map((city, index) => {
+              const slug = city.name.toLowerCase();
+              return (
               <Link
                 key={index}
-                href={`/city/${city.name.toLowerCase()}`}
+                href={`/city/${slug}`}
+                onMouseEnter={() => prefetchCity(slug)}
+                onFocus={() => prefetchCity(slug)}
+                onTouchStart={() => prefetchCity(slug)}
                 className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-primary-blue/5 hover:border-primary-blue/20"
               >
                 {/* City Image/Icon */}
@@ -104,7 +116,8 @@ export default function CityCarousel() {
                   </span>
                 </div>
               </Link>
-            ))}
+            );
+            })}
           </div>
         </div>
       </div>

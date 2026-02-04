@@ -82,9 +82,10 @@ export default function CuisineSection({ restaurants, language, exploreSlug }: C
 
   return (
     <section className="mb-12" id="cuisine">
-      <SectionHeader title={t('cuisine.title', language)} icon="🍽️" subtitle={t('cuisine.subtitle', language)} />
-      {/* Mobile: accordion (saffron/orange accent) – clear division */}
-      <div className="sm:hidden rounded-2xl overflow-hidden border-2 border-orange-200/90 bg-white shadow-sm divide-y divide-orange-200/80">
+      <div className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#FDF6ED] via-[#F5E6D8] to-[#FFF8E7] border border-amber-200/50 shadow-xl shadow-amber-900/5 p-4 sm:p-6 lg:p-8">
+        <SectionHeader title={t('cuisine.title', language)} icon="🍽️" subtitle={t('cuisine.subtitle', language)} />
+        {/* Mobile: accordion (saffron/orange accent) – clear division */}
+        <div className="sm:hidden rounded-2xl overflow-hidden border-2 border-orange-200/90 bg-white shadow-sm divide-y divide-orange-200/80">
         {restaurants.map((restaurant, index) => {
           const isExpanded = expandedIndex === index;
           const specialty = restaurant.specialty?.[language] || restaurant.specialty?.en;
@@ -118,25 +119,28 @@ export default function CuisineSection({ restaurants, language, exploreSlug }: C
             </div>
           );
         })}
-      </div>
-      {exploreSlug && (
-        <div className="mt-4 px-2 sm:hidden">
-          <Link
-            href={`/city/${exploreSlug}/explore#food`}
-            className="w-full rounded-xl border-2 border-primary-saffron/50 bg-primary-saffron/10 text-primary-saffron px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm hover:bg-primary-saffron/20 hover:border-primary-saffron/70 transition-colors"
-          >
-            {t('explore.more', language)}
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
         </div>
-      )}
-      {/* Desktop: featured restaurant (left) + Quick View sidebar (right) – like Places to Visit */}
-      <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
-        <div className="sm:col-span-7 lg:col-span-8">
+        {exploreSlug && (
+          <div className="mt-4 px-2 sm:hidden">
+            <Link
+              href={`/city/${exploreSlug}/explore#food`}
+              className="group relative w-full rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white px-5 py-4 min-h-[56px] flex items-center justify-center gap-3 font-bold text-sm shadow-[0_4px_20px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_30px_rgba(239,68,68,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 overflow-hidden"
+            >
+              <span className="absolute inset-0 bg-gradient-to-r from-red-400 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="relative flex items-center gap-3">
+                <span className="text-base">{t('explore.more', language)}</span>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
+            </Link>
+          </div>
+        )}
+        {/* Desktop: featured restaurant (left) + Quick View sidebar (right) – like Places to Visit */}
+        <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
+        <div className="sm:col-span-7 lg:col-span-8 w-full">
           {featuredRestaurant && (
-            <div className="rounded-2xl overflow-hidden border border-primary-saffron/20 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
+            <div className="rounded-2xl overflow-hidden border border-amber-200/70 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
               <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-orange to-primary-saffron flex-shrink-0" aria-hidden />
               {featuredRestaurant.image ? (
                 <div className="relative w-full h-72 sm:h-80 lg:h-96 overflow-hidden">
@@ -157,13 +161,24 @@ export default function CuisineSection({ restaurants, language, exploreSlug }: C
             </div>
           )}
         </div>
-        <aside className="sm:col-span-5 lg:col-span-4">
-          <div className="sticky top-4 rounded-2xl overflow-hidden border-2 border-primary-saffron/20 bg-white shadow-sm flex flex-col">
-            <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-orange to-primary-saffron flex-shrink-0" aria-hidden />
-            <div className="p-4 sm:p-5">
-              <header className="mb-4">
-                <p className="text-[10px] sm:text-xs uppercase tracking-wider text-primary-saffron font-semibold">{language === 'hi' ? 'त्वरित दृश्य' : 'Quick view'}</p>
-                <h3 className="text-base sm:text-lg font-bold text-primary-dark mt-0.5">{language === 'hi' ? 'अन्य रेस्तरां' : 'More restaurants'}</h3>
+        <aside className="sm:col-span-5 lg:col-span-4 w-full">
+          <div className="sticky top-4 rounded-2xl overflow-hidden premium-card border border-amber-200/70 flex flex-col">
+            <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron flex-shrink-0" aria-hidden />
+            <div className="flex flex-col p-4 sm:p-5">
+              <header className="flex items-center justify-between gap-3 mb-4">
+                <div>
+                  <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-primary-saffron font-semibold">
+                    {language === 'hi' ? 'त्वरित दृश्य' : 'Quick view'}
+                  </p>
+                  <h3 className="text-base sm:text-lg font-bold text-premium-section-text mt-0.5">
+                    {language === 'hi' ? 'अन्य रेस्तरां' : 'More restaurants'}
+                  </h3>
+                </div>
+                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary-saffron/10 border border-amber-200/70 flex items-center justify-center text-primary-saffron">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
               </header>
               <div className="space-y-2">
                 {restaurants.map((restaurant, index) => {
@@ -173,16 +188,24 @@ export default function CuisineSection({ restaurants, language, exploreSlug }: C
                       key={index}
                       type="button"
                       onClick={() => setSelectedIndex(index)}
-                      className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors ${
-                        isSelected ? 'border-primary-saffron/60 bg-orange-50/80 text-primary-dark shadow-sm' : 'border-slate-200/80 bg-white hover:border-primary-saffron/30 hover:bg-orange-50/40'
+                      className={`w-full text-left rounded-xl border-2 px-4 py-3 min-h-[52px] flex items-start justify-between gap-2 transition-colors duration-200 ${
+                        isSelected ? 'border-primary-saffron/60 bg-amber-50/80 text-premium-section-text shadow-sm' : 'border-slate-200/80 bg-white hover:border-primary-saffron/30 hover:bg-amber-50/50 text-premium-section-text/90'
                       }`}
                     >
                       <div className="min-w-0 flex-1 flex flex-col items-start gap-0.5">
-                        <span className="font-semibold text-sm sm:text-base text-primary-dark break-words text-left">{restaurant.name}</span>
-                        {restaurant.cuisine && <span className="text-xs text-primary-saffron font-semibold">{restaurant.cuisine}</span>}
+                        <span className="font-semibold text-sm sm:text-base text-primary-dark leading-snug break-words text-left">{restaurant.name}</span>
+                        {restaurant.cuisine && <span className="text-xs text-primary-saffron font-medium">{restaurant.cuisine}</span>}
                       </div>
-                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center">
-                        {isSelected ? <svg className="w-3.5 h-3.5 text-primary-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg> : <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>}
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                        {isSelected ? (
+                          <svg className="w-3.5 h-3.5 text-primary-saffron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                          </svg>
+                        ) : (
+                          <svg className="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                          </svg>
+                        )}
                       </span>
                     </button>
                   );
@@ -190,18 +213,22 @@ export default function CuisineSection({ restaurants, language, exploreSlug }: C
                 {exploreSlug && (
                   <Link
                     href={`/city/${exploreSlug}/explore#food`}
-                    className="w-full rounded-xl border-2 border-primary-saffron/50 bg-primary-saffron/10 text-primary-saffron px-4 py-3 min-h-[52px] flex items-center justify-center gap-2 font-semibold text-sm hover:bg-primary-saffron/20 hover:border-primary-saffron/70 transition-colors"
+                    className="group relative w-full rounded-xl bg-gradient-to-r from-red-500 via-rose-600 to-pink-500 text-white px-5 py-4 min-h-[56px] flex items-center justify-center gap-3 font-bold text-sm sm:text-base shadow-[0_4px_20px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_30px_rgba(239,68,68,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 overflow-hidden mt-3"
                   >
-                    {t('explore.more', language)}
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
+                    <span className="absolute inset-0 bg-gradient-to-r from-red-400 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <span className="relative flex items-center gap-3">
+                      <span>{t('explore.more', language)}</span>
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </span>
                   </Link>
                 )}
               </div>
             </div>
           </div>
         </aside>
+        </div>
       </div>
     </section>
   );

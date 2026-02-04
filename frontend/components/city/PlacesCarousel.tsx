@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import PlaceCard from './PlaceCard';
+import SectionHeader from './SectionHeader';
 import { getLocalizedContent } from '@/lib/i18n';
 import { openGoogleMapsDirections } from '@/lib/googleMaps';
 import { t } from '@/lib/translations';
@@ -41,6 +42,9 @@ interface PlacesCarouselProps {
   language: LanguageCode;
   /** When set, show an "Explore more" button linking to the city explore page */
   exploreSlug?: string;
+  title?: string;
+  icon?: string;
+  subtitle?: string;
 }
 
 const categoryIcons: Record<string, string> = {
@@ -54,7 +58,7 @@ const categoryIcons: Record<string, string> = {
 
 const HIGHLIGHT_INTERVAL_MS = 1900;
 
-export default function PlacesCarousel({ places, language, exploreSlug }: PlacesCarouselProps) {
+export default function PlacesCarousel({ places, language, exploreSlug, title, icon, subtitle }: PlacesCarouselProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [highlightStep, setHighlightStep] = useState(0);
@@ -102,7 +106,10 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
   const featuredPlace = places[selectedIndex];
 
   return (
-    <div className="relative">
+    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-[#FDF6ED] via-[#F5E6D8] to-[#FFF8E7] border border-amber-200/50 shadow-xl shadow-amber-900/5 p-4 sm:p-6 lg:p-8">
+      {title && icon && subtitle && (
+        <SectionHeader title={title} icon={icon} subtitle={subtitle} />
+      )}
       {/* Phone: Accordion – compact, one item expanded, same content + photos */}
       <div className="sm:hidden">
         <div className="rounded-2xl overflow-hidden border-2 border-amber-200/80 bg-white shadow-sm divide-y divide-amber-200/70">
@@ -267,12 +274,15 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
           <div className="mt-4 px-2">
             <Link
               href={`/city/${exploreSlug}/explore`}
-              className="w-full rounded-xl bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron text-white px-5 py-3.5 min-h-[52px] flex items-center justify-center gap-2.5 font-bold text-sm shadow-lg border border-primary-saffron/70 hover:brightness-105 active:brightness-95 transition-all duration-200"
+              className="group relative w-full rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 text-white px-5 py-4 min-h-[56px] flex items-center justify-center gap-3 font-bold text-sm shadow-[0_4px_20px_rgba(245,158,11,0.4)] hover:shadow-[0_6px_30px_rgba(245,158,11,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 overflow-hidden"
             >
-              {t('explore.more', language)}
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-              </svg>
+              <span className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="relative flex items-center gap-3">
+                <span className="text-base">{t('explore.more', language)}</span>
+                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </span>
             </Link>
           </div>
         )}
@@ -281,7 +291,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
       {/* PC: Featured place (left) + Quick View sidebar (right) */}
       <div className="hidden sm:grid sm:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Left: Accent strip above image, then image + card as one attached block */}
-        <div className="sm:col-span-7 lg:col-span-8">
+        <div className="sm:col-span-7 lg:col-span-8 w-full">
           {featuredPlace && (
             <div className="rounded-2xl overflow-hidden border border-amber-200/70 bg-white shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
               {/* Accent strip above the image */}
@@ -317,7 +327,7 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
         </div>
 
         {/* Right: Quick View – More places list (no preview text, no scrolling – show all) */}
-        <aside className="sm:col-span-5 lg:col-span-4">
+        <aside className="sm:col-span-5 lg:col-span-4 w-full">
           <div className="sticky top-4 rounded-2xl overflow-hidden premium-card border border-amber-200/70 flex flex-col">
             <div className="h-1 w-full bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron flex-shrink-0" aria-hidden />
             <div className="flex flex-col p-4 sm:p-5">
@@ -379,12 +389,15 @@ export default function PlacesCarousel({ places, language, exploreSlug }: Places
                 {exploreSlug && (
                   <Link
                     href={`/city/${exploreSlug}/explore`}
-                    className="w-full rounded-xl bg-gradient-to-r from-primary-saffron via-primary-gold to-primary-saffron text-white px-5 py-3.5 min-h-[52px] flex items-center justify-center gap-2.5 font-bold text-sm sm:text-base shadow-lg border border-primary-saffron/70 hover:brightness-105 hover:shadow-xl active:brightness-95 transition-all duration-200"
+                    className="group relative w-full rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 text-white px-5 py-4 min-h-[56px] flex items-center justify-center gap-3 font-bold text-sm sm:text-base shadow-[0_4px_20px_rgba(245,158,11,0.4)] hover:shadow-[0_6px_30px_rgba(245,158,11,0.6)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 overflow-hidden mt-3"
                   >
-                    {t('explore.more', language)}
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
+                    <span className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <span className="relative flex items-center gap-3">
+                      <span>{t('explore.more', language)}</span>
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </span>
                   </Link>
                 )}
               </div>
